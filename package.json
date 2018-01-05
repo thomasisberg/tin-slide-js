@@ -1,5 +1,5 @@
 {
-    "name": "tin-slide",
+    "name": "tin-slide-js",
     "version": "0.0.4",
     "description": "Dependency free content slider for Javascript",
     "main": "tin-slide.js",
