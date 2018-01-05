@@ -1,6 +1,6 @@
 {
   "name": "tin-slide-js-example",
   "dependencies": {
-    "tin-slide-js": "~0.0.4"
+    "tin-slide": "~0.0.1"
   }
 }

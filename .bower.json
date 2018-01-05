@@ -1,15 +1,15 @@
 {
-    "name": "tin-slide-js",
+    "name": "tin-slide",
     "homepage": "https://github.com/thomasisberg/tin-slide-js",
-    "version": "0.0.4",
-    "_release": "0.0.4",
+    "version": "0.0.1",
+    "_release": "0.0.1",
     "_resolution": {
         "type": "version",
-        "tag": "v0.0.4",
+        "tag": "v0.0.1",
         "commit": "3ac4b4cdaac2e32e2d439f47a25615d1841b2d48"
     },
         "_source": "https://github.com/thomasisberg/tin-slide-js.git",
-        "_target": "0.0.4",
+        "_target": "0.0.1",
         "_originalSource": "tin-slide",
         "main": [
             "./tin-slide.js"
