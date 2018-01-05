@@ -199,6 +199,7 @@
                     parent.textContent = img;
                 }
 
+                console.log('test 1');
                 return;
     
                 /**
