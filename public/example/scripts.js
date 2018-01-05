@@ -211,15 +211,11 @@
                     template.innerHTML = element.getAttribute('tin-slide-markup');
                     element.replaceWith(template.content.firstChild);
                 }
-                
-                console.log('--------------------------');
-                return;
-
     
                 if(this.ratio) {
                     this.ratioPercent = 100 * (1/this.ratio);
                 }
-    
+
                 var containerHeight = 0;
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
@@ -258,13 +254,15 @@
                  *  Set up prev / next navigation.
                  */
                 if(this.useContainerClickNextPrev) {
-                    this.$container.click(function(event) {
+                    this.$container.addEventListener('click', function(event) {
                         var containerWidth = that.getContainerWidth();
                         if(containerWidth) {
-                            if((event.clientX - that.$container.offset().left) < containerWidth / 2) {
+                            if((event.clientX - that.$container.offsetLeft) < containerWidth / 2) {
+                                console.log('previous');
                                 that.previous();
                             }
                             else {
+                                console.log('next');
                                 that.next();
                             }
                         }
@@ -279,17 +277,23 @@
     
                         // Swipe styles.
                         this.container.style.cursor = '-webkit-grab';
-                        $('img', this.container).css({
+                        var styles = {
                             'user-drag': 'none',
                             'user-select': 'none',
                             '-moz-user-select': 'none',
                             '-webkit-user-drag': 'none',
                             '-webkit-user-select': 'none',
                             '-ms-user-select': 'none'
-                        });
+                        };
+                        for(var i=0; i<this.numItems; i++) {
+                            this.css(this.items[i], styles);
+                        }
     
                         // Container swipe events.
-                        this.$container.on('touchstart mousedown', function(event) {
+                        this.$container.addEventListener('touchstart', function(event) {
+                            that.onSwipePress(event);
+                        });
+                        this.$container.addEventListener('mousedown', function(event) {
                             that.onSwipePress(event);
                         });
                     }
@@ -299,7 +303,7 @@
                  *  If container height should always match selected item.
                  */
                 if(this.useUpdateContainerHeight) {
-                    $(window).resize(function() {
+                    window.addEventListener('resize', function() {
                         that.updateContainerHeight();
                     });
                     // Update height every second.
@@ -310,7 +314,7 @@
     
                 // Force recalculation of container width on window resize.
                 // Calculation will occur when width is needed.
-                $(window).resize(function() {
+                window.addEventListener('resize', function() {
                     that.containerWidth = 0;
                 });
     
@@ -348,15 +352,38 @@
                         this.startAuto();
                     }
                     if(this.autoPlayPauseOnHover) {
-                        this.$container.on('mouseenter', function(event) {
+                        this.$container.addEventListener('mouseenter', function(event) {
                             that.pauseAuto();
                         });
-                        this.$container.on('mouseleave', function(event) {
+                        this.$container.addEventListener('mouseleave', function(event) {
                             that.resumeAuto();
                         });
                     }
                 }
-    
+                
+                console.log('--------------------------------')
+                console.log('Test 5');
+
+            },
+            css: function(element, styles) {
+                for(var style in styles) {
+                    element.style[style] = styles[style];
+                }
+            },
+            addClass(element, className) {
+                var classes = element.className.split(' ');
+                if(classes.indexOf(className) === -1) {
+                    classes.push(className);
+                }
+                element.className = classes.join(' ');
+            },
+            removeClass(element, className) {
+                var classes = element.className.split(' ');
+                var idx = classes.indexOf(className);
+                if(idx !== -1) {
+                    classes.splice(idx, 1);
+                }
+                element.className = classes.join(' ');
             },
             hideOrShowElement: function(element, hide) {
                 if(this.hideUsingVisibility) {
@@ -402,7 +429,7 @@
                     li.style.cursor = 'pointer';
                     ul.appendChild(li);
                     this.dotsItems.push(li);
-                    $(li).click(liClickHandler);
+                    li.addEventListener('click', liClickHandler)
                 }
                 return ul;
     
@@ -419,7 +446,7 @@
                 var prev = document.createElement("DIV");
                 prev.setAttribute('class', 'tinslide-prev');
                 prev.style.cursor = 'pointer';
-                $(prev).click(function(event) {
+                prev.addEventListener('click', function(event) {
                     that.previous();
                 });
                 nav.appendChild(prev);
@@ -427,7 +454,7 @@
                 var next = document.createElement("DIV");
                 next.setAttribute('class', 'tinslide-next');
                 next.style.cursor = 'pointer';
-                $(next).click(function(event) {
+                next.addEventListener('click', function(event) {
                     that.next();
                 });
                 nav.appendChild(next);
@@ -758,7 +785,7 @@
             },
             getContainerWidth: function() {
                 if(!this.containerWidth) {
-                    this.containerWidth = $container.width();
+                    this.containerWidth = $container.offsetWidth;
                 }
                 return this.containerWidth;
             },
@@ -991,7 +1018,7 @@
                     }
                     this.currentDotIndex = this.targetIndexWithinBounds;
                     dot = this.dotsItems[this.currentDotIndex];
-                    $(dot).addClass('on');
+                    this.addClass(dot, 'on');
                 }
             },
             onDotClick: function(event) {
