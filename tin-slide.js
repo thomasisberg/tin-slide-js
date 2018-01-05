@@ -9,7 +9,7 @@
 	(global.TinSlide = factory());
 }(this, (function () {
 
-    function TinSlide$($container, options) {
+    function TinSlide$(container, options) {
 
         var protected = {
 
@@ -17,7 +17,7 @@
              *  Properties – all possible to override with options argument.
              */
             debug: false,
-            $container: null,
+            container: null,
             container: null,
             containerWidth: 0,
             items: [],
@@ -161,21 +161,20 @@
             /**
              *  Methods.
              */
-            init: function($container, options) {
+            init: function(container, options) {
     
-                this.$container = $container;
+                this.container = container;
                 var item;
+                this.body = document.getElementsByTagName('body')[0];
     
                 if(options !== undefined) {
                     this.setOptions(this, options);
                 }
-    
-                this.container = $container;
 
                 /**
                  *  Replace all tin-slide-image sources with images.
                  */
-                var tinSlideImages = $container.getElementsByClassName('tin-slide-img');
+                var tinSlideImages = container.getElementsByClassName('tin-slide-img');
                 var tinSlideImagesArr = [];
                 for(var i=0, n=tinSlideImages.length; i<n; i++) {
                     tinSlideImagesArr.push(tinSlideImages[i]);
@@ -190,7 +189,7 @@
                 /**
                  *  Replace all tin-slide-markup with desired markup.
                  */
-                var tinSlideMarkup = $container.getElementsByClassName('tin-slide-markup');
+                var tinSlideMarkup = container.getElementsByClassName('tin-slide-markup');
                 var tinSlideMarkupArr = [];
                 for(var i=0, n=tinSlideMarkup.length; i<n; i++) {
                     tinSlideMarkupArr.push(tinSlideMarkup[i]);
@@ -255,15 +254,13 @@
                  *  Set up prev / next navigation.
                  */
                 if(this.useContainerClickNextPrev) {
-                    this.$container.addEventListener('click', function(event) {
+                    this.container.addEventListener('click', function(event) {
                         var containerWidth = that.getContainerWidth();
                         if(containerWidth) {
-                            if((event.clientX - that.$container.offsetLeft) < containerWidth / 2) {
-                                console.log('previous');
+                            if((event.clientX - that.container.offsetLeft) < containerWidth / 2) {
                                 that.previous();
                             }
                             else {
-                                console.log('next');
                                 that.next();
                             }
                         }
@@ -291,10 +288,10 @@
                         }
     
                         // Container swipe events.
-                        this.$container.addEventListener('touchstart', function(event) {
+                        this.container.addEventListener('touchstart', function(event) {
                             that.onSwipePress(event);
                         });
-                        this.$container.addEventListener('mousedown', function(event) {
+                        this.container.addEventListener('mousedown', function(event) {
                             that.onSwipePress(event);
                         });
                     }
@@ -353,10 +350,10 @@
                         this.startAuto();
                     }
                     if(this.autoPlayPauseOnHover) {
-                        this.$container.addEventListener('mouseenter', function(event) {
+                        this.container.addEventListener('mouseenter', function(event) {
                             that.pauseAuto();
                         });
-                        this.$container.addEventListener('mouseleave', function(event) {
+                        this.container.addEventListener('mouseleave', function(event) {
                             that.resumeAuto();
                         });
                     }
@@ -382,6 +379,10 @@
                     classes.splice(idx, 1);
                 }
                 element.className = classes.join(' ');
+            },
+            hasClass(element, className) {
+                var classes = element.className.split(' ');
+                return classes.indexOf(className) > -1;
             },
             hideOrShowElement: function(element, hide) {
                 if(this.hideUsingVisibility) {
@@ -637,10 +638,12 @@
                         var handlers = {
                             onRelease: function() {
                                 clearTimeout(that.timerSwipePress);
-                                $(document).off('touchend mouseup', this.onRelease);
+                                document.removeEventListener('touchend', this.onRelease);
+                                document.removeEventListener('mouseup', this.onRelease);
                             }
                         };
-                        $(document).on('touchend mouseup', handlers.onRelease);
+                        document.addEventListener('touchend', handlers.onRelease);
+                        document.addEventListener('mouseup', handlers.onRelease);
                     }
                     else {
                         this.onTimerSwipePress();
@@ -681,10 +684,10 @@
                         that.onSwipeMove(event);
                     },
                     onSwipeRelease: function() {
-                        document.removeEventListener('touchmove', this.onSwipeMove);
-                        document.removeEventListener('mousemove', this.onSwipeMove);
-                        document.removeEventListener('touchend', this.onSwipeRelease);
-                        document.removeEventListener('mouseup', this.onSwipeRelease);
+                        document.removeEventListener('touchmove', handlers.onSwipeMove);
+                        document.removeEventListener('mousemove', handlers.onSwipeMove);
+                        document.removeEventListener('touchend', handlers.onSwipeRelease);
+                        document.removeEventListener('mouseup', handlers.onSwipeRelease);
                         that.onSwipeRelease();
                     }
                 };
@@ -695,6 +698,9 @@
                 this.startSwipeTimer();
             },
             onSwipeRelease: function() {
+
+                console.log('!');
+
                 this.container.style.cursor = '-webkit-grab';
                 if(this.swipeXAbs >= this.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
@@ -787,7 +793,7 @@
             },
             getContainerWidth: function() {
                 if(!this.containerWidth) {
-                    this.containerWidth = $container.offsetWidth;
+                    this.containerWidth = container.offsetWidth;
                 }
                 return this.containerWidth;
             },
@@ -914,10 +920,12 @@
                 this.setPointer(this.targetIndexWithinBounds);
             },
             updateContainerHeight: function() {
-                var containerHeight = $(this.items[this.targetIndexWithinBounds]).height();
+                var containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
                 if(this.containerHeight !== containerHeight) {
                     this.containerHeight = containerHeight;
-                    this.$container.height(containerHeight);
+                    this.css(this.container, {
+                        height: containerHeight+'px'
+                    });
                 }
             },
             /**
@@ -1058,7 +1066,7 @@
                     this.timerAutoPlay = setInterval(function() {
                         // Only auto slide if slider is visible.
                         // Also don't slide if window isn't visible.
-                        if(that.container.clientHeight && !$('body').hasClass('window-hidden')) {
+                        if(that.container.clientHeight && !that.hasClass(that.body, 'window-hidden')) {
                             var status = that.autoPlayForwards ? that.next(true) : that.previous(true);
                             // Change direction if navigation failed.
                             if(!status) {
@@ -1078,7 +1086,7 @@
         };
     
         // Initialize.
-        protected.init($container, options);
+        protected.init(container, options);
 
         /**
          *  Public methods.
@@ -1108,32 +1116,35 @@
             protected.stopAuto();
         };
 
-        // Browser standards
-        var hidden = null;
-        if (hidden = "hidden" in document) {
-            document.addEventListener("visibilitychange", onchange);
-        }
-        else if ((hidden = "mozHidden") in document) {
-            document.addEventListener("mozvisibilitychange", onchange);
-        }
-        else if ((hidden = "webkitHidden") in document) {
-            document.addEventListener("webkitvisibilitychange", onchange);
-        }
-        else if ((hidden = "msHidden") in document) {
-            document.addEventListener("msvisibilitychange", onchange);
-        }
-        // IE 9 and lower:
-        else if ("onfocusin" in document) {
-            document.onfocusin = document.onfocusout = onchange;
-        }
-        // All others:
-        else {
-            window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
-        }
-        // set the initial state (but only if browser supports the Page Visibility API)
-        if(hidden && document[hidden] !== undefined) {
-            onchange({type: document[hidden] ? "blur" : "focus"});
-        }
+        /**
+         *  Experimentally check if window is hidden.
+         *  Used to pause autoplay when window is hidden.
+         */
+        // var hidden = null;
+        // if (hidden = "hidden" in document) {
+        //     document.addEventListener("visibilitychange", onchange);
+        // }
+        // else if ((hidden = "mozHidden") in document) {
+        //     document.addEventListener("mozvisibilitychange", onchange);
+        // }
+        // else if ((hidden = "webkitHidden") in document) {
+        //     document.addEventListener("webkitvisibilitychange", onchange);
+        // }
+        // else if ((hidden = "msHidden") in document) {
+        //     document.addEventListener("msvisibilitychange", onchange);
+        // }
+        // // IE 9 and lower:
+        // else if ("onfocusin" in document) {
+        //     document.onfocusin = document.onfocusout = onchange;
+        // }
+        // // All others:
+        // else {
+        //     window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
+        // }
+        // // set the initial state (but only if browser supports the Page Visibility API)
+        // if(hidden && document[hidden] !== undefined) {
+        //     onchange({type: document[hidden] ? "blur" : "focus"});
+        // }
 
     }
 

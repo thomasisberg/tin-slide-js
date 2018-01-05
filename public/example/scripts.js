@@ -165,6 +165,7 @@
     
                 this.container = container;
                 var item;
+                this.body = document.getElementsByTagName('body')[0];
     
                 if(options !== undefined) {
                     this.setOptions(this, options);
@@ -257,11 +258,9 @@
                         var containerWidth = that.getContainerWidth();
                         if(containerWidth) {
                             if((event.clientX - that.container.offsetLeft) < containerWidth / 2) {
-                                console.log('previous');
                                 that.previous();
                             }
                             else {
-                                console.log('next');
                                 that.next();
                             }
                         }
@@ -380,6 +379,10 @@
                     classes.splice(idx, 1);
                 }
                 element.className = classes.join(' ');
+            },
+            hasClass(element, className) {
+                var classes = element.className.split(' ');
+                return classes.indexOf(className) > -1;
             },
             hideOrShowElement: function(element, hide) {
                 if(this.hideUsingVisibility) {
@@ -635,10 +638,12 @@
                         var handlers = {
                             onRelease: function() {
                                 clearTimeout(that.timerSwipePress);
-                                $(document).off('touchend mouseup', this.onRelease);
+                                document.removeEventListener('touchend', this.onRelease);
+                                document.removeEventListener('mouseup', this.onRelease);
                             }
                         };
-                        $(document).on('touchend mouseup', handlers.onRelease);
+                        document.addEventListener('touchend', handlers.onRelease);
+                        document.addEventListener('mouseup', handlers.onRelease);
                     }
                     else {
                         this.onTimerSwipePress();
@@ -679,10 +684,10 @@
                         that.onSwipeMove(event);
                     },
                     onSwipeRelease: function() {
-                        document.removeEventListener('touchmove', this.onSwipeMove);
-                        document.removeEventListener('mousemove', this.onSwipeMove);
-                        document.removeEventListener('touchend', this.onSwipeRelease);
-                        document.removeEventListener('mouseup', this.onSwipeRelease);
+                        document.removeEventListener('touchmove', handlers.onSwipeMove);
+                        document.removeEventListener('mousemove', handlers.onSwipeMove);
+                        document.removeEventListener('touchend', handlers.onSwipeRelease);
+                        document.removeEventListener('mouseup', handlers.onSwipeRelease);
                         that.onSwipeRelease();
                     }
                 };
@@ -693,6 +698,9 @@
                 this.startSwipeTimer();
             },
             onSwipeRelease: function() {
+
+                console.log('!');
+
                 this.container.style.cursor = '-webkit-grab';
                 if(this.swipeXAbs >= this.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
@@ -912,10 +920,12 @@
                 this.setPointer(this.targetIndexWithinBounds);
             },
             updateContainerHeight: function() {
-                var containerHeight = $(this.items[this.targetIndexWithinBounds]).height();
+                var containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
                 if(this.containerHeight !== containerHeight) {
                     this.containerHeight = containerHeight;
-                    this.container.height(containerHeight);
+                    this.css(this.container, {
+                        height: containerHeight+'px'
+                    });
                 }
             },
             /**
@@ -1056,7 +1066,7 @@
                     this.timerAutoPlay = setInterval(function() {
                         // Only auto slide if slider is visible.
                         // Also don't slide if window isn't visible.
-                        if(that.container.clientHeight && !$('body').hasClass('window-hidden')) {
+                        if(that.container.clientHeight && !that.hasClass(that.body, 'window-hidden')) {
                             var status = that.autoPlayForwards ? that.next(true) : that.previous(true);
                             // Change direction if navigation failed.
                             if(!status) {
@@ -1106,32 +1116,35 @@
             protected.stopAuto();
         };
 
-        // Browser standards
-        var hidden = null;
-        if (hidden = "hidden" in document) {
-            document.addEventListener("visibilitychange", onchange);
-        }
-        else if ((hidden = "mozHidden") in document) {
-            document.addEventListener("mozvisibilitychange", onchange);
-        }
-        else if ((hidden = "webkitHidden") in document) {
-            document.addEventListener("webkitvisibilitychange", onchange);
-        }
-        else if ((hidden = "msHidden") in document) {
-            document.addEventListener("msvisibilitychange", onchange);
-        }
-        // IE 9 and lower:
-        else if ("onfocusin" in document) {
-            document.onfocusin = document.onfocusout = onchange;
-        }
-        // All others:
-        else {
-            window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
-        }
-        // set the initial state (but only if browser supports the Page Visibility API)
-        if(hidden && document[hidden] !== undefined) {
-            onchange({type: document[hidden] ? "blur" : "focus"});
-        }
+        /**
+         *  Experimentally check if window is hidden.
+         *  Used to pause autoplay when window is hidden.
+         */
+        // var hidden = null;
+        // if (hidden = "hidden" in document) {
+        //     document.addEventListener("visibilitychange", onchange);
+        // }
+        // else if ((hidden = "mozHidden") in document) {
+        //     document.addEventListener("mozvisibilitychange", onchange);
+        // }
+        // else if ((hidden = "webkitHidden") in document) {
+        //     document.addEventListener("webkitvisibilitychange", onchange);
+        // }
+        // else if ((hidden = "msHidden") in document) {
+        //     document.addEventListener("msvisibilitychange", onchange);
+        // }
+        // // IE 9 and lower:
+        // else if ("onfocusin" in document) {
+        //     document.onfocusin = document.onfocusout = onchange;
+        // }
+        // // All others:
+        // else {
+        //     window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
+        // }
+        // // set the initial state (but only if browser supports the Page Visibility API)
+        // if(hidden && document[hidden] !== undefined) {
+        //     onchange({type: document[hidden] ? "blur" : "focus"});
+        // }
 
     }
 
