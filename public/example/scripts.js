@@ -9,7 +9,7 @@
 	(global.TinSlide = factory());
 }(this, (function () {
 
-    function TinSlide$($container, options) {
+    function TinSlide$(container, options) {
 
         var protected = {
 
@@ -17,7 +17,7 @@
              *  Properties – all possible to override with options argument.
              */
             debug: false,
-            $container: null,
+            container: null,
             container: null,
             containerWidth: 0,
             items: [],
@@ -161,31 +161,19 @@
             /**
              *  Methods.
              */
-            init: function($container, options) {
+            init: function(container, options) {
     
-                this.$container = $container;
+                this.container = container;
                 var item;
     
                 if(options !== undefined) {
                     this.setOptions(this, options);
                 }
-    
-                this.container = $container;
-                var items = [];
-                for(var i=0, len=this.container.childNodes.length; i<len; i++) {
-                    item = this.container.childNodes[i];
-                    if(item.nodeType === Node.ELEMENT_NODE) {
-                        items.push(item);
-                    }
-                }
-                this.items = items;
-                this.numItems = this.items.length;
-                this.numHalfItems = this.numItems / 2;
-    
+
                 /**
-                 *  Replace all tinslide-image sources with images.
+                 *  Replace all tin-slide-image sources with images.
                  */
-                var tinSlideImages = $container.getElementsByClassName('tin-slide-img');
+                var tinSlideImages = container.getElementsByClassName('tin-slide-img');
                 var tinSlideImagesArr = [];
                 for(var i=0, n=tinSlideImages.length; i<n; i++) {
                     tinSlideImagesArr.push(tinSlideImages[i]);
@@ -198,9 +186,9 @@
                 }
     
                 /**
-                 *  Replace all tinslide-markup with desired markup.
+                 *  Replace all tin-slide-markup with desired markup.
                  */
-                var tinSlideMarkup = $container.getElementsByClassName('tin-slide-markup');
+                var tinSlideMarkup = container.getElementsByClassName('tin-slide-markup');
                 var tinSlideMarkupArr = [];
                 for(var i=0, n=tinSlideMarkup.length; i<n; i++) {
                     tinSlideMarkupArr.push(tinSlideMarkup[i]);
@@ -211,6 +199,17 @@
                     template.innerHTML = element.getAttribute('tin-slide-markup');
                     element.replaceWith(template.content.firstChild);
                 }
+
+                var items = [];
+                for(var i=0, len=this.container.childNodes.length; i<len; i++) {
+                    item = this.container.childNodes[i];
+                    if(item.nodeType === Node.ELEMENT_NODE) {
+                        items.push(item);
+                    }
+                }
+                this.items = items;
+                this.numItems = this.items.length;
+                this.numHalfItems = this.numItems / 2;
     
                 if(this.ratio) {
                     this.ratioPercent = 100 * (1/this.ratio);
@@ -219,7 +218,7 @@
                 var containerHeight = 0;
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
-                    item.tinslideIndex = i;
+                    item.tinSlideIndex = i;
     
                     // Item styles
                     item.style.top = '0';
@@ -254,10 +253,10 @@
                  *  Set up prev / next navigation.
                  */
                 if(this.useContainerClickNextPrev) {
-                    this.$container.addEventListener('click', function(event) {
+                    this.container.addEventListener('click', function(event) {
                         var containerWidth = that.getContainerWidth();
                         if(containerWidth) {
-                            if((event.clientX - that.$container.offsetLeft) < containerWidth / 2) {
+                            if((event.clientX - that.container.offsetLeft) < containerWidth / 2) {
                                 console.log('previous');
                                 that.previous();
                             }
@@ -290,10 +289,10 @@
                         }
     
                         // Container swipe events.
-                        this.$container.addEventListener('touchstart', function(event) {
+                        this.container.addEventListener('touchstart', function(event) {
                             that.onSwipePress(event);
                         });
-                        this.$container.addEventListener('mousedown', function(event) {
+                        this.container.addEventListener('mousedown', function(event) {
                             that.onSwipePress(event);
                         });
                     }
@@ -352,17 +351,14 @@
                         this.startAuto();
                     }
                     if(this.autoPlayPauseOnHover) {
-                        this.$container.addEventListener('mouseenter', function(event) {
+                        this.container.addEventListener('mouseenter', function(event) {
                             that.pauseAuto();
                         });
-                        this.$container.addEventListener('mouseleave', function(event) {
+                        this.container.addEventListener('mouseleave', function(event) {
                             that.resumeAuto();
                         });
                     }
                 }
-                
-                console.log('--------------------------------')
-                console.log('Test 5');
 
             },
             css: function(element, styles) {
@@ -418,14 +414,14 @@
                  */
                 var that = this;
                 var ul = document.createElement("UL");
-                ul.setAttribute('class', 'tinslide-dots');
+                ul.setAttribute('class', 'tin-slide-dots');
                 var liClickHandler = function(event) {
                     that.onDotClick(event);
                 };
                 this.dotsItems = [];
                 for(i=0; i<this.numItems; i++) {
                     var li = document.createElement('LI');
-                    li.setAttribute('class', 'tinslide-dot-'+i);
+                    li.setAttribute('class', 'tin-slide-dot-'+i);
                     li.style.cursor = 'pointer';
                     ul.appendChild(li);
                     this.dotsItems.push(li);
@@ -441,10 +437,10 @@
                  */
                 var that = this;
                 var nav = document.createElement("NAV");
-                nav.setAttribute('class', 'tinslide-next-prev');
+                nav.setAttribute('class', 'tin-slide-next-prev');
     
                 var prev = document.createElement("DIV");
-                prev.setAttribute('class', 'tinslide-prev');
+                prev.setAttribute('class', 'tin-slide-prev');
                 prev.style.cursor = 'pointer';
                 prev.addEventListener('click', function(event) {
                     that.previous();
@@ -452,7 +448,7 @@
                 nav.appendChild(prev);
     
                 var next = document.createElement("DIV");
-                next.setAttribute('class', 'tinslide-next');
+                next.setAttribute('class', 'tin-slide-next');
                 next.style.cursor = 'pointer';
                 next.addEventListener('click', function(event) {
                     that.next();
@@ -498,13 +494,13 @@
                 for(var i=0; i<len; i++) {
                     item = visibleItems[i];
                     // If previously non visible item becomes visible.
-                    if(this.itemsVisible[item.tinslideIndex] === undefined) {
+                    if(this.itemsVisible[item.tinSlideIndex] === undefined) {
                         this.hideOrShowElement(item, false);
                     }
                     // Store progress.
-                    var progress = this.pointer - item.tinslideIndex;
+                    var progress = this.pointer - item.tinSlideIndex;
                     if(progress > 1) {progress -= this.numItems;}
-                    this.itemsVisible[item.tinslideIndex] = progress;
+                    this.itemsVisible[item.tinSlideIndex] = progress;
     
                     // Make the most visible item relatively positioned,
                     // and put it in front of the others.
@@ -745,7 +741,7 @@
                 // If so, lock this parent slider until child slider no longer wipes (first / last slide reached).
                 // Child sliders must have loop=false. Otherwise this parent slider will
                 // never slide again once child slider has been grabbed.
-                if(event.tinslideMoved === undefined) {
+                if(event.tinSlideMoved === undefined) {
     
                     var isTouch = event.type === 'touchmove';
     
@@ -759,7 +755,7 @@
                             if(swipeTargetVal < -offset) {swipeTargetVal = -offset;}
                             else if(swipeTargetVal > this.numItems - 1 + offset) {swipeTargetVal = this.numItems - 1 + offset;}
                             else {
-                                event.tinslideMoved = true;
+                                event.tinSlideMoved = true;
                             }
                         }
                         this.swipeTargetVal = swipeTargetVal;
@@ -789,7 +785,7 @@
             },
             getContainerWidth: function() {
                 if(!this.containerWidth) {
-                    this.containerWidth = $container.offsetWidth;
+                    this.containerWidth = container.offsetWidth;
                 }
                 return this.containerWidth;
             },
@@ -919,7 +915,7 @@
                 var containerHeight = $(this.items[this.targetIndexWithinBounds]).height();
                 if(this.containerHeight !== containerHeight) {
                     this.containerHeight = containerHeight;
-                    this.$container.height(containerHeight);
+                    this.container.height(containerHeight);
                 }
             },
             /**
@@ -1032,7 +1028,7 @@
                 }
                 var classes = event.target.className.split(' ');
                 for(i=0, len=classes.length; i<len; i++) {
-                    if(classes[i].indexOf('tinslide-dot-') === 0) {
+                    if(classes[i].indexOf('tin-slide-dot-') === 0) {
                         var index = classes[i].substr(13);
                         this.animateTo(index);
                     }
@@ -1080,7 +1076,7 @@
         };
     
         // Initialize.
-        protected.init($container, options);
+        protected.init(container, options);
 
         /**
          *  Public methods.
