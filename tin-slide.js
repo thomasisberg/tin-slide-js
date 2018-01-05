@@ -611,21 +611,21 @@
                     var isTouch = event.type === 'touchstart';
     
                     // If link was pressed – do nothing.
-                    if(event.originalEvent.target.nodeName === 'A') {
+                    if(event.target.nodeName === 'A') {
                         return;
                     }
     
                     /**
                      *  Don't respond to right click.
                      */
-                    var nativeEvent = event.originalEvent;
+                    var nativeEvent = event;
                     if((nativeEvent.button !== undefined && nativeEvent.button === 2) || (nativeEvent.which !== undefined && nativeEvent.which === 3)) {
                         return;
                     }
     
                     this.container.style.cursor = '-webkit-grabbing';
     
-                    this.swipePressX = isTouch ? event.originalEvent.layerX : event.clientX;
+                    this.swipePressX = isTouch ? event.layerX : event.clientX;
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
     
@@ -683,13 +683,17 @@
                         that.onSwipeMove(event);
                     },
                     onSwipeRelease: function() {
-                        $(document).off('touchmove mousemove', this.onSwipeMove);
-                        $(document).off('touchend mouseup', this.onSwipeRelease);
+                        document.removeEventListener('touchmove', this.onSwipeMove);
+                        document.removeEventListener('mousemove', this.onSwipeMove);
+                        document.removeEventListener('touchend', this.onSwipeRelease);
+                        document.removeEventListener('mouseup', this.onSwipeRelease);
                         that.onSwipeRelease();
                     }
                 };
-                $(document).on('touchmove mousemove', handlers.onSwipeMove);
-                $(document).on('touchend mouseup', handlers.onSwipeRelease);
+                document.addEventListener('touchmove', handlers.onSwipeMove);
+                document.addEventListener('mousemove', handlers.onSwipeMove);
+                document.addEventListener('touchend', handlers.onSwipeRelease);
+                document.addEventListener('mouseup', handlers.onSwipeRelease);
                 this.startSwipeTimer();
             },
             onSwipeRelease: function() {
@@ -747,7 +751,7 @@
     
                     var containerWidth = this.getContainerWidth();
                     if(containerWidth) {
-                        this.swipeX = this.swipePressX - (isTouch ? event.originalEvent.layerX : event.clientX);
+                        this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
                         var swipeTargetVal = this.swipePressPointerVal + (this.swipeX / containerWidth);
                         if(!this.loop) {
@@ -1014,7 +1018,7 @@
                     var dot;
                     if(this.currentDotIndex !== null) {
                         dot = this.dotsItems[this.currentDotIndex];
-                        $(dot).removeClass('on');
+                        this.removeClass(dot, 'on');
                     }
                     this.currentDotIndex = this.targetIndexWithinBounds;
                     dot = this.dotsItems[this.currentDotIndex];
