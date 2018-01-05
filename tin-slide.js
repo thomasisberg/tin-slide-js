@@ -15,6 +15,6 @@
 
     }
 
-    return TinSlide$
+    return TinSlide$;
 
 })));
