@@ -7,7 +7,7 @@
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
 	(global.TinSlide = factory());
-}(this, (function () { 'use strict';
+}(this, (function () {
 
     function TinSlide$($container, options) {
 
@@ -170,7 +170,7 @@
                     this.setOptions(this, options);
                 }
     
-                this.container = this.$container.get(0);
+                this.container = $container;
                 var items = [];
                 for(var i=0, len=this.container.childNodes.length; i<len; i++) {
                     item = this.container.childNodes[i];
@@ -185,10 +185,21 @@
                 /**
                  *  Replace all tinslide-image sources with image tags.
                  */
-                $('.tinslide-img').each(function() {
-                    var img = '<img src="'+$(this).data('tinslide-src')+'" />';
-                    $(this).replaceWith(img);
-                });
+                // $('.tinslide-img').each(function() {
+                //     var img = '<img src="'+$(this).data('tinslide-src')+'" />';
+                //     $(this).replaceWith(img);
+                // });
+                var tinSlideImages = $container.getElementsByClassName('tin-slide-img');
+                for(var i=0, n=tinSlideImages.length; i<n; i++) {
+                    var element = tinSlideImages[i];
+                    var img = '<img src="'+element.getAttribute('tin-slide-src')+'" />';
+                    // $(this).replaceWith(img);
+                    var parent = element.parentNode;
+                    parent.removeChild(element);
+                    parent.textContent = img;
+                }
+
+                return;
     
                 /**
                  *  Replace all tinslide-markup with desired markup.
@@ -807,7 +818,7 @@
                         this.step = (diff) * this.stepFactor;
                         // Release the choke for acceleration.
                         if(this.choke < 1) {
-                            this.choke = (this.choke * this.chokeReleaseFactor) + (this.choke || this.chokeReleaseStep ? this.chokeReleaseStep : 0.05);
+                            this.choke = (this.choke * this.chokeReleaseFactor) + (this.choke || this.chokeReleaseStep ? this.chokeReleaseStep : 0.05);
                         }
                         // Decrease choke when target is approached.
                         if(this.choke > diffAbs) {
@@ -1062,7 +1073,8 @@
         };
 
         // Browser standards
-        if (hidden in document) {
+        var hidden = null;
+        if (hidden = "hidden" in document) {
             document.addEventListener("visibilitychange", onchange);
         }
         else if ((hidden = "mozHidden") in document) {
@@ -1083,7 +1095,7 @@
             window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
         }
         // set the initial state (but only if browser supports the Page Visibility API)
-        if(document[hidden] !== undefined) {
+        if(hidden && document[hidden] !== undefined) {
             onchange({type: document[hidden] ? "blur" : "focus"});
         }
 
