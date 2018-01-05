@@ -16,7 +16,7 @@ function js() {
 }
 
 function dist() {
-    return gulp.src(['*.html'])
+    return gulp.src(['*.html', '*.png'])
         .pipe(gulp.dest(dest))
 }
 

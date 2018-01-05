@@ -183,32 +183,38 @@
                 this.numHalfItems = this.numItems / 2;
     
                 /**
-                 *  Replace all tinslide-image sources with image tags.
+                 *  Replace all tinslide-image sources with images.
                  */
-                // $('.tinslide-img').each(function() {
-                //     var img = '<img src="'+$(this).data('tinslide-src')+'" />';
-                //     $(this).replaceWith(img);
-                // });
                 var tinSlideImages = $container.getElementsByClassName('tin-slide-img');
+                var tinSlideImagesArr = [];
                 for(var i=0, n=tinSlideImages.length; i<n; i++) {
-                    var element = tinSlideImages[i];
-                    var img = '<img src="'+element.getAttribute('tin-slide-src')+'" />';
-                    // $(this).replaceWith(img);
-                    var parent = element.parentNode;
-                    parent.removeChild(element);
-                    parent.textContent = img;
+                    tinSlideImagesArr.push(tinSlideImages[i]);
                 }
-
-                console.log('test 1');
-                return;
+                while(tinSlideImagesArr.length) {
+                    var element = tinSlideImagesArr.shift();
+                    var img = document.createElement('img');
+                    img.setAttribute('src', element.getAttribute('tin-slide-img'));
+                    element.replaceWith(img);
+                }
     
                 /**
                  *  Replace all tinslide-markup with desired markup.
                  */
-                $('.tinslide-markup').each(function() {
-                    var markup = $(this).data('tinslide-markup');
-                    $(this).replaceWith(markup);
-                });
+                var tinSlideMarkup = $container.getElementsByClassName('tin-slide-markup');
+                var tinSlideMarkupArr = [];
+                for(var i=0, n=tinSlideMarkup.length; i<n; i++) {
+                    tinSlideMarkupArr.push(tinSlideMarkup[i]);
+                }
+                while(tinSlideMarkupArr.length) {
+                    var element = tinSlideMarkupArr.shift();
+                    var template = document.createElement('template');
+                    template.innerHTML = element.getAttribute('tin-slide-markup');
+                    element.replaceWith(template.content.firstChild);
+                }
+                
+                console.log('--------------------------');
+                return;
+
     
                 if(this.ratio) {
                     this.ratioPercent = 100 * (1/this.ratio);
