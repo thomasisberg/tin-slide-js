@@ -1,0 +1,19 @@
+{
+    "name": "tin-slide",
+    "version": "0.0.4",
+    "description": "Dependency free content slider for Javascript",
+    "main": "tin-slide.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/thomasisberg/tin-slide-js.git"
+    },
+    "author": "Thomas Isberg",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/thomasisberg/tin-slide-js/issues"
+    },
+    "homepage": "https://github.com/thomasisberg/tin-slide-js#readme"
+}
