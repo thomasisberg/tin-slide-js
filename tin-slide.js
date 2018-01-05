@@ -9,12 +9,12 @@
 	(global.TinSlide = factory());
 }(this, (function () { 'use strict';
 
-    function $TinSlide($container, options) {
+    function TinSlide$($container, options) {
 
         console.log('!');
 
     }
 
-    return $TinSlide$
+    return TinSlide$
 
 })));
