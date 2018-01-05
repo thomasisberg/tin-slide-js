@@ -25,5 +25,7 @@ function watch() {
 }
 
 var build = gulp.parallel(js, dist);
+
+exports.watch = watch;
 exports.build = build;
 exports.default = build;
