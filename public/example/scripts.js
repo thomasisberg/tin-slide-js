@@ -285,6 +285,10 @@
                         };
                         for(var i=0; i<this.numItems; i++) {
                             this.css(this.items[i], styles);
+                            var images = this.items[i].getElementsByTagName('img');
+                            for(var j=0, n=images.length; j<n; j++) {
+                                this.css(images[j], styles);
+                            }
                         }
     
                         // Container swipe events.
@@ -425,6 +429,7 @@
                 for(i=0; i<this.numItems; i++) {
                     var li = document.createElement('LI');
                     li.setAttribute('class', 'tin-slide-dot-'+i);
+                    li.setAttribute('tin-slide-index', i);
                     li.style.cursor = 'pointer';
                     ul.appendChild(li);
                     this.dotsItems.push(li);
@@ -1036,13 +1041,8 @@
                 if(this.autoPlayStopOnNavigation) {
                     this.stopAuto();
                 }
-                var classes = event.target.className.split(' ');
-                for(i=0, len=classes.length; i<len; i++) {
-                    if(classes[i].indexOf('tin-slide-dot-') === 0) {
-                        var index = classes[i].substr(13);
-                        this.animateTo(index);
-                    }
-                }
+                var index = parseInt(event.target.getAttribute('tin-slide-index'), 10);
+                this.animateTo(index);
             },
             startAuto: function() {
                 if(this.autoPlayState !== 'started') {
