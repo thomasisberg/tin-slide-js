@@ -1,25 +1,29 @@
 var gulp = require('gulp');
 var mainBowerFiles = require('main-bower-files');
 var concat = require('gulp-concat');
-var rename = require('gulp-rename');
-var uglify = require('gulp-uglify');
+// var rename = require('gulp-rename');
+// var uglify = require('gulp-uglify');
 
-gulp.task('js', function() {
+var dest = '../../public/example/';
+
+function js() {
     return gulp.src(mainBowerFiles())
         .pipe(concat('scripts.js'))
-        .pipe(gulp.dest('../../public/example/'))
-});
+        .pipe(gulp.dest(dest));
+        // .pipe(rename('scripts.min.js'))
+        // .pipe(uglify())
+        // .pipe(gulp.dest(dest));
+}
 
-gulp.task('build', function() {
-    gulp.start('js');
-});
+function dist() {
+    return gulp.src(['*.html'])
+        .pipe(gulp.dest(dest))
+}
 
-gulp.task('watch', function () {
-    gulp.watch('public/*.html', function () {
-        gulp.start('build');
-    });
-});
+function watch() {
+    return gulp.watch('index.html', dist);
+}
 
-gulp.task('default', function() {
-    gulp.start('build');
-});
+var build = gulp.parallel(js, dist);
+exports.build = build;
+exports.default = build;
