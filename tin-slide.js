@@ -156,7 +156,7 @@
             zIndex: 0,
             // Hide using visibility:hidden instead of display:block.
             // Useful if images aren't loaded as desired.
-            hideUsingVisibility: true,
+            hideUsingVisibility: false,
     
             /**
              *  Methods.
