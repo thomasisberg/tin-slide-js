@@ -164,7 +164,7 @@
             init: function(container, options) {
     
                 this.container = container;
-                var item;
+                var item, i;
                 this.body = document.getElementsByTagName('body')[0];
     
                 if(options !== undefined) {
@@ -176,7 +176,7 @@
                  */
                 var tinSlideImages = container.getElementsByClassName('tin-slide-img');
                 var tinSlideImagesArr = [];
-                for(var i=0, n=tinSlideImages.length; i<n; i++) {
+                for(i=0, n=tinSlideImages.length; i<n; i++) {
                     tinSlideImagesArr.push(tinSlideImages[i]);
                 }
                 while(tinSlideImagesArr.length) {
@@ -191,7 +191,7 @@
                  */
                 var tinSlideMarkup = container.getElementsByClassName('tin-slide-markup');
                 var tinSlideMarkupArr = [];
-                for(var i=0, n=tinSlideMarkup.length; i<n; i++) {
+                for(i=0, n=tinSlideMarkup.length; i<n; i++) {
                     tinSlideMarkupArr.push(tinSlideMarkup[i]);
                 }
                 while(tinSlideMarkupArr.length) {
@@ -202,7 +202,7 @@
                 }
 
                 var items = [];
-                for(var i=0, len=this.container.childNodes.length; i<len; i++) {
+                for(i=0, len=this.container.childNodes.length; i<len; i++) {
                     item = this.container.childNodes[i];
                     if(item.nodeType === Node.ELEMENT_NODE) {
                         items.push(item);
@@ -216,7 +216,7 @@
                     this.ratioPercent = 100 * (1/this.ratio);
                 }
 
-                var containerHeight = 0;
+                var containerHeight = 0, i;
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
                     item.tinSlideIndex = i;
@@ -283,7 +283,7 @@
                             '-webkit-user-select': 'none',
                             '-ms-user-select': 'none'
                         };
-                        for(var i=0; i<this.numItems; i++) {
+                        for(i=0; i<this.numItems; i++) {
                             this.css(this.items[i], styles);
                             var images = this.items[i].getElementsByTagName('img');
                             for(var j=0, n=images.length; j<n; j++) {
@@ -492,8 +492,9 @@
                         visibleItems.push(this.items[ceilPointer]);
                     }
                 }
+                var index;
                 // Mark previously visible items for check.
-                for(var index in this.itemsVisible) {
+                for(index in this.itemsVisible) {
                     this.itemsVisible[index] = null;
                 }
                 var item;
@@ -703,8 +704,6 @@
                 this.startSwipeTimer();
             },
             onSwipeRelease: function() {
-
-                console.log('!');
 
                 this.container.style.cursor = '-webkit-grab';
                 if(this.swipeXAbs >= this.swipeReleaseRequiredSwipeX) {
@@ -1145,6 +1144,8 @@
         // if(hidden && document[hidden] !== undefined) {
         //     onchange({type: document[hidden] ? "blur" : "focus"});
         // }
+
+        return true;
 
     }
 

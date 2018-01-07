@@ -12,14 +12,21 @@
                 width: 200px;
                 height: auto;
             }
-            #slides {
+            .slides {
+                position: relative;
                 min-height: 300px;
                 background-color: grey;
                 transition: height 200ms linear;
             }
-            .lorem, .ipsum {
+            .sub-slides {
+                padding: 25px;
+            }
+            .slides .slides {
+                background-color: darkgray;
+            }
+            .lorem {
                 background-color: red;
-                height: 50px;
+                min-height: 300px;
             }
             .tin-slide-next-prev {
                 position: relative;
@@ -50,20 +57,44 @@
     </head>
     <body>
         <div id="slider">
-            <div id="slides">
-                <div>Lorem</div>
-                <div>Ipsum</div>
-                <div>Dolor</div>
+            <div class="slides">
+                <div>
+                    <div class="sub-slides">
+                        <div class="slides">
+                            <div><img src="icon.png" /></div>
+                            <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
+                            <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
+                        </div>
+                    </div>
+                </div>
                 <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
-                <div><div class="tin-slide-img" tin-slide-img="icon.png">Amet</div></div>
+                <div><img src="icon.png" /></div>
+                <div>Lorem</div>
+                <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
+                <div>Ipsum</div>
                 <div class="tin-slide-markup" tin-slide-markup="<div class='lorem'></div>"></div>
-                <div class="tin-slide-markup" tin-slide-markup="<div class='ipsum'></div>"></div>
+                <div>Dolor</div>
             </div>
         </div>
         <script src="scripts.js"></script>
         <script>
-            console.log('?');
-            TinSlide(document.getElementById('slides'));
+            var slides = document.getElementsByClassName('slides');
+            for(var ii=0; ii<slides.length; ii++) {
+                TinSlide(slides[ii], !ii?undefined:{
+                    loop: false,
+                    generate: {
+                        nav: {
+                            on: false
+                        },
+                        dots: {
+                            on: false
+                        }
+                    },
+                    motionBlur: {
+                        on: true
+                    }
+                });
+            }
         </script>
     </body>
 </html>
