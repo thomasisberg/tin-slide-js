@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>TinSlide</title>
+        <title>Height transition / TinSlide</title>
         <link rel="stylesheet" type="text/css" href="style.css" />
         <style>
             .slider {
@@ -38,7 +38,17 @@
         <script src="tin-slide.js"></script>
         <script>
             TinSlide(document.getElementsByClassName('slider')[0], {
-                useUpdateContainerHeight: true
+                useUpdateContainerHeight: true,
+                useContainerClickNextPrev: true,
+                useSwipeNavigation: false,
+                generate: {
+                    dots: {
+                        on: false
+                    },
+                    nav: {
+                        on: false
+                    }
+                }
             });
         </script>
     </body>
