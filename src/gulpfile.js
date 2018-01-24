@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 
-var dest = '../../public/src/';
+var dest = '../public/src/';
 
 function styles() {
     return gulp.src('*.scss')
