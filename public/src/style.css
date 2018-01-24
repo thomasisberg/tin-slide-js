@@ -1,0 +1,53 @@
+html, body, div, img, ul, li {
+  display: block;
+  margin: 0;
+  padding: 0; }
+
+img {
+  width: 100%;
+  height: auto; }
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center; }
+
+.slider-wrapper {
+  flex: 0 1 600px; }
+
+.slider {
+  position: relative; }
+
+.tin-slide-next-prev {
+  position: relative;
+  text-align: right; }
+
+.tin-slide-prev, .tin-slide-next {
+  width: 40px;
+  height: 40px;
+  background-color: black; }
+
+.tin-slide-prev {
+  position: absolute;
+  left: 0;
+  top: 0; }
+
+.tin-slide-next {
+  display: inline-block; }
+
+.tin-slide-dots li {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background-color: black;
+  margin-right: 5px; }
+
+.sub-slider {
+  padding: 50px; }
+
+.sub-slider .tin-slide-next-prev {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0; }
