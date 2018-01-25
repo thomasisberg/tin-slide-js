@@ -339,9 +339,9 @@
                         that.updateContainerHeight();
                     });
                     // Update height every second.
-                    this.timerUpdateContainerHeight = setInterval(function() {
-                        that.updateContainerHeight();
-                    }, 1000);
+                    // this.timerUpdateContainerHeight = setInterval(function() {
+                    //     that.updateContainerHeight();
+                    // }, 1000);
                 }
 
                 /**
@@ -971,11 +971,57 @@
                 }
                 this.setPointer(this.targetIndexWithinBounds);
             },
-            updateContainerHeight: function() {
+
+            updateContainerHeight: function(fromSubSlideWithHeight) {
+                
+                // If this action was initiated by the slider itself.
+                if(fromSubSlideWithHeight === undefined) {
+                    // Don't do anything if the slider has parent sliders.
+                    // Let the top most slider handle the action.
+                    var parentSlides = this.getParentSlides();
+                    if(parentSlides.length) {
+                        parentSlides[0].updateContainerHeight();
+                    }
+                    // If this is the top most slider.
+                    else {
+                        // Check if slider has sub slides.
+                        // Update height on the inner most slider.
+                        // Inner most slider will then traverse upwards and update
+                        // parent slides all the way up to this one.
+                        var subSlides = this.getSubSlides();
+                        if(subSlides.length) {
+                            subSlides[0].updateContainerHeightFromParent();
+                        }
+                        else {
+                            this.doUpdateContainerHeight();
+                        }
+                    }
+                }
+
+                // If slider was instructed by a sub slider to update height.
+                // Also enters here if this is the inner most slider (with fromSubSlideWithHeight = 0).
+                else {
+                    this.doUpdateContainerHeight(fromSubSlideWithHeight);
+                    // Update parent slider.
+                    var parentSlides = this.getParentSlides().reverse();
+                    if(parentSlides.length) {
+                        parentSlides[0].updateContainerHeight(this.containerHeight);
+                    }
+                }
+
+            },
+
+            doUpdateContainerHeight: function(minHeight) {
+                if(minHeight === undefined) {
+                    minHeight = 0;
+                }
                 var containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
                 if(!containerHeight) {
                     this.items[this.targetIndexWithinBounds].style.display = 'block';
                     containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
+                }
+                if(containerHeight < minHeight) {
+                    containerHeight = minHeight;
                 }
                 if(this.containerHeight !== containerHeight) {
                     this.containerHeight = containerHeight;
@@ -984,6 +1030,44 @@
                     });
                 }
             },
+
+            updateContainerHeightFromParent() {
+                // Update this inner most slider.
+                this.updateContainerHeight(0);
+            },
+
+            getParentSlides: function() {
+                var slides = [];
+                function checkParentNode(element) {
+                    if(element.parentNode && element.parentNode !== undefined) {
+                        if(element.parentNode.tinSlide !== undefined) {
+                            slides.push(element.parentNode.tinSlide);
+                        }
+                        checkParentNode(element.parentNode)
+                    }
+                }
+                checkParentNode(this.container);
+                return slides.reverse();
+            },
+
+            getSubSlides: function() {
+                var slides = [];
+                function checkChildNodes(element) {
+                    for(var i=0, n=element.childNodes.length; i<n; i++) {
+                        if(element.childNodes[i].tinSlide !== undefined) {
+                            slides.push(element.childNodes[i].tinSlide);
+                            checkChildNodes(element.childNodes[i].tinSlide.getCurrentItem());
+                        }
+                        else {
+                            checkChildNodes(element.childNodes[i]);
+                        }
+                    }
+                }
+                // checkChildNodes(this.container);
+                checkChildNodes(this.items[this.targetIndexWithinBounds]);
+                return slides.reverse();
+            },
+
             /**
              *  Apply desired slide effect:
              *   - Horizontal slide
@@ -1142,29 +1226,40 @@
         /**
          *  Public methods.
          */
-        this.next = function(index) {
-            protected.next();
-        };
-        this.previous = function(index) {
-            protected.previous();
-        };
-        this.animateTo = function(index) {
-            protected.animateTo(index);
-        };
-        this.goTo = function(index) {
-            protected.goTo(index);
-        };
-        this.getDots = function() {
-            return protected.dots ? protected.dots : protected.createDots();
-        };
-        this.getNav = function() {
-            return protected.nav ? protected.nav : protected.createNav();
-        };
-        this.startAuto = function() {
-            protected.startAuto();
-        };
-        this.stopAuto = function() {
-            protected.stopAuto();
+        var tinSlide = {
+            next: function(index) {
+                protected.next();
+            },
+            previous: function(index) {
+                protected.previous();
+            },
+            animateTo: function(index) {
+                protected.animateTo(index);
+            },
+            goTo: function(index) {
+                protected.goTo(index);
+            },
+            getDots: function() {
+                return protected.dots ? protected.dots : protected.createDots();
+            },
+            getNav: function() {
+                return protected.nav ? protected.nav : protected.createNav();
+            },
+            startAuto: function() {
+                protected.startAuto();
+            },
+            stopAuto: function() {
+                protected.stopAuto();
+            },
+            updateContainerHeight: function(fromSubSlideWithHeight) {
+                protected.updateContainerHeight(fromSubSlideWithHeight);
+            },
+            updateContainerHeightFromParent: function() {
+                protected.updateContainerHeightFromParent();
+            },
+            getCurrentItem: function() {
+                return protected.items[protected.targetIndexWithinBounds];
+            }
         };
 
         /**
@@ -1197,7 +1292,9 @@
         //     onchange({type: document[hidden] ? "blur" : "focus"});
         // }
 
-        return true;
+        container.tinSlide = tinSlide;
+
+        return this;
 
     }
 
