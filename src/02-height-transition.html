@@ -40,7 +40,9 @@
             TinSlide(document.getElementsByClassName('slider')[0], {
                 useUpdateContainerHeight: true,
                 useContainerClickNextPrev: true,
-                useSwipeNavigation: false,
+                useSwipeNavigation: true,
+                swipePressWaitBeforeInvokeGrabbing: true,
+                verticallyCenter: true,
                 generate: {
                     dots: {
                         on: false

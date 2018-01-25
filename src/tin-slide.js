@@ -98,6 +98,8 @@
             useUpdateContainerHeight: false,
             containerHeight: 0,
             timerUpdateContainerHeight: 0,
+            // VErtically center slides.
+            verticallyCenter: false,
             // Optional next / prev navigation on container click.
             useContainerClickNextPrev: false,
             // Optional swipe navigation.
@@ -156,7 +158,7 @@
             zIndex: 0,
             // Hide using visibility:hidden instead of display:block.
             // Useful if images aren't loaded as desired.
-            hideUsingVisibility: true,
+            hideUsingVisibility: false,
     
             /**
              *  Methods.
@@ -182,7 +184,14 @@
                 while(tinSlideImagesArr.length) {
                     var element = tinSlideImagesArr.shift();
                     var img = document.createElement('img');
-                    img.setAttribute('src', element.getAttribute('tin-slide-img'));
+                    var src = element.getAttribute('data-src');
+                    if(src && src !== undefined && src !== '') {
+                        img.setAttribute('src', src);
+                    }
+                    var srcset = element.getAttribute('data-srcset');
+                    if(srcset && srcset !== undefined && srcset !== '') {
+                        img.setAttribute('srcset', srcset);
+                    }
                     element.replaceWith(img);
                 }
     
@@ -305,6 +314,7 @@
                  *  If container height should always match selected item.
                  */
                 if(this.useUpdateContainerHeight) {
+                    this.updateContainerHeight();
                     window.addEventListener('resize', function() {
                         that.updateContainerHeight();
                     });
@@ -312,6 +322,15 @@
                     this.timerUpdateContainerHeight = setInterval(function() {
                         that.updateContainerHeight();
                     }, 1000);
+                }
+
+                /**
+                 * Vertically center slides.
+                 */
+                if(this.verticallyCenter) {
+                    this.container.style.display = 'flex';
+                    this.container.style.flexDirection = 'column';
+                    this.container.style.justifyContent = 'center';
                 }
     
                 // Force recalculation of container width on window resize.
@@ -520,6 +539,11 @@
                         // (in separate CSS) or ratio.
                         if(!(this.ratio || this.hasHeight)) {
                             item.style.position = 'relative';
+                            // If slides are vertically centered.
+                            if(this.verticallyCenter) {
+                                item.style.top = 'auto';
+                                item.style.marginTop = 'inherit';
+                            }
                         }
                         if(this.zIndex) {
                             visibleItems[i].style.zIndex = this.zIndex + 1;
@@ -527,6 +551,10 @@
                     }
                     else {
                         item.style.position = 'absolute';
+                        if(this.verticallyCenter) {
+                            item.style.top = '50%';
+                            item.style.marginTop = '-'+(0.5*item.offsetHeight)+'px';
+                        }
                         item.style.zIndex = '';
                     }
     
@@ -628,8 +656,6 @@
                         return;
                     }
     
-                    this.container.style.cursor = '-webkit-grabbing';
-    
                     this.swipePressX = isTouch ? event.layerX : event.clientX;
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
@@ -659,7 +685,9 @@
             },
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
-    
+                
+                this.container.style.cursor = '-webkit-grabbing';
+
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
     
@@ -925,6 +953,10 @@
             },
             updateContainerHeight: function() {
                 var containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
+                if(!containerHeight) {
+                    this.items[this.targetIndexWithinBounds].style.display = 'block';
+                    containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
+                }
                 if(this.containerHeight !== containerHeight) {
                     this.containerHeight = containerHeight;
                     this.css(this.container, {
