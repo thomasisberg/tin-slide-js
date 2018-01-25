@@ -18,36 +18,44 @@ body {
     justify-content: center;
     align-items: center;
 }
-.slider-wrapper {
+.wrapper {
     flex: 0 1 600px;
 }
-.slider {
+.slider-wrapper {
     position: relative;
-}
-.tin-slide-next-prev {
-    position: relative;
-    text-align: right;
+    background-color: rgba(0, 0, 0, 0.1);
 }
 .tin-slide-prev, .tin-slide-next {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 40px;
     height: 40px;
     background-color: black;
 }
-.tin-slide-prev {
-    position: absolute;
-    left: 0;
-    top: 0;
-}
 .tin-slide-next {
-    display: inline-block;
+    left: inherit;
+    right: 10px;
+}
+.tin-slide-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 .tin-slide-dots li {
+    box-sizing: border-box;
     display: inline-block;
-    width: 20px;
-    height: 20px;
-    border-radius: 10px;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
     background-color: black;
+    border: 2px solid black;
     margin-right: 5px;
+    &.on {
+        background-color: white;
+    }
 }
 .sub-slider {
     padding: 50px;

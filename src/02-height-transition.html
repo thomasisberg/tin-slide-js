@@ -11,28 +11,26 @@
                 background-size: cover;
                 background-repeat: no-repeat;
                 background-position: center;
-                overflow: hidden;
             }
             #img-1 {
-                background-image: url("img-1.jpg");
                 height: 20vh;
             }
             #img-2 {
-                background-image: url("img-2.jpg");
                 height: 50vh;
             }
             #img-3 {
-                background-image: url("img-3.jpg");
                 height: 80vh;
             }
         </style>
     </head>
     <body>
-        <div class="slider-wrapper">
-            <div class="slider">
-                <div><div id="img-1" class="img"></div></div>
-                <div><div id="img-2" class="img"></div></div>
-                <div><div id="img-3" class="img"></div></div>
+        <div class="wrapper">
+            <div class="slider-wrapper">
+                <div class="slider">
+                    <div><div id="img-1" class="tin-slide-bg" data-src="img-1.jpg"></div></div>
+                    <div><div id="img-2" class="tin-slide-bg" data-src="img-2.jpg"></div></div>
+                    <div><div id="img-3" class="tin-slide-bg" data-src="img-3.jpg"></div></div>
+                </div>
             </div>
         </div>
         <script src="tin-slide.js"></script>

@@ -192,7 +192,27 @@
                     if(srcset && srcset !== undefined && srcset !== '') {
                         img.setAttribute('srcset', srcset);
                     }
+                    var bg = element.getAttribute('data-bg');
+                    if(bg && bg !== undefined && bg !== '') {
+                        img.setAttribute('style', 'background: url("'+bg+'") no-repeat center; background-size: cover;');
+                    }
                     element.replaceWith(img);
+                }
+
+                /**
+                 *  Replace all tin-slide-background sources with images.
+                 */
+                var tinSlideBackgrounds = container.getElementsByClassName('tin-slide-bg');
+                var tinSlideBackgroundsArr = [];
+                for(i=0, n=tinSlideBackgrounds.length; i<n; i++) {
+                    tinSlideBackgroundsArr.push(tinSlideBackgrounds[i]);
+                }
+                while(tinSlideBackgroundsArr.length) {
+                    var element = tinSlideBackgroundsArr.shift();
+                    var src = element.getAttribute('data-src');
+                    if(src && src !== undefined && src !== '') {
+                        element.setAttribute('style', 'background: url("'+src+'") no-repeat center; background-size: cover;');
+                    }
                 }
     
                 /**
