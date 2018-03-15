@@ -1,62 +1,31 @@
-const gulp = require('gulp');
-const gulpif = require('gulp-if');
-const sass = require('gulp-sass');
-const concat = require('gulp-concat');
-const cssnano = require('gulp-cssnano');
-const uglify = require('gulp-uglify');
-const rename = require('gulp-rename');
-const sourcemaps = require('gulp-sourcemaps')
-const babel = require('gulp-babel');
-const webpack = require('webpack-stream');
+var gulp = require('gulp');
+var mainBowerFiles = require('main-bower-files');
+var concat = require('gulp-concat');
+var rename = require('gulp-rename');
+var uglify = require('gulp-uglify');
 
-function styles()
-{
-    return gulp.src('resources/sass/*.scss')
-        .pipe(sass())
-        .pipe(concat('main.css'))
-        .pipe(gulp.dest('../../public/example/'))
-        // .pipe(rename('main.min.css'))
-        // .pipe(cssnano())
-        // .pipe(gulp.dest('public/site/templates/assets/css/'));
+var dest = '../../public/example/';
+
+function js() {
+    return gulp.src(mainBowerFiles())
+        .pipe(concat('scripts.js'))
+        .pipe(gulp.dest(dest))
+        .pipe(rename('scripts.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(dest));
 }
 
-function scripts() {
-    return gulp.src([
-            'resources/js/main.js'
-        ])
-        .pipe(sourcemaps.init())
-        // .pipe(babel({
-		// 	presets: ['@babel/env']
-		// }))
-        .pipe(webpack())
-        .pipe(concat('main.js'))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('../../public/example/'))
-        // .pipe(rename('main.min.js'))
-        // .pipe(uglify())
-        // .pipe(gulp.dest('public/site/templates/assets/js/'));
+function dist() {
+    return gulp.src(['*.html', '*.png'])
+        .pipe(gulp.dest(dest))
 }
-
-var build = gulp.parallel(styles, scripts);
 
 function watch() {
-    gulp.watch('resources/sass/*.scss', styles).on('error', function(error) {
-        err(error); 
-    });
-    gulp.watch('resources/js/*.js', scripts).on('error', function(error) {
-        err(error);
-    });
-    gulp.watch('gulpfile.js', build).on('error', function(error) {
-        err(error);
-    });
+    return gulp.watch('index.html', dist);
 }
 
-function err(error) {
-    console.log(error);
-}
+var build = gulp.parallel(js, dist);
 
-exports.styles = styles;
-exports.scripts = scripts;
-exports.build = build;
 exports.watch = watch;
+exports.build = build;
 exports.default = build;

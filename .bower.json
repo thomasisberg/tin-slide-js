@@ -1,17 +1,17 @@
 {
-    "name": "tin-grid",
-    "homepage": "https://github.com/thomasisberg/tin-grid-js",
-    "version": "0.1.0",
-    "_release": "0.1.0",
+    "name": "tin-slide",
+    "homepage": "https://github.com/thomasisberg/tin-slide-js",
+    "version": "0.0.2",
+    "_release": "0.0.2",
     "_resolution": {
         "type": "version",
-        "tag": "v0.1.0",
-        "commit": "6d34aa61d43cddbf7bfae3544ecbce6c79d5be8c"
+        "tag": "v0.0.2",
+        "commit": "7997c5431f06f7c30c773c21eaf0df834b334f03"
     },
-        "_source": "https://github.com/thomasisberg/tin-grid-js.git",
-        "_target": "0.1.0",
-        "_originalSource": "tin-grid",
+        "_source": "https://github.com/thomasisberg/tin-slide-js.git",
+        "_target": "0.0.2",
+        "_originalSource": "tin-slide",
         "main": [
-            "./tin-grid.js"
+            "./tin-slide.js"
     ]
 }

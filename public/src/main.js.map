@@ -1,1 +1,0 @@
-{"version":3,"sources":["main.js"],"names":["console","log","TinGrid"],"mappings":";;AACA;;;;AAEAA,QAAQC,GAAR,CAAYC,gBAAZ","file":"main.js","sourcesContent":["\nimport TinGrid from './tin-grid';\n\nconsole.log(TinGrid);"]}

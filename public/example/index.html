@@ -1,25 +1,100 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>TinGrid</title>
-        <link rel="stylesheet" type="text/css" href="main.css" />
+        <title>TinSlide example</title>
+        <style>
+            div, img, ul, li {
+                display: block;
+                margin: 0;
+                padding: 0;
+            }
+            img {
+                width: 200px;
+                height: auto;
+            }
+            .slides {
+                position: relative;
+                min-height: 300px;
+                background-color: grey;
+                transition: height 200ms linear;
+            }
+            .sub-slides {
+                padding: 25px;
+            }
+            .slides .slides {
+                background-color: darkgray;
+            }
+            .lorem {
+                background-color: red;
+                min-height: 300px;
+            }
+            .tin-slide-next-prev {
+                position: relative;
+                text-align: right;
+            }
+            .tin-slide-prev, .tin-slide-next {
+                width: 40px;
+                height: 40px;
+                background-color: black;
+            }
+            .tin-slide-prev {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .tin-slide-next {
+                display: inline-block;
+            }
+            .tin-slide-dots li {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border-radius: 10px;
+                background-color: black;
+                margin-right: 5px;
+            }
+        </style>
     </head>
     <body>
-        <h1>TinGrid</h1>
-
-        <div id="TinGrid">
-            <ul>
-                <li></li>
-                <li data-height="750"></li>
-                <li></li>
-                <li data-ratio="16:9"></li>
-                <li class="wide"></li>
-                <li></li>
-                <li></li>
-                <li></li>
-            </ul>
+        <div id="slider">
+            <div class="slides">
+                <div>
+                    <div class="sub-slides">
+                        <div class="slides">
+                            <div><img src="icon.png" /></div>
+                            <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
+                            <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
+                <div><img src="icon.png" /></div>
+                <div>Lorem</div>
+                <div><div class="tin-slide-img" tin-slide-img="icon.png">Sit</div></div>
+                <div>Ipsum</div>
+                <div class="tin-slide-markup" tin-slide-markup="<div class='lorem'></div>"></div>
+                <div>Dolor</div>
+            </div>
         </div>
-
-        <script src="main.js"></script>
+        <script src="scripts.js"></script>
+        <script>
+            var slides = document.getElementsByClassName('slides');
+            for(var ii=0; ii<slides.length; ii++) {
+                TinSlide(slides[ii], !ii?undefined:{
+                    loop: false,
+                    generate: {
+                        nav: {
+                            on: false
+                        },
+                        dots: {
+                            on: false
+                        }
+                    },
+                    motionBlur: {
+                        on: true
+                    }
+                });
+            }
+        </script>
     </body>
 </html>

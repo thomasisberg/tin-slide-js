@@ -1,19 +1,19 @@
 {
-    "name": "tin-grid",
-    "version": "0.1.0",
-    "description": "Responsive, dependency free grid system for Javascript",
-    "main": "tin-grid.js",
+    "name": "tin-slide",
+    "version": "0.0.2",
+    "description": "Dependency free content slider for Javascript",
+    "main": "tin-slide.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/thomasisberg/tin-grid-js.git"
+        "url": "git+https://github.com/thomasisberg/tin-slide-js.git"
     },
     "author": "Thomas Isberg",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/thomasisberg/tin-grid-js/issues"
+        "url": "https://github.com/thomasisberg/tin-slide-js/issues"
     },
-    "homepage": "https://github.com/thomasisberg/tin-grid-js#readme"
+    "homepage": "https://github.com/thomasisberg/tin-slide-js#readme"
 }
