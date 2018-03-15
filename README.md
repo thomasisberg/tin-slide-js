@@ -1,2 +1,2 @@
-# tin-slide-js
-Dependency free content slider for Javascript
+# tin-grid-js
+Responsive, dependency free grid system for Javascript

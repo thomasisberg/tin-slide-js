@@ -14,7 +14,7 @@ function styles()
     return gulp.src('resources/sass/*.scss')
         .pipe(sass())
         .pipe(concat('main.css'))
-        .pipe(gulp.dest('../../public/example/'))
+        .pipe(gulp.dest('../../public/src/'))
         // .pipe(rename('main.min.css'))
         // .pipe(cssnano())
         // .pipe(gulp.dest('public/site/templates/assets/css/'));
@@ -31,7 +31,7 @@ function scripts() {
         .pipe(webpack())
         .pipe(concat('main.js'))
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('../../public/example/'))
+        .pipe(gulp.dest('../../public/src/'))
         // .pipe(rename('main.min.js'))
         // .pipe(uglify())
         // .pipe(gulp.dest('public/site/templates/assets/js/'));

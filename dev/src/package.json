@@ -1,7 +1,7 @@
 {
-  "name": "tin-grid-example",
+  "name": "tin-grid-src",
   "version": "1.0.0",
-  "description": "TinGrid example",
+  "description": "TinGrid source",
   "main": "resources/js/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
