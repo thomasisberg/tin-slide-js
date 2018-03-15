@@ -408,14 +408,14 @@
                     element.style[style] = styles[style];
                 }
             },
-            addClass(element, className) {
+            addClass: function(element, className) {
                 var classes = element.className.split(' ');
                 if(classes.indexOf(className) === -1) {
                     classes.push(className);
                 }
                 element.className = classes.join(' ');
             },
-            removeClass(element, className) {
+            removeClass: function(element, className) {
                 var classes = element.className.split(' ');
                 var idx = classes.indexOf(className);
                 if(idx !== -1) {
@@ -423,7 +423,7 @@
                 }
                 element.className = classes.join(' ');
             },
-            hasClass(element, className) {
+            hasClass: function(element, className) {
                 var classes = element.className.split(' ');
                 return classes.indexOf(className) > -1;
             },
@@ -1217,7 +1217,7 @@
                     this.pauseAuto();
                     this.autoPlayState = null;
                 }
-            },
+            }
         };
     
         // Initialize.
