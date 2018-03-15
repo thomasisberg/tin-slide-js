@@ -829,8 +829,10 @@
                     else {
                         this.onTimerSwipePress();
                     }
+
+                    // Stop event – useful if slider is a child slider.
+                    // event.stopPropagation();
                 }
-    
             },
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
@@ -927,8 +929,8 @@
             },
             onSwipeMove: function(event) {
                 // Check if child slider is swiping.
-                // If so, lock this parent slider until child slider no longer wipes (first / last slide reached).
-                // Child sliders must have loop=false. Otherwise this parent slider will
+                // If so, lock this parent slider until child slider no longer swipes (first / last slide reached).
+                // Child sliders should probably have loop=false. Otherwise this parent slider will
                 // never slide again once child slider has been grabbed.
                 if(event.tinSlideMoved === undefined) {
     
@@ -941,15 +943,24 @@
                         var swipeTargetVal = this.swipePressPointerVal + (this.swipeX / containerWidth);
                         if(!this.settings.loop) {
                             var offset = this.settings.useNonLoopingHint ? 0.05 : 0;
-                            if(swipeTargetVal < -offset) {swipeTargetVal = -offset;}
-                            else if(swipeTargetVal > this.numItems - 1 + offset) {swipeTargetVal = this.numItems - 1 + offset;}
-                            else {
-                                event.tinSlideMoved = true;
+                            if(swipeTargetVal < -offset) {
+                                swipeTargetVal = -offset;
                             }
+                            else if(swipeTargetVal > this.numItems - 1 + offset) {
+                                swipeTargetVal = this.numItems - 1 + offset;
+                            }
+                            else {
+                                event.tinSlideMoved = this;
+                            }
+                        }
+                        else {
+                            event.tinSlideMoved = this;
                         }
                         this.swipeTargetVal = swipeTargetVal;
                         var targetIndexWithinBounds = Math.round(this.swipeTargetVal) % this.numItems;
-                        if(targetIndexWithinBounds < 0) {targetIndexWithinBounds += this.numItems;}
+                        if(targetIndexWithinBounds < 0) {
+                            targetIndexWithinBounds += this.numItems;
+                        }
                         this.targetIndexWithinBounds = targetIndexWithinBounds;
                         this.updateDots();
                     }
