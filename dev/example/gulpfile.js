@@ -1,18 +1,20 @@
-var gulp = require('gulp');
-var mainBowerFiles = require('main-bower-files');
-var concat = require('gulp-concat');
-var rename = require('gulp-rename');
-var uglify = require('gulp-uglify');
+const gulp = require('gulp');
+const mainBowerFiles = require('main-bower-files');
+const concat = require('gulp-concat');
+const rename = require('gulp-rename');
+const uglify = require('gulp-uglify');
+const webpack = require('webpack-stream');
 
 var dest = '../../public/example/';
 
 function js() {
-    return gulp.src(mainBowerFiles())
+    return gulp.src('main.js')
+        .pipe(webpack())
         .pipe(concat('scripts.js'))
         .pipe(gulp.dest(dest))
-        .pipe(rename('scripts.min.js'))
-        .pipe(uglify())
-        .pipe(gulp.dest(dest));
+        // .pipe(rename('scripts.min.js'))
+        // .pipe(uglify())
+        // .pipe(gulp.dest(dest));
 }
 
 function dist() {
@@ -21,7 +23,12 @@ function dist() {
 }
 
 function watch() {
-    return gulp.watch('index.html', dist);
+    gulp.watch('index.html', dist).on('error', err);
+    gulp.watch('main.js', js).on('error', err);
+}
+
+function err(error) {
+    console.log(error);
 }
 
 var build = gulp.parallel(js, dist);
