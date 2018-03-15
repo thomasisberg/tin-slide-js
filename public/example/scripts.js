@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.0
+ * TinSlide v0.1.1
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -408,14 +408,14 @@
                     element.style[style] = styles[style];
                 }
             },
-            addClass(element, className) {
+            addClass: function(element, className) {
                 var classes = element.className.split(' ');
                 if(classes.indexOf(className) === -1) {
                     classes.push(className);
                 }
                 element.className = classes.join(' ');
             },
-            removeClass(element, className) {
+            removeClass: function(element, className) {
                 var classes = element.className.split(' ');
                 var idx = classes.indexOf(className);
                 if(idx !== -1) {
@@ -423,7 +423,7 @@
                 }
                 element.className = classes.join(' ');
             },
-            hasClass(element, className) {
+            hasClass: function(element, className) {
                 var classes = element.className.split(' ');
                 return classes.indexOf(className) > -1;
             },
@@ -1031,7 +1031,7 @@
                 }
             },
 
-            updateContainerHeightFromParent() {
+            updateContainerHeightFromParent: function() {
                 // Update this inner most slider.
                 this.updateContainerHeight(0);
             },
@@ -1217,7 +1217,7 @@
                     this.pauseAuto();
                     this.autoPlayState = null;
                 }
-            },
+            }
         };
     
         // Initialize.

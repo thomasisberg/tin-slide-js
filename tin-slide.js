@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.1
+ * TinSlide v0.1.2
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -1031,7 +1031,7 @@
                 }
             },
 
-            updateContainerHeightFromParent() {
+            updateContainerHeightFromParent: function() {
                 // Update this inner most slider.
                 this.updateContainerHeight(0);
             },
