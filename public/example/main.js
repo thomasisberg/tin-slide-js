@@ -85,7 +85,7 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
- * TinGrid v0.0.1
+ * TinGrid v0.1.0
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -118,8 +118,8 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
             itemHeight: null,        // Number (pixels) for itemHeightType "fixed", Number (width / height) for itemHeightType "ratio".
             wideItemHeight: null,     // Height of wide item. Otherwise same as itemHeight. Falls back to itemHeight if necessary.
             useTransition: false,    // Will probably not work too well with itemHeightType "auto".
-            transitionTime: "400ms", // 
-            transitionEasing: "cubic-bezier(.48,.01,.21,1)"
+            transitionTime: "400ms", // Transition time.
+            transitionEasing: "cubic-bezier(.48,.01,.21,1)" // Transition easing equation.
         }
         if(isObject(options)) {
             for(var v in settings) {
@@ -154,7 +154,6 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
             
             var i, j, x;
 
-            // var ul = $("ul.items", tableau_element);
             var ul = tableau_element.querySelector('ul');
             
             /**
@@ -162,9 +161,7 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
              */
             var items = [];
             var ul_li = ul.children;
-            // $("li", ul).each(function() {
             for(i=0; i<ul_li.length; i++) {
-                // items.push($(this));
                 var li = ul_li[i];
                 li.style.position = "absolute";
                 if(settings.useTransition) {
@@ -173,7 +170,6 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
                 items.push(li);
             }
 
-            // if(tableau_element.data("randomized")) {
             if(isTrue(tableau_element.getAttribute('data-randomized'))) {
                 function shuffle(o) { //v1.0
                     for(j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
@@ -188,62 +184,8 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
                 "items": items,
                 "cols": null
             });
-            
-            /**
-             *  Bind nav button.
-             */
-            // var nextButton = $(".tableau_nav .MarkupPagerNavNext a", tableau_element);
-            // nextButton.on("click", tableau_next_click);
-            
-            /**
-             *  Show the tableau.
-             */
-            // setTimeout(function() {
-            //     tableau_element.addClass("on");
-            // }, 100);
-            
         }
-        // function tableau_next_click(event) {
-            
-        //     event.preventDefault();
-            
-        //     var nextButton = $(this);
-            
-        //     if(!nextButton.data("clicked")) {
-            
-        //         nextButton.data("clicked", true);
-        //         nextButton.addClass("loading");
-                
-        //         var href = $(this).attr("href");
-        //         var tableauId = "tableau-page"+href.match(/\/(page|sida)([0-9]+)/)[2];
-                
-        //         $.ajax(
-        //             $(this).attr("href")+(href.indexOf("?")<0?"?":"&")+"ajax=1", {
-        //                 dataType: "html",
-        //                 success: function(data, textStatus, jqXHR) {
-        //                     nextButton.addClass("loaded");
-        //                     tableau_append(tableauId, data);
-        //                 },
-        //                 error: function(jqXHR, textStatus, errorThrown) {
-        //                     log("Error loading href: " + href);
-        //                     $(this).data("clicked", false);
-        //                     nextButton.removeClass("loading");
-        //                 }
-        //             }
-        //         );
-                
-        //     }
-            
-        // }
-        // function tableau_append(id, tableau_html) {
-            
-        //     var lastTableau = tableau_data[tableau_data.length-1];
-        //     lastTableau.tableau.after(tableau_html);
-        //     var tableau_item = $("#"+id);
-        //     tableau_add(tableau_item);
-        //     tableau_update();
-            
-        // }
+
         function tableau_update() {
 
             var w_win, i, n, tableau_item, item, items, len, maxIdx;
@@ -251,7 +193,6 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
             clearTimeout(tableau_timer);
             tableau_timer = setTimeout(tableau_update, 3000);
             
-            // var w_win = $("#WindowMinWidth").width();
             w_win = container.offsetWidth;
             tableau_num_cols = 1;
             if(w_win < 470) tableau_num_cols = 1;
@@ -295,8 +236,6 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
 
                     item = items[i];
 
-                    // var classes = item.className.split(" ");
-                    // var itemIsWide = classes.indexOf("wide") >= 0;
                     var itemIsWide = hasClass(item, "wide");
 
                     item.style.width = (w_col_perc*(itemIsWide?2:1)) + "%";
@@ -306,33 +245,7 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
                      *  1. Check if there is a gap somewhere that is big enough.
                      *  2. Make sure wide items don't get placed at last column. Preferrably alter between pulling back a column and pushing to first column.
                      *  3. Store/update gaps.
-                     *
-                     *  Items should not be placed with absolute, because if they grow they won't flow nicely.
                      */
-
-                    // var itemHeight = null;
-                    // if(!isEmpty(item.getAttribute("data-ratio"))) {
-                    //     var ratioArr = item.getAttribute("data-ratio").split(":");
-                    //     if(ratioArr.length === 2) {
-                    //         var ratio = ratioArr[1] / ratioArr[0];
-                    //         if(!isNaN(ratio)) {
-                    //             itemHeight = itemHeight = (w_col*(itemIsWide?2:1)) * ratio;
-                    //         }
-                    //     }
-                    // }
-                    // if(itemHeight === null) {
-                    //     if(settings.itemHeightType === "auto") {
-                    //         itemHeight = item.offsetHeight;
-                    //     }
-                    //     else if(settings.itemHeightType === "fixed") {
-                    //         itemHeight = itemIsWide ? settings.wideItemHeight : settings.itemHeight
-                    //         item.style.height = itemHeight + "px";
-                    //     }
-                    //     else if(settings.itemHeightType === "ratio") {
-                    //         itemHeight = (w_col*(itemIsWide?2:1)) * (itemIsWide ? settings.wideItemHeight : settings.itemHeight);
-                    //         item.style.height = itemHeight + "px";
-                    //     }
-                    // }
 
                     var itemHeight = getItemHeight(item, itemIsWide, w_col);
                     
@@ -348,6 +261,7 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
                             minY = colY;
                         }
                     }
+
                     /**
                      *  Handle gaps.
                      */
@@ -361,24 +275,9 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
                             var gapAbs = gap > 0 ? gap : -gap;
                             var jItem = items[j];
 
-                            // var jClasses = jItem.className.split(" ");
-                            // var jItemIsWide = jClasses.indexOf("wide") >= 0;
                             var jItemIsWide = hasClass(jItem, "wide");
 
                             if(!jItemIsWide) {
-                                // var jItemHeight = jItem.offsetHeight;
-                                // var jItemHeight;
-                                // if(settings.itemHeightType === "auto") {
-                                //     jItemHeight = jItem.offsetHeight;
-                                // }
-                                // else if(settings.itemHeightType === "fixed") {
-                                //     jItemHeight = settings.itemHeight
-                                //     jItem.style.height = jItemHeight + "px";
-                                // }
-                                // else if(settings.itemHeightType === "ratio") {
-                                //     jItemHeight = w_col / settings.itemHeight;
-                                //     jItem.style.height = jItemHeight + "px";
-                                // }
 
                                 var jItemHeight = getItemHeight(jItem, jItemIsWide, w_col);
 
@@ -409,11 +308,6 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
                     if(itemIsWide) {
                         tableau_item.cols[colIdx+1] = minY + itemHeight;
                     }
-                    
-                    // item.css({
-                    //     "top": minY+"px",
-                    //     "left": colIdx*(100/tableau_num_cols)+"%"
-                    // });
 
                     item.style.top = minY+"px";
                     item.style.left = colIdx*(100/tableau_num_cols)+"%";
@@ -433,18 +327,14 @@ __WEBPACK_IMPORTED_MODULE_0__tin_grid___default()(document.getElementById('TinGr
                     if(tableau_item.cols[i] > maxY) maxY = tableau_item.cols[i];
                 }
 
-                // tableau_item.ul.height(maxY);
                 tableau_item.ul.style.height = maxY+"px";
                 
                 /**
                  *  Center the tablueau if needed.
                  */
                 var diff = tableau_num_cols - maxIdx;
-                // tableau_item.ul.css({"left":0.5*diff*(100/tableau_num_cols)+"%"});
                 tableau_item.ul.style.left = 0.5*diff*(100/tableau_num_cols)+"%";
-                
             }
-            
         }
 
         function getItemHeight(item, itemIsWide, columnWidth) {
