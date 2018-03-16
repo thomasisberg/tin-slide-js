@@ -362,6 +362,9 @@
                 // Calculation will occur when width is needed.
                 window.addEventListener('resize', function() {
                     that.containerWidth = 0;
+                    if(that.settings.verticallyCenter) {
+                        that.verticallyCenterItems();
+                    }
                 });
     
                 if(this.items.length > 1) {
@@ -595,7 +598,13 @@
                 }
                 this.applySlideEffect();
             },
-    
+
+            verticallyCenterItems: function() {
+                for(var i=0; i<this.itemsVisible.length; i++) {
+                    this.itemsVisible[i].style.marginTop = '-'+(0.5*this.itemsVisible[i].offsetHeight)+'px';
+                }
+            },
+
             /**
              *  Next/ previous.
              */
@@ -707,7 +716,9 @@
                     }
 
                     // Stop event – useful if slider is a child slider.
-                    // event.stopPropagation();
+                    if(this.loop || (this.targetIndexWithinBounds>0 && this.targetIndexWithinBounds<this.numItems-1)) {
+                        event.stopPropagation();
+                    }
                 }
             },
             // Performs the actual grabbing – stops slider etc.
@@ -932,7 +943,7 @@
                         }
                         // Decrease choke when target is approached.
                         if(this.choke > diffAbs) {
-                            this.choke = diffAbs * (0.5 + this.chokeReturnFactor);
+                            this.choke = diffAbs * (0.5 + this.settings.chokeReturnFactor);
                         }
                         if(this.choke > 1) {
                             this.choke = 1;
@@ -1028,10 +1039,20 @@
             },
 
             doUpdateContainerHeight: function(minHeight) {
+                var id = this.container.getAttribute('id');
+                console.log(id + ', ' + minHeight);
+
+                var debug = id === 'Slider1';
+
                 if(minHeight === undefined) {
                     minHeight = 0;
                 }
                 var containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
+
+                if(debug) {
+                    console.log(containerHeight);
+                }
+
                 if(!containerHeight) {
                     this.items[this.targetIndexWithinBounds].style.display = 'block';
                     containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
