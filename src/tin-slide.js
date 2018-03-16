@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.0.2
+ * TinSlide v0.1.3
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -115,7 +115,7 @@
                 // Overlying navigation can be set to higher in separate CSS.
                 // Disable zIndex by setting zIndex to 0.
                 zIndex: 0,
-                // Hide using visibility:hidden instead of display:block.
+                // Hide using visibility:hidden instead of display:none.
                 // Useful if images aren't loaded as desired.
                 hideUsingVisibility: false,
             },
@@ -123,7 +123,6 @@
             /**
              *  Properties – all possible to override with options argument.
              */
-            // debug: false,
             container: null,
             container: null,
             containerWidth: 0,
@@ -137,157 +136,34 @@
             targetIndex: 0,
             targetIndexWithinBounds: 0,
             timerAnimate: 0,
-
-            // // Minimal amount of step required to reach target.
-            // stepSnap: 0.0003,
-            // // Step factor every step. Applied on step to target.
-            // stepFactor: 0.2,
-            // // Max step every step.
-            // stepMax: 0.20,
-            // // Minimum step.
-            // stepMin: 0.0004,
-
             // Last step.
             step: 0,
             // Last step – absolute value.
             stepAbs: 0,
-
-            // // 0 - 1
-            // // 0 = No break (will never turn).
-            // // 1 = Instant break – turns immediately.
-            // stepTurnBreakFactor: 0.5,
-
             // Chokes acceleration.
             // Is always between 0 and 1.
             // Is increased on every step upon acceleration (up to 1).
             // Applied max step every step is stepMax * choke.
             choke: 0,
-
-            // // Choke is increased by this value every step.
-            // chokeReleaseStep: 0.05,
-            // // Choke is multiplied by this value every step.
-            // chokeReleaseFactor: 1.5,
-            // // 0 - X
-            // // 0 = Slow break towards target. Higher values breaks harder.
-            // // Brings back choke when target is approached.
-            // // Distance to target multiplied by this value = choke.
-            // // This is what makes the slider break in on target.
-            // chokeReturnFactor: 2,
-            
-            // // Option to crop container (or not).
-            // cropContainer: true,
-            // // Desired slide effects.
-            // effects: {
-            //     slideHorizontal: {
-            //         on: true,
-            //         // 0 - x
-            //         // offset: 0.35
-            //         offset: 1
-            //     },
-            //     scale: {
-            //         on: false,
-            //         // 0 - x
-            //         min: 0.8,
-            //         // 0 - x
-            //         max: 1,
-            //         minAt: 1.0,
-            //         maxAt: 0.0
-            //     },
-            //     fade: {
-            //         on: false,
-            //         min: 0,
-            //         max: 1,
-            //         minAt: 1.0,
-            //         maxAt: 0
-            //     },
-            //     motionBlur: {
-            //         on: false,
-            //         maxPixels: 2,
-            //         stepMin: 0.05,
-            //         factor: 500
-            //     }
-            // },
-            // // If container height should actively match item height.
-            // useUpdateContainerHeight: false,
-
             containerHeight: 0,
             timerUpdateContainerHeight: 0,
-
-            // // Vertically center slides.
-            // verticallyCenter: false,
-            // // Optional next / prev navigation on container click.
-            // useContainerClickNextPrev: false,
-            // // Optional swipe navigation.
-            // useSwipeNavigation: true,
-
             swipePressX: 0,
             timerSwipePress: 0,
             swipePressPointerVal: 0,
             swipeTargetVal: 0,
             timerSwipe: 0,
-
-            // swipeStepBreak: 0.4,
-            // swipeStepFactor: 0.25,
-
             swipeX: 0,
             swipeXAbs: 0,
-
-            // // Optionally wait before invoke grabbing.
-            // // Useful if the entire container is clickable.
-            // // Especially if clicking either half navigates to previous / next.
-            // swipePressWaitBeforeInvokeGrabbing: false,
-            // swipeReleaseRequiredSwipeX: 0,
-            // // Optionally generate markup.
-            // generate: {
-            //     dots: {
-            //         on: true,
-            //         afterContainer: true
-            //     },
-            //     nav: {
-            //         on: true,
-            //         afterContainer: true
-            //     }
-            // },
-
             // Dots.
             dotsItems: null,
             currentDotIndex: null,
             // Next / prev.
             nav: null,
-
-            // // Optional ratio.
-            // ratio: null,
-
             ratioPercent: null,
-            
-            // // If slider has height (separate CSS) we can absolute position all slides.
-            // hasHeight: false,
-            // // Auto play.
-            // autoPlay: false,
-
             timerAutoPlay: 0,
-            // autoPlayTime: 5000,
             autoPlayState: null,
-
-            // autoPlayPauseOnHover: true,
-            // autoPlayStopOnNavigation: true,
-
             autoPlayForwards: true,
-
-            // // Loop
-            // loop: true,
-            // // Non looping next / prev animation when end reached.
-            // useNonLoopingHint: true,
-
             timerNonLoopingHint: 0,
-
-            // // Base z-index. Slider will get base z, active slide +1.
-            // // Overlying navigation can be set to higher in separate CSS.
-            // // Disable zIndex by setting zIndex to 0.
-            // zIndex: 0,
-            // // Hide using visibility:hidden instead of display:block.
-            // // Useful if images aren't loaded as desired.
-            // hideUsingVisibility: false,
     
             /**
              *  Methods.
