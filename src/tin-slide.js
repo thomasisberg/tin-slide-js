@@ -231,7 +231,6 @@
                 while(tinSlideMarkupArr.length) {
                     var element = tinSlideMarkupArr.shift();
                     var template = document.createElement('template');
-                    console.log(element.getAttribute('data-markup'));
                     template.innerHTML = element.getAttribute('data-markup');
                     element.replaceWith(template.content.firstChild);
                 }

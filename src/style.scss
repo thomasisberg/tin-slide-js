@@ -19,11 +19,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    // font-family: sans-serif;
     font-family: 'Poppins', sans-serif;
     line-height: 1.6;
-    padding-top: 20px;
-    padding-bottom: 60px;
+    padding: 20px 20px 60px 20px;
+
 }
 h1, h2, h3, h4, h5, h6 {
     margin-top: 0.6em;
@@ -51,6 +50,8 @@ code {
     word-wrap: none;
     overflow-x: auto;
     font-family: 'Roboto Mono', monospace;
+    max-width: 600px;
+    margin-top: 2px;
 }
 .wrapper {
     flex: 0 1 600px;
@@ -81,6 +82,15 @@ code {
         top: 0;
         transform: translateY(-50%);
     }
+    &:before {
+        opacity: 0.1;
+        transition: opacity 200ms $easeinout;
+    }
+    &:hover {
+        &:before {
+            opacity: 0
+        }
+    }
 }
 .tin-slide-prev {
     &:before {
@@ -94,7 +104,7 @@ code {
         left: 0;
         border-top: 20px solid transparent;
         border-bottom: 20px solid transparent; 
-        border-right: 35px solid white;
+        border-right: 35px solid rgba(255, 255, 255, 0.9);
     }
 }
 .tin-slide-next {
@@ -111,7 +121,13 @@ code {
         right: 0;
         border-top: 20px solid transparent;
         border-bottom: 20px solid transparent;
-        border-left: 35px solid white;
+        border-left: 35px solid rgba(255, 255, 255, 0.9);
+        transition: border-left-color 200ms $easeinout;
+    }
+    &:hover {
+        &:after {
+            border-left-color: rgba(255, 255, 255, 1);
+        }
     }
 }
 .tin-slide-dots {
@@ -126,9 +142,15 @@ code {
     width: 16px;
     height: 16px;
     border-radius: 8px;
-    background-color: black;
-    border: 2px solid black;
+    background-color: transparent;
+    border: 2px solid white;
     margin-right: 5px;
+    opacity: 0.9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    transition: background-color 200ms $easeinout;
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
     &.on {
         background-color: white;
     }
