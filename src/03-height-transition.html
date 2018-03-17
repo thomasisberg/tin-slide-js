@@ -27,11 +27,15 @@
         <div class="wrapper">
             <h1>TinSlide</h1>
             <h2>Height transition</h2>
+            <p>TinSlide does not animate the slider height, but you can instruct TinSlide to explicitly set the slider height, and then use your own css transition.</p>
+            <code>
+                .slider { transition: height 200ms cubic-bezier(.48,.01,.21,1); }
+            </code>
             <div class="slider-wrapper">
                 <div class="slider">
-                    <div><div id="img-1" class="tin-slide-bg" data-src="img-1.jpg"></div></div>
-                    <div><div id="img-2" class="tin-slide-bg" data-src="img-2.jpg"></div></div>
-                    <div><div id="img-3" class="tin-slide-bg" data-src="img-3.jpg"></div></div>
+                    <div><div id="img-1" class="tin-slide-bg" data-bg="img-1.jpg"></div></div>
+                    <div><div id="img-2" class="tin-slide-bg" data-bg="img-2.jpg"></div></div>
+                    <div><div id="img-3" class="tin-slide-bg" data-bg="img-3.jpg"></div></div>
                 </div>
             </div>
         </div>
@@ -39,7 +43,6 @@
         <script>
             TinSlide(document.getElementsByClassName('slider')[0], {
                 useUpdateContainerHeight: true,
-                verticallyCenter: true,
                 generate: {
                     dots: {
                         on: false

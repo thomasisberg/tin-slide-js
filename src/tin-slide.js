@@ -214,7 +214,7 @@
                 }
                 while(tinSlideBackgroundsArr.length) {
                     var element = tinSlideBackgroundsArr.shift();
-                    var src = element.getAttribute('data-src');
+                    var src = element.getAttribute('data-bg');
                     if(src && src !== undefined && src !== '') {
                         element.setAttribute('style', 'background: url("'+src+'") no-repeat center; background-size: cover;');
                     }
@@ -231,7 +231,8 @@
                 while(tinSlideMarkupArr.length) {
                     var element = tinSlideMarkupArr.shift();
                     var template = document.createElement('template');
-                    template.innerHTML = element.getAttribute('tin-slide-markup');
+                    console.log(element.getAttribute('data-markup'));
+                    template.innerHTML = element.getAttribute('data-markup');
                     element.replaceWith(template.content.firstChild);
                 }
 

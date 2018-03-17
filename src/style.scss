@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto+Mono');
+
 // Easing.
 $easeout: cubic-bezier(0,.8,.21,1);
 $easeinout: cubic-bezier(.48,.01,.21,1);
@@ -17,13 +19,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: sans-serif;
+    // font-family: sans-serif;
+    font-family: 'Poppins', sans-serif;
     line-height: 1.6;
-    text-align: center;
     padding-top: 20px;
     padding-bottom: 60px;
 }
-h1, h2 {
+h1, h2, h3, h4, h5, h6 {
     margin-top: 0.6em;
     margin-bottom: 0.4em;
 }
@@ -36,12 +38,35 @@ a {
         text-decoration: underline;
     }
 }
+p {
+    border-left: 4px solid #e0e0e0;
+    padding-left: 10px;
+    text-align: left
+}
+code {
+    display: block;
+    background-color: #f0f0f0;
+    padding: 20px;
+    white-space: nowrap;
+    word-wrap: none;
+    overflow-x: auto;
+    font-family: 'Roboto Mono', monospace;
+}
 .wrapper {
     flex: 0 1 600px;
+    max-width: 100%;
+
+    & > .slider-wrapper {
+        margin-top: 40px;
+    }
 }
 .slider-wrapper {
     position: relative;
     background-color: rgba(0, 0, 0, 0.1);
+
+    p {
+        border-left: 0;
+    }
 }
 .tin-slide-prev, .tin-slide-next {
     position: absolute;
