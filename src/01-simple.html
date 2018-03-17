@@ -6,7 +6,8 @@
     </head>
     <body>
         <div class="wrapper">
-            <h1>Simple</h1>
+            <h1>TinSlide</h1>
+            <h2>Simple</h2>
             <div class="slider-wrapper">
                 <div class="slider">
                     <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
@@ -17,20 +18,7 @@
         </div>
         <script src="tin-slide.js"></script>
         <script>
-            TinSlide(document.getElementsByClassName('slider')[0], {
-                useUpdateContainerHeight: false,
-                effects: {
-                    motionBlur: {
-                        on: true
-                    },
-                    fade: {
-                        on: true
-                    },
-                    scale: {
-                        on: true
-                    }
-                }
-            });
+            TinSlide(document.getElementsByClassName('slider')[0]);
         </script>
     </body>
 </html>

@@ -25,6 +25,8 @@
     </head>
     <body>
         <div class="wrapper">
+            <h1>TinSlide</h1>
+            <h2>Height transition</h2>
             <div class="slider-wrapper">
                 <div class="slider">
                     <div><div id="img-1" class="tin-slide-bg" data-src="img-1.jpg"></div></div>
@@ -37,9 +39,6 @@
         <script>
             TinSlide(document.getElementsByClassName('slider')[0], {
                 useUpdateContainerHeight: true,
-                useContainerClickNextPrev: true,
-                useSwipeNavigation: true,
-                swipePressWaitBeforeInvokeGrabbing: true,
                 verticallyCenter: true,
                 generate: {
                     dots: {

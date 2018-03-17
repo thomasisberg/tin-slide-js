@@ -291,7 +291,7 @@
                     this.container.addEventListener('click', function(event) {
                         var containerWidth = that.getContainerWidth();
                         if(containerWidth) {
-                            if((event.clientX - that.container.offsetLeft) < containerWidth / 2) {
+                            if((event.layerX - that.container.offsetLeft) < containerWidth / 2) {
                                 that.previous();
                             }
                             else {
@@ -1040,19 +1040,10 @@
 
             doUpdateContainerHeight: function(minHeight) {
                 var id = this.container.getAttribute('id');
-                console.log(id + ', ' + minHeight);
-
-                var debug = id === 'Slider1';
-
                 if(minHeight === undefined) {
                     minHeight = 0;
                 }
                 var containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
-
-                if(debug) {
-                    console.log(containerHeight);
-                }
-
                 if(!containerHeight) {
                     this.items[this.targetIndexWithinBounds].style.display = 'block';
                     containerHeight = this.items[this.targetIndexWithinBounds].offsetHeight;
