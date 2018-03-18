@@ -63,7 +63,10 @@ code {
 }
 .slider-wrapper {
     position: relative;
-    background-color: rgba(0, 0, 0, 0.1);
+
+    &.bg {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
 
     p {
         border-left: 0;
@@ -104,7 +107,13 @@ code {
         left: 0;
         border-top: 20px solid transparent;
         border-bottom: 20px solid transparent; 
-        border-right: 35px solid rgba(255, 255, 255, 0.9);
+        border-right: 35px solid rgba(255, 255, 255, 0.4);
+        transition: border-right-color 200ms $easeinout;
+    }
+    &:hover {
+        &:after {
+            border-right-color: rgba(255, 255, 255, 1);
+        }
     }
 }
 .tin-slide-next {
@@ -121,7 +130,7 @@ code {
         right: 0;
         border-top: 20px solid transparent;
         border-bottom: 20px solid transparent;
-        border-left: 35px solid rgba(255, 255, 255, 0.9);
+        border-left: 35px solid rgba(255, 255, 255, 0.4);
         transition: border-left-color 200ms $easeinout;
     }
     &:hover {

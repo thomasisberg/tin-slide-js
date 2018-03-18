@@ -361,11 +361,11 @@
                 // Force recalculation of container width on window resize.
                 // Calculation will occur when width is needed.
                 window.addEventListener('resize', function() {
-                    that.containerWidth = 0;
-                    if(that.settings.verticallyCenter) {
-                        that.verticallyCenterItems();
+                    this.containerWidth = 0;
+                    if(this.settings.verticallyCenter) {
+                        this.verticallyCenterItems();
                     }
-                });
+                }.bind(this));
     
                 if(this.items.length > 1) {
                     /**
@@ -565,7 +565,7 @@
                         relativeItem = true;
                         // All slides absolute positioned if slider has a defined height
                         // (in separate CSS) or ratio.
-                        if(!(this.settings.ratio || this.settings.hasHeight)) {
+                        if(!(this.settings.useUpdateContainerHeight || this.settings.ratio || this.settings.hasHeight)) {
                             item.style.position = 'relative';
                             // If slides are vertically centered.
                             if(this.settings.verticallyCenter) {
@@ -581,7 +581,7 @@
                         item.style.position = 'absolute';
                         if(this.settings.verticallyCenter) {
                             item.style.top = '50%';
-                            item.style.marginTop = '-'+(0.5*item.offsetHeight)+'px';
+                            item.style.marginTop = '-'+parseInt(0.5*item.offsetHeight, 10)+'px';
                         }
                         item.style.zIndex = '';
                     }
@@ -600,8 +600,8 @@
             },
 
             verticallyCenterItems: function() {
-                for(var i=0; i<this.itemsVisible.length; i++) {
-                    this.itemsVisible[i].style.marginTop = '-'+(0.5*this.itemsVisible[i].offsetHeight)+'px';
+                for(var i in this.itemsVisible) {
+                    this.items[i].style.marginTop = '-'+parseInt(0.5*this.items[i].offsetHeight, 10)+'px';
                 }
             },
 
