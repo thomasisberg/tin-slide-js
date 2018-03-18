@@ -243,7 +243,7 @@
                 }
 
                 var items = [];
-                for(i=0, len=this.container.childNodes.length; i<len; i++) {
+                for(i=0, n=this.container.childNodes.length; i<n; i++) {
                     item = this.container.childNodes[i];
                     if(item.nodeType === Node.ELEMENT_NODE) {
                         items.push(item);
@@ -481,7 +481,7 @@
                     that.onDotClick(event);
                 };
                 this.dotsItems = [];
-                for(i=0; i<this.numItems; i++) {
+                for(var i=0; i<this.numItems; i++) {
                     var li = document.createElement('LI');
                     li.setAttribute('class', 'tin-slide-dot-'+i);
                     li.setAttribute('tin-slide-index', i);
@@ -750,7 +750,7 @@
                 // Calculate how far the slide will travel upon press.
                 var step = 0;
                 var stepAdd = this.step;
-                for(i=0; i<25; i++) {
+                for(var i=0; i<25; i++) {
                     stepAdd *= this.settings.swipeStepFactor;
                     step += stepAdd;
                 }
@@ -793,7 +793,7 @@
                         // Calculate how far the slide will travel upon release.
                         var step = this.step * 15;
                         var stepAdd = this.step;
-                        for(i=0; i<80; i++) {
+                        for(var i=0; i<80; i++) {
                             stepAdd *= this.settings.swipeStepFactor;
                             step += stepAdd;
                         }
