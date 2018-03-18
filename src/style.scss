@@ -57,6 +57,10 @@ code {
     flex: 0 1 600px;
     max-width: 100%;
 
+    &.center {
+        text-align: center;
+    }
+
     & > .slider-wrapper {
         margin-top: 40px;
     }
