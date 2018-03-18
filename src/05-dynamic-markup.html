@@ -47,16 +47,7 @@
             var slides = document.getElementsByClassName('slider');
 
             for(var ii=0; ii<slides.length; ii++) {
-                TinSlide(slides[ii], {
-                    loop: false,
-                    useUpdateContainerHeight: false,
-                    verticallyCenter: true,
-                    generate: {
-                        nav: {
-                            on: false
-                        }
-                    }
-                });
+                TinSlide(slides[ii]);
             }
         </script>
     </body>
