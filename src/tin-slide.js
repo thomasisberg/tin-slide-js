@@ -54,25 +54,21 @@
                 effects: {
                     slideHorizontal: {
                         on: true,
-                        // 0 - x
-                        // offset: 0.35
-                        offset: 1
+                        offset: 1, // 0 - x
                     },
                     scale: {
                         on: false,
-                        // 0 - x
-                        min: 0.8,
-                        // 0 - x
-                        max: 1,
-                        minAt: 1.0,
-                        maxAt: 0.0
+                        min: 0.8,   // 0 - x
+                        max: 1,     // 0 - x
+                        minAt: 1.0, // 0 - 1
+                        maxAt: 0.0  // 0 - 1
                     },
                     fade: {
                         on: false,
-                        min: 0,
-                        max: 1,
-                        minAt: 1.0,
-                        maxAt: 0
+                        min: 0,     // 0 - 1
+                        max: 1,     // 0 - 1
+                        minAt: 1.0, // 0 - 1
+                        maxAt: 0    // 0 - 1
                     },
                     motionBlur: {
                         on: false,
@@ -542,7 +538,9 @@
                 // Add ceil index if pointer is not at destination.
                 if(this.pointer !== floorPointer) {
                     var ceilPointer = Math.ceil(this.pointer);
-                    if(this.settings.loop) {ceilPointer %= this.numItems;}
+                    if(this.settings.loop) {
+                        ceilPointer %= this.numItems;
+                    }
                     if(ceilPointer < this.items.length) {
                         visibleItems.push(this.items[ceilPointer]);
                     }
