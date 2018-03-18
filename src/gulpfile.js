@@ -1,6 +1,8 @@
 const gulp = require('gulp');
 const sass = require('gulp-sass');
 const jshint = require('gulp-jshint');
+const rename = require('gulp-rename');
+const uglify = require('gulp-uglify');
 
 const dest = '../public/src/';
 
@@ -21,7 +23,10 @@ function script() {
     return gulp.src('tin-slide.js')
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(gulp.dest(dest));
+        .pipe(gulp.dest(dest))
+        .pipe(rename('tin-slide.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('./'));
 }
 
 function watch() {

@@ -1069,8 +1069,8 @@
                 }
             },
 
-            updateContainerHeightFromParent() {
-                // Update this inner most slider.
+            // Update this inner most slider.
+            updateContainerHeightFromParent: function() {
                 this.updateContainerHeight(0);
             },
 
