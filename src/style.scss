@@ -22,7 +22,6 @@ body {
     font-family: 'Poppins', sans-serif;
     line-height: 1.6;
     padding: 20px 20px 60px 20px;
-
 }
 h1, h2, h3, h4, h5, h6 {
     margin-top: 0.6em;
@@ -53,10 +52,15 @@ code {
     max-width: 600px;
     margin-top: 2px;
 }
+.page {
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .wrapper {
     flex: 0 1 600px;
     max-width: 100%;
-    overflow-x: hidden;
 
     &.center {
         text-align: center;
