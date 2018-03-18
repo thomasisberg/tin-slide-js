@@ -552,7 +552,7 @@
                 }
                 var item;
                 var len=visibleItems.length;
-    
+                var relativeItem = false;
                 for(var i=0; i<len; i++) {
                     item = visibleItems[i];
                     // If previously non visible item becomes visible.
@@ -566,7 +566,6 @@
     
                     // Make the most visible item relatively positioned,
                     // and put it in front of the others.
-                    var relativeItem = false;
                     if(!(progress > 0.5 || progress < -0.5) && !relativeItem) {
                         relativeItem = true;
                         // All slides absolute positioned if slider has a defined height
