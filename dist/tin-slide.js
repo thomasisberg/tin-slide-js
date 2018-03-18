@@ -1,23 +1,132 @@
 /*!
- * TinSlide v0.1.2
+ * TinSlide v0.1.3
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.TinSlide = factory());
-}(this, (function () {
+    'use strict';
+	if(typeof exports === 'object' && typeof module !== 'undefined') {
+        module.exports = factory();
+    }
+    else if(typeof define === 'function' && define.amd) {
+        define(factory);
+    }
+    else {
+        global.TinSlide = factory();
+    }
+}(this, function () {
+    'use strict';
 
     function TinSlide$(container, options) {
+        
+        var logic = {
 
-        var protected = {
+            /*--------------------------------------------------
+            | Settings – possible to override using options.
+            |-------------------------------------------------*/
+            settings: {
+                debug: false,
+                // Minimal amount of step required to reach target.
+                stepSnap: 0.0003,
+                // Step factor every step. Applied on step to target.
+                stepFactor: 0.2,
+                // Max step every step.
+                stepMax: 0.20,
+                // Minimum step.
+                stepMin: 0.0004,
+                // 0 - 1
+                // 0 = No break (will never turn).
+                // 1 = Instant break – turns immediately.
+                stepTurnBreakFactor: 0.5,
+                // Choke is increased by this value every step.
+                chokeReleaseStep: 0.05,
+                // Choke is multiplied by this value every step.
+                chokeReleaseFactor: 1.5,
+                // 0 - X
+                // 0 = Slow break towards target. Higher values breaks harder.
+                // Brings back choke when target is approached.
+                // Distance to target multiplied by this value = choke.
+                // This is what makes the slider break in on target.
+                chokeReturnFactor: 2,
+                // Option to crop container (or not).
+                cropContainer: true,
+                // Desired slide effects.
+                effects: {
+                    slideHorizontal: {
+                        on: true,
+                        offset: 1, // 0 - x
+                    },
+                    scale: {
+                        on: false,
+                        min: 0.8,   // 0 - x
+                        max: 1,     // 0 - x
+                        minAt: 1.0, // 0 - 1
+                        maxAt: 0.0  // 0 - 1
+                    },
+                    fade: {
+                        on: false,
+                        min: 0,     // 0 - 1
+                        max: 1,     // 0 - 1
+                        minAt: 1.0, // 0 - 1
+                        maxAt: 0    // 0 - 1
+                    },
+                    motionBlur: {
+                        on: false,
+                        maxPixels: 2,
+                        stepMin: 0.05,
+                        factor: 500
+                    }
+                },
+                // If container height should actively match item height.
+                useUpdateContainerHeight: false,
+                // Vertically center slides.
+                verticallyCenter: false,
+                // Optional next / prev navigation on container click.
+                useContainerClickNextPrev: false,
+                // Optional swipe navigation.
+                useSwipeNavigation: true,
+                swipeStepFactor: 0.25,
+                // Optionally wait before invoke grabbing.
+                // Useful if the entire container is clickable.
+                // Especially if clicking either half navigates to previous / next.
+                swipePressWaitBeforeInvokeGrabbing: false,
+                swipeReleaseRequiredSwipeX: 0,
+                // Optionally generate markup.
+                generate: {
+                    dots: {
+                        on: true,
+                        afterContainer: true
+                    },
+                    nav: {
+                        on: true,
+                        afterContainer: true
+                    }
+                },
+                // Optional ratio.
+                ratio: null,
+                // If slider has height (separate CSS) we can absolute position all slides.
+                hasHeight: false,
+                // Auto play.
+                autoPlay: false,
+                autoPlayTime: 5000,
+                autoPlayPauseOnHover: true,
+                autoPlayStopOnNavigation: true,
+                // Loop
+                loop: true,
+                // Non looping next / prev animation when end reached.
+                useNonLoopingHint: true,
+                // Base z-index. Slider will get base z, active slide +1.
+                // Overlying navigation can be set to higher in separate CSS.
+                // Disable zIndex by setting zIndex to 0.
+                zIndex: 0,
+                // Hide using visibility:hidden instead of display:none.
+                // Useful if images aren't loaded as desired.
+                hideUsingVisibility: false,
+            },
 
             /**
              *  Properties – all possible to override with options argument.
              */
-            debug: false,
-            container: null,
             container: null,
             containerWidth: 0,
             items: [],
@@ -30,135 +139,34 @@
             targetIndex: 0,
             targetIndexWithinBounds: 0,
             timerAnimate: 0,
-            // Minimal amount of step required to reach target.
-            stepSnap: 0.0003,
-            // Step factor every step. Applied on step to target.
-            stepFactor: 0.2,
-            // Max step every step.
-            stepMax: 0.20,
-            // Minimum step.
-            stepMin: 0.0004,
             // Last step.
             step: 0,
             // Last step – absolute value.
             stepAbs: 0,
-            // 0 - 1
-            // 0 = No break (will never turn).
-            // 1 = Instant break – turns immediately.
-            stepTurnBreakFactor: 0.5,
             // Chokes acceleration.
             // Is always between 0 and 1.
             // Is increased on every step upon acceleration (up to 1).
             // Applied max step every step is stepMax * choke.
             choke: 0,
-            // Choke is increased by this value every step.
-            chokeReleaseStep: 0.05,
-            // Choke is multiplied by this value every step.
-            chokeReleaseFactor: 1.5,
-            // 0 - X
-            // 0 = Slow break towards target. Higher values breaks harder.
-            // Brings back choke when target is approached.
-            // Distance to target multiplied by this value = choke.
-            // This is what makes the slider break in on target.
-            chokeReturnFactor: 2,
-            // Option to crop container (or not).
-            cropContainer: true,
-            // Desired slide effects.
-            effects: {
-                slideHorizontal: {
-                    on: true,
-                    // 0 - x
-                    // offset: 0.35
-                    offset: 1
-                },
-                scale: {
-                    on: false,
-                    // 0 - x
-                    min: 0.8,
-                    // 0 - x
-                    max: 1,
-                    minAt: 1.0,
-                    maxAt: 0.0
-                },
-                fade: {
-                    on: false,
-                    min: 0,
-                    max: 1,
-                    minAt: 1.0,
-                    maxAt: 0
-                },
-                motionBlur: {
-                    on: false,
-                    maxPixels: 2,
-                    stepMin: 0.05,
-                    factor: 500
-                }
-            },
-            // If container height should actively match item height.
-            useUpdateContainerHeight: false,
             containerHeight: 0,
             timerUpdateContainerHeight: 0,
-            // VErtically center slides.
-            verticallyCenter: false,
-            // Optional next / prev navigation on container click.
-            useContainerClickNextPrev: false,
-            // Optional swipe navigation.
-            useSwipeNavigation: true,
             swipePressX: 0,
             timerSwipePress: 0,
             swipePressPointerVal: 0,
             swipeTargetVal: 0,
             timerSwipe: 0,
-            swipeStepBreak: 0.4,
-            swipeStepFactor: 0.25,
             swipeX: 0,
             swipeXAbs: 0,
-            // Optionally wait before invoke grabbing.
-            // Useful if the entire container is clickable.
-            // Especially if clicking either half navigates to previous / next.
-            swipePressWaitBeforeInvokeGrabbing: false,
-            swipeReleaseRequiredSwipeX: 0,
-            // Optionally generate markup.
-            generate: {
-                dots: {
-                    on: true,
-                    afterContainer: true
-                },
-                nav: {
-                    on: true,
-                    afterContainer: true
-                }
-            },
             // Dots.
             dotsItems: null,
             currentDotIndex: null,
             // Next / prev.
             nav: null,
-            // Optional ratio.
-            ratio: null,
             ratioPercent: null,
-            // If slider has height (separate CSS) we can absolute position all slides.
-            hasHeight: false,
-            // Auto play.
-            autoPlay: false,
             timerAutoPlay: 0,
-            autoPlayTime: 5000,
             autoPlayState: null,
-            autoPlayPauseOnHover: true,
-            autoPlayStopOnNavigation: true,
             autoPlayForwards: true,
-            // Loop
-            loop: true,
-            // Non looping next / prev animation when end reached.
-            useNonLoopingHint: true,
             timerNonLoopingHint: 0,
-            // Base z-index. Slider will get base z, active slide +1.
-            // Overlying navigation can be set to higher in separate CSS.
-            // Disable zIndex by setting zIndex to 0.
-            zIndex: 0,
-            // Hide using visibility:hidden instead of display:block.
-            // Useful if images aren't loaded as desired.
-            hideUsingVisibility: false,
     
             /**
              *  Methods.
@@ -166,11 +174,11 @@
             init: function(container, options) {
     
                 this.container = container;
-                var item, i;
+                var item, i, n, element, src;
                 this.body = document.getElementsByTagName('body')[0];
     
                 if(options !== undefined) {
-                    this.setOptions(this, options);
+                    this.setOptions(this.settings, options);
                 }
 
                 /**
@@ -182,9 +190,9 @@
                     tinSlideImagesArr.push(tinSlideImages[i]);
                 }
                 while(tinSlideImagesArr.length) {
-                    var element = tinSlideImagesArr.shift();
+                    element = tinSlideImagesArr.shift();
                     var img = document.createElement('img');
-                    var src = element.getAttribute('data-src');
+                    src = element.getAttribute('data-src');
                     if(src && src !== undefined && src !== '') {
                         img.setAttribute('src', src);
                     }
@@ -208,8 +216,8 @@
                     tinSlideBackgroundsArr.push(tinSlideBackgrounds[i]);
                 }
                 while(tinSlideBackgroundsArr.length) {
-                    var element = tinSlideBackgroundsArr.shift();
-                    var src = element.getAttribute('data-src');
+                    element = tinSlideBackgroundsArr.shift();
+                    src = element.getAttribute('data-bg');
                     if(src && src !== undefined && src !== '') {
                         element.setAttribute('style', 'background: url("'+src+'") no-repeat center; background-size: cover;');
                     }
@@ -224,14 +232,14 @@
                     tinSlideMarkupArr.push(tinSlideMarkup[i]);
                 }
                 while(tinSlideMarkupArr.length) {
-                    var element = tinSlideMarkupArr.shift();
+                    element = tinSlideMarkupArr.shift();
                     var template = document.createElement('template');
-                    template.innerHTML = element.getAttribute('tin-slide-markup');
+                    template.innerHTML = element.getAttribute('data-markup');
                     element.replaceWith(template.content.firstChild);
                 }
 
                 var items = [];
-                for(i=0, len=this.container.childNodes.length; i<len; i++) {
+                for(i=0, n=this.container.childNodes.length; i<n; i++) {
                     item = this.container.childNodes[i];
                     if(item.nodeType === Node.ELEMENT_NODE) {
                         items.push(item);
@@ -241,11 +249,11 @@
                 this.numItems = this.items.length;
                 this.numHalfItems = this.numItems / 2;
     
-                if(this.ratio) {
-                    this.ratioPercent = 100 * (1/this.ratio);
+                if(this.settings.ratio) {
+                    this.settings.ratioPercent = 100 * (1/this.settings.ratio);
                 }
 
-                var containerHeight = 0, i;
+                var containerHeight = 0;
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
                     item.tinSlideIndex = i;
@@ -254,8 +262,8 @@
                     item.style.top = '0';
                     item.style.left = '0';
                     item.style.width = '100%';
-                    // if(this.ratio) {
-                    //     item.style.marginTop = -this.ratioPercent+'%';
+                    // if(this.settings.ratio) {
+                    //     item.style.marginTop = -this.settings.ratioPercent+'%';
                     // }
     
                     // Hide all items
@@ -267,14 +275,14 @@
                  *  Container styles.
                  */
                 this.container.style.position = 'relative';
-                if(this.cropContainer) {
+                if(this.settings.cropContainer) {
                     this.container.style.overflow = 'hidden';
                 }
-                if(this.ratio) {
-                    this.container.style.paddingTop = this.ratioPercent+'%';
+                if(this.settings.ratio) {
+                    this.container.style.paddingTop = this.settings.ratioPercent+'%';
                 }
-                if(this.zIndex) {
-                    this.container.style.zIndex = this.zIndex;
+                if(this.settings.zIndex) {
+                    this.container.style.zIndex = this.settings.zIndex;
                 }
     
                 var that = this;
@@ -282,11 +290,11 @@
                 /**
                  *  Set up prev / next navigation.
                  */
-                if(this.useContainerClickNextPrev) {
+                if(this.settings.useContainerClickNextPrev) {
                     this.container.addEventListener('click', function(event) {
                         var containerWidth = that.getContainerWidth();
                         if(containerWidth) {
-                            if((event.clientX - that.container.offsetLeft) < containerWidth / 2) {
+                            if((event.layerX - that.container.offsetLeft) < containerWidth / 2) {
                                 that.previous();
                             }
                             else {
@@ -300,7 +308,7 @@
                  *  Set up swipe navigation.
                  */
                 if(this.items.length > 1) {
-                    if(this.useSwipeNavigation) {
+                    if(this.settings.useSwipeNavigation) {
     
                         // Swipe styles.
                         this.container.style.cursor = '-webkit-grab';
@@ -315,7 +323,8 @@
                         for(i=0; i<this.numItems; i++) {
                             this.css(this.items[i], styles);
                             var images = this.items[i].getElementsByTagName('img');
-                            for(var j=0, n=images.length; j<n; j++) {
+                            n = images.length;
+                            for(var j=0; j<n; j++) {
                                 this.css(images[j], styles);
                             }
                         }
@@ -333,7 +342,7 @@
                 /**
                  *  If container height should always match selected item.
                  */
-                if(this.useUpdateContainerHeight) {
+                if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
                     window.addEventListener('resize', function() {
                         that.updateContainerHeight();
@@ -347,7 +356,7 @@
                 /**
                  * Vertically center slides.
                  */
-                if(this.verticallyCenter) {
+                if(this.settings.verticallyCenter) {
                     this.container.style.display = 'flex';
                     this.container.style.flexDirection = 'column';
                     this.container.style.justifyContent = 'center';
@@ -356,29 +365,32 @@
                 // Force recalculation of container width on window resize.
                 // Calculation will occur when width is needed.
                 window.addEventListener('resize', function() {
-                    that.containerWidth = 0;
-                });
+                    this.containerWidth = 0;
+                    if(this.settings.verticallyCenter) {
+                        this.verticallyCenterItems();
+                    }
+                }.bind(this));
     
                 if(this.items.length > 1) {
                     /**
                      *  Generate dots.
                      */
-                    if(this.generate.dots.on) {
+                    if(this.settings.generate.dots.on) {
                         this.dots = this.createDots();
                         this.container.parentNode.insertBefore(
                             this.dots,
-                            this.generate.dots.afterContainer ? this.container.nextSibling : this.container
+                            this.settings.generate.dots.afterContainer ? this.container.nextSibling : this.container
                         );
                     }
     
                     /**
                      *  Generate nav.
                      */
-                    if(this.generate.nav.on) {
+                    if(this.settings.generate.nav.on) {
                         this.nav = this.createNav();
                         this.container.parentNode.insertBefore(
                             this.nav,
-                            this.generate.nav.afterContainer ? this.container.nextSibling : this.container
+                            this.settings.generate.nav.afterContainer ? this.container.nextSibling : this.container
                         );
                     }
                 }
@@ -389,10 +401,10 @@
                 this.updateDots();
                 // Start auto play if desired.
                 if(this.items.length > 1) {
-                    if(this.autoPlay) {
+                    if(this.settings.autoPlay) {
                         this.startAuto();
                     }
-                    if(this.autoPlayPauseOnHover) {
+                    if(this.settings.autoPlayPauseOnHover) {
                         this.container.addEventListener('mouseenter', function(event) {
                             that.pauseAuto();
                         });
@@ -428,7 +440,7 @@
                 return classes.indexOf(className) > -1;
             },
             hideOrShowElement: function(element, hide) {
-                if(this.hideUsingVisibility) {
+                if(this.settings.hideUsingVisibility) {
                     element.style.visibility = hide ? 'hidden' : 'visible';
                 }
                 else {
@@ -465,14 +477,14 @@
                     that.onDotClick(event);
                 };
                 this.dotsItems = [];
-                for(i=0; i<this.numItems; i++) {
+                for(var i=0; i<this.numItems; i++) {
                     var li = document.createElement('LI');
                     li.setAttribute('class', 'tin-slide-dot-'+i);
                     li.setAttribute('tin-slide-index', i);
                     li.style.cursor = 'pointer';
                     ul.appendChild(li);
                     this.dotsItems.push(li);
-                    li.addEventListener('click', liClickHandler)
+                    li.addEventListener('click', liClickHandler);
                 }
                 return ul;
     
@@ -512,7 +524,7 @@
     
                 this.pointerVal = val;
                 var pointer = val % this.numItems;
-                if(pointer < 0 && this.loop) {
+                if(pointer < 0 && this.settings.loop) {
                     pointer += this.numItems;
                 }
                 this.pointer = pointer;
@@ -526,7 +538,9 @@
                 // Add ceil index if pointer is not at destination.
                 if(this.pointer !== floorPointer) {
                     var ceilPointer = Math.ceil(this.pointer);
-                    if(this.loop) {ceilPointer %= this.numItems;}
+                    if(this.settings.loop) {
+                        ceilPointer %= this.numItems;
+                    }
                     if(ceilPointer < this.items.length) {
                         visibleItems.push(this.items[ceilPointer]);
                     }
@@ -557,23 +571,23 @@
                         relativeItem = true;
                         // All slides absolute positioned if slider has a defined height
                         // (in separate CSS) or ratio.
-                        if(!(this.ratio || this.hasHeight)) {
+                        if(!(this.settings.useUpdateContainerHeight || this.settings.ratio || this.settings.hasHeight)) {
                             item.style.position = 'relative';
                             // If slides are vertically centered.
-                            if(this.verticallyCenter) {
+                            if(this.settings.verticallyCenter) {
                                 item.style.top = 'auto';
                                 item.style.marginTop = 'inherit';
                             }
                         }
-                        if(this.zIndex) {
-                            visibleItems[i].style.zIndex = this.zIndex + 1;
+                        if(this.settings.zIndex) {
+                            visibleItems[i].style.zIndex = this.settings.zIndex + 1;
                         }
                     }
                     else {
                         item.style.position = 'absolute';
-                        if(this.verticallyCenter) {
+                        if(this.settings.verticallyCenter) {
                             item.style.top = '50%';
-                            item.style.marginTop = '-'+(0.5*item.offsetHeight)+'px';
+                            item.style.marginTop = '-'+parseInt(0.5*item.offsetHeight, 10)+'px';
                         }
                         item.style.zIndex = '';
                     }
@@ -590,7 +604,13 @@
                 }
                 this.applySlideEffect();
             },
-    
+
+            verticallyCenterItems: function() {
+                for(var i in this.itemsVisible) {
+                    this.items[i].style.marginTop = '-'+parseInt(0.5*this.items[i].offsetHeight, 10)+'px';
+                }
+            },
+
             /**
              *  Next/ previous.
              */
@@ -599,19 +619,19 @@
                 if(this.items.length > 1) {
                     // Stop auto play if not an auto play navigation.
                     if(isAuto !== true) {
-                        if(this.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlayStopOnNavigation) {
                             this.stopAuto();
                         }
                     }
                     if(!this.timerSwipe) {
                         // Navigate if slider is looping, or if there are previous slides.
-                        if(this.loop || this.targetIndex < this.numItems - 1) {
+                        if(this.settings.loop || this.targetIndex < this.numItems - 1) {
                             this.targetIndex++;
                             this.targetVal = this.targetIndex;
                             this.animateToTarget();
                             status = true;
                         }
-                        else if(!isAuto && this.useNonLoopingHint) {
+                        else if(!isAuto && this.settings.useNonLoopingHint) {
                             this.targetVal = this.numItems - 1 + 0.05;
                             this.animateToTarget();
                             var that = this;
@@ -629,19 +649,19 @@
                 if(this.items.length > 1) {
                     // Stop auto play if not an auto play navigation.
                     if(isAuto !== true) {
-                        if(this.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlayStopOnNavigation) {
                             this.stopAuto();
                         }
                     }
                     if(!this.timerSwipe) {
                         // Navigate if slider is looping, or if there are previous slides.
-                        if(this.loop || this.targetIndex > 0) {
+                        if(this.settings.loop || this.targetIndex > 0) {
                             this.targetIndex--;
                             this.targetVal = this.targetIndex;
                             this.animateToTarget();
                             status = true;
                         }
-                        else if(!isAuto && this.useNonLoopingHint) {
+                        else if(!isAuto && this.settings.useNonLoopingHint) {
                             this.targetVal = -0.05;
                             this.animateToTarget();
                             var that = this;
@@ -680,7 +700,7 @@
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
     
-                    if(this.swipePressWaitBeforeInvokeGrabbing) {
+                    if(this.settings.swipePressWaitBeforeInvokeGrabbing) {
                         var that = this;
                         // Wait before invoke grabbing.
                         clearTimeout(this.timerSwipePress);
@@ -700,8 +720,12 @@
                     else {
                         this.onTimerSwipePress();
                     }
+
+                    // Stop event – useful if slider is a child slider.
+                    if(this.loop || (this.targetIndexWithinBounds>0 && this.targetIndexWithinBounds<this.numItems-1)) {
+                        event.stopPropagation();
+                    }
                 }
-    
             },
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
@@ -712,7 +736,7 @@
                 clearTimeout(this.timerNonLoopingHint);
     
                 // Stop auto play.
-                if(this.autoPlayStopOnNavigation) {
+                if(this.settings.autoPlayStopOnNavigation) {
                     this.stopAuto();
                 }
     
@@ -724,8 +748,8 @@
                 // Calculate how far the slide will travel upon press.
                 var step = 0;
                 var stepAdd = this.step;
-                for(i=0; i<25; i++) {
-                    stepAdd *= this.swipeStepFactor;
+                for(var i=0; i<25; i++) {
+                    stepAdd *= this.settings.swipeStepFactor;
                     step += stepAdd;
                 }
     
@@ -754,7 +778,7 @@
             onSwipeRelease: function() {
 
                 this.container.style.cursor = '-webkit-grab';
-                if(this.swipeXAbs >= this.swipeReleaseRequiredSwipeX) {
+                if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
                     var targetIndex;
                     if(this.step < -limit) {
@@ -767,8 +791,8 @@
                         // Calculate how far the slide will travel upon release.
                         var step = this.step * 15;
                         var stepAdd = this.step;
-                        for(i=0; i<80; i++) {
-                            stepAdd *= this.swipeStepFactor;
+                        for(var i=0; i<80; i++) {
+                            stepAdd *= this.settings.swipeStepFactor;
                             step += stepAdd;
                         }
                         var targetVal = this.pointerVal + step;
@@ -798,8 +822,8 @@
             },
             onSwipeMove: function(event) {
                 // Check if child slider is swiping.
-                // If so, lock this parent slider until child slider no longer wipes (first / last slide reached).
-                // Child sliders must have loop=false. Otherwise this parent slider will
+                // If so, lock this parent slider until child slider no longer swipes (first / last slide reached).
+                // Child sliders should probably have loop=false. Otherwise this parent slider will
                 // never slide again once child slider has been grabbed.
                 if(event.tinSlideMoved === undefined) {
     
@@ -810,17 +834,26 @@
                         this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
                         var swipeTargetVal = this.swipePressPointerVal + (this.swipeX / containerWidth);
-                        if(!this.loop) {
-                            var offset = this.useNonLoopingHint ? 0.05 : 0;
-                            if(swipeTargetVal < -offset) {swipeTargetVal = -offset;}
-                            else if(swipeTargetVal > this.numItems - 1 + offset) {swipeTargetVal = this.numItems - 1 + offset;}
-                            else {
-                                event.tinSlideMoved = true;
+                        if(!this.settings.loop) {
+                            var offset = this.settings.useNonLoopingHint ? 0.05 : 0;
+                            if(swipeTargetVal < -offset) {
+                                swipeTargetVal = -offset;
                             }
+                            else if(swipeTargetVal > this.numItems - 1 + offset) {
+                                swipeTargetVal = this.numItems - 1 + offset;
+                            }
+                            else {
+                                event.tinSlideMoved = this;
+                            }
+                        }
+                        else {
+                            event.tinSlideMoved = this;
                         }
                         this.swipeTargetVal = swipeTargetVal;
                         var targetIndexWithinBounds = Math.round(this.swipeTargetVal) % this.numItems;
-                        if(targetIndexWithinBounds < 0) {targetIndexWithinBounds += this.numItems;}
+                        if(targetIndexWithinBounds < 0) {
+                            targetIndexWithinBounds += this.numItems;
+                        }
                         this.targetIndexWithinBounds = targetIndexWithinBounds;
                         this.updateDots();
                     }
@@ -837,7 +870,7 @@
             onTimerSwipe: function() {
                 var pointerVal = this.pointerVal;
                 var diff = this.swipeTargetVal - pointerVal;
-                var step = diff * this.swipeStepFactor;
+                var step = diff * this.settings.swipeStepFactor;
                 this.step = step;
                 this.stepAbs = this.step < 0 ? -this.step : this.step;
                 pointerVal += step;
@@ -862,7 +895,7 @@
                 this.updateDots();
                 var pointerVal = this.pointerVal % this.numItems;
                 // Adjust pointerVal so slider chooses optimal direction.
-                if(this.loop) {
+                if(this.settings.loop) {
                     var diff = pointerVal - this.targetIndex;
                     if(diff > this.numHalfItems) {
                         pointerVal -= this.numItems;
@@ -885,7 +918,7 @@
                 }
                 this.targetIndexWithinBounds = targetIndexWithinBounds;
                 this.updateDots();
-                if(this.useUpdateContainerHeight) {
+                if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
                 }
                 if(!this.timerAnimate) {
@@ -899,34 +932,34 @@
                 var pointerVal = this.pointerVal;
                 var diff = this.targetVal - pointerVal;
                 var diffAbs = diff < 0 ? -diff : diff;
-                if(diffAbs < this.stepSnap) {
+                if(diffAbs < this.settings.stepSnap) {
                     this.step = this.stepAbs = 0;
                     this.setPointer(this.targetVal);
                     clearInterval(this.timerAnimate);
                     this.timerAnimate = 0;
                 }
                 else {
-                    var step = (diff) * this.stepFactor;
+                    var step = (diff) * this.settings.stepFactor;
                     // If slider continues in the same direction.
                     if(step * this.step >= 0) {
-                        this.step = (diff) * this.stepFactor;
+                        this.step = (diff) * this.settings.stepFactor;
                         // Release the choke for acceleration.
                         if(this.choke < 1) {
-                            this.choke = (this.choke * this.chokeReleaseFactor) + (this.choke || this.chokeReleaseStep ? this.chokeReleaseStep : 0.05);
+                            this.choke = (this.choke * this.settings.chokeReleaseFactor) + (this.choke || this.settings.chokeReleaseStep ? this.settings.chokeReleaseStep : 0.05);
                         }
                         // Decrease choke when target is approached.
                         if(this.choke > diffAbs) {
-                            this.choke = diffAbs * (0.5 + this.chokeReturnFactor);
+                            this.choke = diffAbs * (0.5 + this.settings.chokeReturnFactor);
                         }
                         if(this.choke > 1) {
                             this.choke = 1;
                         }
-                        if(this.step > this.stepMin || this.step < -this.stepMin) {
-                            var stepMax = this.choke * this.stepMax;
+                        if(this.step > this.settings.stepMin || this.step < -this.settings.stepMin) {
+                            var stepMax = this.choke * this.settings.stepMax;
                             if(this.step > stepMax) {this.step = stepMax;}
                             else if(this.step < -stepMax) {this.step = -stepMax;}
-                            if(!(this.step > this.stepMin || this.step < -this.stepMin)) {
-                                this.step = this.stepMin * (this.step < 0 ? -1 : 1);
+                            if(!(this.step > this.settings.stepMin || this.step < -this.settings.stepMin)) {
+                                this.step = this.settings.stepMin * (this.step < 0 ? -1 : 1);
                             }
                         }
                         this.stepAbs = this.step < 0 ? -this.step : this.step;
@@ -934,9 +967,9 @@
                     }
                     // If slider changes direction – break and turn.
                     else {
-                        step = this.step * (1-this.stepTurnBreakFactor);
+                        step = this.step * (1-this.settings.stepTurnBreakFactor);
                         // If turning break has completed.
-                        if(!(step > this.stepSnap || step < -this.stepSnap)) {
+                        if(!(step > this.settings.stepSnap || step < -this.settings.stepSnap)) {
                             this.step = 0;
                         } else {
                             this.step = step;
@@ -951,7 +984,7 @@
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
                 // Stop auto play.
-                if(this.autoPlayStopOnNavigation) {
+                if(this.settings.autoPlayStopOnNavigation) {
                     this.stopAuto();
                 }
                 // Stop animation.
@@ -966,7 +999,7 @@
                 }
                 this.targetIndexWithinBounds = this.targetIndex;
                 this.updateDots();
-                if(this.useUpdateContainerHeight) {
+                if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
                 }
                 this.setPointer(this.targetIndexWithinBounds);
@@ -974,11 +1007,13 @@
 
             updateContainerHeight: function(fromSubSlideWithHeight) {
                 
+                var parentSlides;
+
                 // If this action was initiated by the slider itself.
                 if(fromSubSlideWithHeight === undefined) {
                     // Don't do anything if the slider has parent sliders.
                     // Let the top most slider handle the action.
-                    var parentSlides = this.getParentSlides();
+                    parentSlides = this.getParentSlides();
                     if(parentSlides.length) {
                         parentSlides[0].updateContainerHeight();
                     }
@@ -1003,7 +1038,7 @@
                 else {
                     this.doUpdateContainerHeight(fromSubSlideWithHeight);
                     // Update parent slider.
-                    var parentSlides = this.getParentSlides().reverse();
+                    parentSlides = this.getParentSlides().reverse();
                     if(parentSlides.length) {
                         parentSlides[0].updateContainerHeight(this.containerHeight);
                     }
@@ -1012,6 +1047,7 @@
             },
 
             doUpdateContainerHeight: function(minHeight) {
+                var id = this.container.getAttribute('id');
                 if(minHeight === undefined) {
                     minHeight = 0;
                 }
@@ -1031,8 +1067,8 @@
                 }
             },
 
+            // Update this inner most slider.
             updateContainerHeightFromParent: function() {
-                // Update this inner most slider.
                 this.updateContainerHeight(0);
             },
 
@@ -1043,7 +1079,7 @@
                         if(element.parentNode.tinSlide !== undefined) {
                             slides.push(element.parentNode.tinSlide);
                         }
-                        checkParentNode(element.parentNode)
+                        checkParentNode(element.parentNode);
                     }
                 }
                 checkParentNode(this.container);
@@ -1083,24 +1119,24 @@
                     var transforms = [];
     
                     // Horizontal slide.
-                    if(this.effects.slideHorizontal.on) {
-                        transforms.push('translateX('+((this.effects.slideHorizontal.offset*100)*-progress)+'%)');
+                    if(this.settings.effects.slideHorizontal.on) {
+                        transforms.push('translateX('+((this.settings.effects.slideHorizontal.offset*100)*-progress)+'%)');
                     }
     
                     // Scale
-                    if(this.effects.scale.on) {
+                    if(this.settings.effects.scale.on) {
                         var scale;
-                        if(progressAbs < this.effects.scale.maxAt) {
-                            scale = this.effects.scale.max;
+                        if(progressAbs < this.settings.effects.scale.maxAt) {
+                            scale = this.settings.effects.scale.max;
                         }
-                        else if(progressAbs < this.effects.scale.minAt) {
-                            var scaleFactor = 1 - ((progressAbs - this.effects.scale.maxAt) / (this.effects.scale.minAt - this.effects.scale.maxAt));
-                            scale = this.effects.scale.min + scaleFactor * (this.effects.scale.max - this.effects.scale.min);
+                        else if(progressAbs < this.settings.effects.scale.minAt) {
+                            var scaleFactor = 1 - ((progressAbs - this.settings.effects.scale.maxAt) / (this.settings.effects.scale.minAt - this.settings.effects.scale.maxAt));
+                            scale = this.settings.effects.scale.min + scaleFactor * (this.settings.effects.scale.max - this.settings.effects.scale.min);
                         }
                         else {
-                            scale = this.effects.scale.min;
+                            scale = this.settings.effects.scale.min;
                         }
-                        // var scale = this.effects.scale.min + (1 - (progress < 0 ? -progress : progress)) * (this.effects.scale.max - this.effects.scale.min);
+                        // var scale = this.settings.effects.scale.min + (1 - (progress < 0 ? -progress : progress)) * (this.settings.effects.scale.max - this.settings.effects.scale.min);
                         transforms.push('scale('+scale+', '+scale+')');
                     }
     
@@ -1110,17 +1146,17 @@
                     }
     
                     // Fade
-                    if(this.effects.fade.on) {
+                    if(this.settings.effects.fade.on) {
                         var opacity;
-                        if(progressAbs < this.effects.fade.maxAt) {
-                            opacity = this.effects.fade.max;
+                        if(progressAbs < this.settings.effects.fade.maxAt) {
+                            opacity = this.settings.effects.fade.max;
                         }
-                        else if(progressAbs < this.effects.fade.minAt) {
-                            var opacityFactor = 1 - ((progressAbs - this.effects.fade.maxAt) / (this.effects.fade.minAt - this.effects.fade.maxAt));
-                            opacity = this.effects.fade.min + opacityFactor * (this.effects.fade.max - this.effects.fade.min);
+                        else if(progressAbs < this.settings.effects.fade.minAt) {
+                            var opacityFactor = 1 - ((progressAbs - this.settings.effects.fade.maxAt) / (this.settings.effects.fade.minAt - this.settings.effects.fade.maxAt));
+                            opacity = this.settings.effects.fade.min + opacityFactor * (this.settings.effects.fade.max - this.settings.effects.fade.min);
                         }
                         else {
-                            opacity = this.effects.fade.min;
+                            opacity = this.settings.effects.fade.min;
                         }
                         item.style.opacity = opacity;
                         /**
@@ -1142,7 +1178,7 @@
                 }
     
                 // Motion blur.
-                if(this.effects.motionBlur.on) {
+                if(this.settings.effects.motionBlur.on) {
                     this.applyBlur();
                 }
             },
@@ -1150,10 +1186,10 @@
              *  Speed based blur.
              */
             applyBlur: function() {
-                var blurFactor = this.stepAbs - this.effects.motionBlur.stepMin;
+                var blurFactor = this.stepAbs - this.settings.effects.motionBlur.stepMin;
                 if(blurFactor < 0) {blurFactor = 0;}
-                var blur = blurFactor * this.effects.motionBlur.factor;
-                if(blur > this.effects.motionBlur.maxPixels) {blur = this.effects.motionBlur.maxPixels;}
+                var blur = blurFactor * this.settings.effects.motionBlur.factor;
+                if(blur > this.settings.effects.motionBlur.maxPixels) {blur = this.settings.effects.motionBlur.maxPixels;}
                 var cssBlur = blur ? 'blur('+blur+'px)' : '';
                 for(var index in this.itemsVisible) {
                     this.items[index].style.filter = cssBlur;
@@ -1173,7 +1209,7 @@
             },
             onDotClick: function(event) {
                 // Stop auto play.
-                if(this.autoPlayStopOnNavigation) {
+                if(this.settings.autoPlayStopOnNavigation) {
                     this.stopAuto();
                 }
                 var index = parseInt(event.target.getAttribute('tin-slide-index'), 10);
@@ -1209,7 +1245,7 @@
                                 status = that.autoPlayForwards ? that.next(true) : that.previous(true);
                             }
                         }
-                    }, this.autoPlayTime);
+                    }, this.settings.autoPlayTime);
                 }
             },
             stopAuto: function() {
@@ -1221,44 +1257,44 @@
         };
     
         // Initialize.
-        protected.init(container, options);
+        logic.init(container, options);
 
         /**
          *  Public methods.
          */
         var tinSlide = {
             next: function(index) {
-                protected.next();
+                logic.next();
             },
             previous: function(index) {
-                protected.previous();
+                logic.previous();
             },
             animateTo: function(index) {
-                protected.animateTo(index);
+                logic.animateTo(index);
             },
             goTo: function(index) {
-                protected.goTo(index);
+                logic.goTo(index);
             },
             getDots: function() {
-                return protected.dots ? protected.dots : protected.createDots();
+                return logic.dots ? logic.dots : logic.createDots();
             },
             getNav: function() {
-                return protected.nav ? protected.nav : protected.createNav();
+                return logic.nav ? logic.nav : logic.createNav();
             },
             startAuto: function() {
-                protected.startAuto();
+                logic.startAuto();
             },
             stopAuto: function() {
-                protected.stopAuto();
+                logic.stopAuto();
             },
             updateContainerHeight: function(fromSubSlideWithHeight) {
-                protected.updateContainerHeight(fromSubSlideWithHeight);
+                logic.updateContainerHeight(fromSubSlideWithHeight);
             },
             updateContainerHeightFromParent: function() {
-                protected.updateContainerHeightFromParent();
+                logic.updateContainerHeightFromParent();
             },
             getCurrentItem: function() {
-                return protected.items[protected.targetIndexWithinBounds];
+                return logic.items[logic.targetIndexWithinBounds];
             }
         };
 
@@ -1300,4 +1336,4 @@
 
     return TinSlide$;
 
-})));
+}));
