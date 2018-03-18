@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Simple / TinSlide</title>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <style>
+            .slider {
+                overflow: visible;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <h1>TinSlide</h1>
+            <h2>Effects</h2>
+            <p>Opt in to scale, fade and / or motionBlur effects. Opt out of horizontal slide, or change the amount of horizontal sliding.</p>
+            <code>
+                    TinSlide(document.getElementsByClassName('slider')[0], {
+                        effects: {
+                            slideHorizontal: {
+                                offset: 0.3
+                            },
+                            scale: {
+                                on: true
+                            },
+                            fade: {
+                                on: true
+                            },
+                            motionBlur: {
+                                on: true
+                            }
+                        },
+                        cropContainer: false
+                    });
+            </code>
+            <div class="slider-wrapper">
+                <div class="slider">
+                    <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                    <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                    <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                    <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                    <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                    <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                </div>
+            </div>
+        </div>
+        <script src="tin-slide.js"></script>
+        <script>
+            TinSlide(document.getElementsByClassName('slider')[0], {
+                effects: {
+                    slideHorizontal: {
+                        offset: 0.3
+                    },
+                    scale: {
+                        on: true
+                    },
+                    fade: {
+                        on: true
+                    },
+                    motionBlur: {
+                        on: true
+                    }
+                },
+                cropContainer: false
+            });
+        </script>
+    </body>
+</html>
