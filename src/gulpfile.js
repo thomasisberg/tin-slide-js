@@ -1,7 +1,15 @@
-var gulp = require('gulp');
-var sass = require('gulp-sass');
+const gulp = require('gulp');
+const sass = require('gulp-sass');
+const jshint = require('gulp-jshint');
 
-var dest = '../public/src/';
+const dest = '../public/src/';
+
+function dist() {
+    return gulp.src([
+        '*.html', 
+        '*.jpg'
+    ]).pipe(gulp.dest(dest));
+}
 
 function styles() {
     return gulp.src('*.scss')
@@ -9,19 +17,29 @@ function styles() {
         .pipe(gulp.dest(dest));
 }
 
-function dist() {
-    return gulp.src([
-        'tin-slide.js', 
-        '*.html', 
-        '*.jpg'
-    ]).pipe(gulp.dest(dest));
+function script() {
+    return gulp.src('tin-slide.js')
+        .pipe(jshint())
+        .pipe(jshint.reporter('jshint-stylish'))
+        .pipe(gulp.dest(dest));
 }
 
 function watch() {
-    return gulp.watch(['*.html', '*.scss', '*.js', '*.jpg'], gulp.series(styles, dist));
+    gulp.watch(['*.html', '*.jpg'], dist).on('error', err);
+    gulp.watch('*.scss', styles).on('error', err);
+    gulp.watch('tin-slide.js', script).on('error', err);
 }
 
-exports.styles = styles;
+function err(error) {
+    console.log(error);
+}
+
+function build() {
+    return gulp.parallel(dist, styles, script)();
+}
+
 exports.dist = dist;
+exports.styles = styles;
+exports.script = script;
 exports.watch = watch;
-exports.default = dist;
+exports.default = build;

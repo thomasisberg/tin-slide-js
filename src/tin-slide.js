@@ -4,14 +4,22 @@
  * Released under the MIT License.
  */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.TinSlide = factory());
-}(this, (function () {
+    'use strict';
+	if(typeof exports === 'object' && typeof module !== 'undefined') {
+        module.exports = factory();
+    }
+    else if(typeof define === 'function' && define.amd) {
+        define(factory);
+    }
+    else {
+        global.TinSlide = factory();
+    }
+}(this, function () {
+    'use strict';
 
     function TinSlide$(container, options) {
-
-        var protected = {
+        
+        var logic = {
 
             /*--------------------------------------------------
             | Settings – possible to override using options.
@@ -124,7 +132,6 @@
              *  Properties – all possible to override with options argument.
              */
             container: null,
-            container: null,
             containerWidth: 0,
             items: [],
             numItems: 0,
@@ -171,7 +178,7 @@
             init: function(container, options) {
     
                 this.container = container;
-                var item, i;
+                var item, i, n, element, src;
                 this.body = document.getElementsByTagName('body')[0];
     
                 if(options !== undefined) {
@@ -187,9 +194,9 @@
                     tinSlideImagesArr.push(tinSlideImages[i]);
                 }
                 while(tinSlideImagesArr.length) {
-                    var element = tinSlideImagesArr.shift();
+                    element = tinSlideImagesArr.shift();
                     var img = document.createElement('img');
-                    var src = element.getAttribute('data-src');
+                    src = element.getAttribute('data-src');
                     if(src && src !== undefined && src !== '') {
                         img.setAttribute('src', src);
                     }
@@ -213,8 +220,8 @@
                     tinSlideBackgroundsArr.push(tinSlideBackgrounds[i]);
                 }
                 while(tinSlideBackgroundsArr.length) {
-                    var element = tinSlideBackgroundsArr.shift();
-                    var src = element.getAttribute('data-bg');
+                    element = tinSlideBackgroundsArr.shift();
+                    src = element.getAttribute('data-bg');
                     if(src && src !== undefined && src !== '') {
                         element.setAttribute('style', 'background: url("'+src+'") no-repeat center; background-size: cover;');
                     }
@@ -229,7 +236,7 @@
                     tinSlideMarkupArr.push(tinSlideMarkup[i]);
                 }
                 while(tinSlideMarkupArr.length) {
-                    var element = tinSlideMarkupArr.shift();
+                    element = tinSlideMarkupArr.shift();
                     var template = document.createElement('template');
                     template.innerHTML = element.getAttribute('data-markup');
                     element.replaceWith(template.content.firstChild);
@@ -250,7 +257,7 @@
                     this.settings.ratioPercent = 100 * (1/this.settings.ratio);
                 }
 
-                var containerHeight = 0, i;
+                var containerHeight = 0;
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
                     item.tinSlideIndex = i;
@@ -320,7 +327,8 @@
                         for(i=0; i<this.numItems; i++) {
                             this.css(this.items[i], styles);
                             var images = this.items[i].getElementsByTagName('img');
-                            for(var j=0, n=images.length; j<n; j++) {
+                            n = images.length;
+                            for(var j=0; j<n; j++) {
                                 this.css(images[j], styles);
                             }
                         }
@@ -480,7 +488,7 @@
                     li.style.cursor = 'pointer';
                     ul.appendChild(li);
                     this.dotsItems.push(li);
-                    li.addEventListener('click', liClickHandler)
+                    li.addEventListener('click', liClickHandler);
                 }
                 return ul;
     
@@ -1001,11 +1009,13 @@
 
             updateContainerHeight: function(fromSubSlideWithHeight) {
                 
+                var parentSlides;
+
                 // If this action was initiated by the slider itself.
                 if(fromSubSlideWithHeight === undefined) {
                     // Don't do anything if the slider has parent sliders.
                     // Let the top most slider handle the action.
-                    var parentSlides = this.getParentSlides();
+                    parentSlides = this.getParentSlides();
                     if(parentSlides.length) {
                         parentSlides[0].updateContainerHeight();
                     }
@@ -1030,7 +1040,7 @@
                 else {
                     this.doUpdateContainerHeight(fromSubSlideWithHeight);
                     // Update parent slider.
-                    var parentSlides = this.getParentSlides().reverse();
+                    parentSlides = this.getParentSlides().reverse();
                     if(parentSlides.length) {
                         parentSlides[0].updateContainerHeight(this.containerHeight);
                     }
@@ -1071,7 +1081,7 @@
                         if(element.parentNode.tinSlide !== undefined) {
                             slides.push(element.parentNode.tinSlide);
                         }
-                        checkParentNode(element.parentNode)
+                        checkParentNode(element.parentNode);
                     }
                 }
                 checkParentNode(this.container);
@@ -1249,44 +1259,44 @@
         };
     
         // Initialize.
-        protected.init(container, options);
+        logic.init(container, options);
 
         /**
          *  Public methods.
          */
         var tinSlide = {
             next: function(index) {
-                protected.next();
+                logic.next();
             },
             previous: function(index) {
-                protected.previous();
+                logic.previous();
             },
             animateTo: function(index) {
-                protected.animateTo(index);
+                logic.animateTo(index);
             },
             goTo: function(index) {
-                protected.goTo(index);
+                logic.goTo(index);
             },
             getDots: function() {
-                return protected.dots ? protected.dots : protected.createDots();
+                return logic.dots ? logic.dots : logic.createDots();
             },
             getNav: function() {
-                return protected.nav ? protected.nav : protected.createNav();
+                return logic.nav ? logic.nav : logic.createNav();
             },
             startAuto: function() {
-                protected.startAuto();
+                logic.startAuto();
             },
             stopAuto: function() {
-                protected.stopAuto();
+                logic.stopAuto();
             },
             updateContainerHeight: function(fromSubSlideWithHeight) {
-                protected.updateContainerHeight(fromSubSlideWithHeight);
+                logic.updateContainerHeight(fromSubSlideWithHeight);
             },
             updateContainerHeightFromParent: function() {
-                protected.updateContainerHeightFromParent();
+                logic.updateContainerHeightFromParent();
             },
             getCurrentItem: function() {
-                return protected.items[protected.targetIndexWithinBounds];
+                return logic.items[logic.targetIndexWithinBounds];
             }
         };
 
@@ -1328,4 +1338,4 @@
 
     return TinSlide$;
 
-})));
+}));
