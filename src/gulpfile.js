@@ -4,7 +4,7 @@ const jshint = require('gulp-jshint');
 const rename = require('gulp-rename');
 const uglify = require('gulp-uglify');
 
-const dest = '../public/src/';
+const dest = '../public/';
 
 function dist() {
     return gulp.src([
