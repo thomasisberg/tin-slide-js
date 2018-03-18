@@ -6,7 +6,6 @@
     "eqnull": true,
     "esnext": true,
     "immed": true,
-    "jquery": true,
     "latedef": true,
     "newcap": true,
     "noarg": true,

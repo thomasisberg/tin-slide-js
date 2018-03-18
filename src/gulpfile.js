@@ -19,7 +19,7 @@ function styles() {
         .pipe(gulp.dest(dest));
 }
 
-function script() {
+function scripts() {
     return gulp.src('tin-slide.js')
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
@@ -32,19 +32,18 @@ function script() {
 function watch() {
     gulp.watch(['*.html', '*.jpg'], dist).on('error', err);
     gulp.watch('*.scss', styles).on('error', err);
-    gulp.watch('tin-slide.js', script).on('error', err);
+    gulp.watch('tin-slide.js', scripts).on('error', err);
 }
 
 function err(error) {
     console.log(error);
 }
 
-function build() {
-    return gulp.parallel(dist, styles, script)();
-}
+var build = gulp.parallel(dist, styles, scripts);
 
 exports.dist = dist;
 exports.styles = styles;
-exports.script = script;
+exports.scripts = scripts;
 exports.watch = watch;
+exports.build = build;
 exports.default = build;
