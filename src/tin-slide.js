@@ -813,8 +813,8 @@
                     var containerWidth = this.getContainerWidth();
                     if(containerWidth) {
 
-                        this.swipePreventDefault = true;
-                        event.preventDefault();
+                        // this.swipePreventDefault = true;
+                        // event.preventDefault();
 
                         this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
