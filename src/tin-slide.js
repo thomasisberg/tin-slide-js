@@ -157,6 +157,7 @@
             timerSwipe: 0,
             swipeX: 0,
             swipeXAbs: 0,
+            swipePreventDefault: false,
             // Dots.
             dotsItems: null,
             currentDotIndex: null,
@@ -414,8 +415,14 @@
                     }
                 }
 
+                /**
+                 * Create callback functions bound to this scope.
+                 */
                 this._onAnimationTimer = this.onAnimationTimer.bind(this);
-
+                this._onSwipePress = this.onSwipePress.bind(this);
+                this._onSwipeRelease = this.onSwipeRelease.bind(this);
+                this._onSwipeMove = this.onSwipeMove.bind(this);
+                this._onTimerSwipe = this.onTimerSwipe.bind(this);
             },
             css: function(element, styles) {
                 for(var style in styles) {
@@ -730,7 +737,7 @@
             },
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
-                
+
                 this.container.style.cursor = '-webkit-grabbing';
 
                 // Clear timer used for non looping hint.
@@ -758,27 +765,39 @@
                 this.swipePressPointerVal = this.pointerVal + step;
                 this.swipeTargetVal = this.swipePressPointerVal;
     
-                var that = this;
-                var handlers = {
-                    onSwipeMove: function(event) {
-                        that.onSwipeMove(event);
-                    },
-                    onSwipeRelease: function() {
-                        document.removeEventListener('touchmove', handlers.onSwipeMove);
-                        document.removeEventListener('mousemove', handlers.onSwipeMove);
-                        document.removeEventListener('touchend', handlers.onSwipeRelease);
-                        document.removeEventListener('mouseup', handlers.onSwipeRelease);
-                        that.onSwipeRelease();
-                    }
-                };
-                document.addEventListener('touchmove', handlers.onSwipeMove);
-                document.addEventListener('mousemove', handlers.onSwipeMove);
-                document.addEventListener('touchend', handlers.onSwipeRelease);
-                document.addEventListener('mouseup', handlers.onSwipeRelease);
+                // var that = this;
+                // var handlers = {
+                //     onSwipeMove: function(event) {
+                //         that.onSwipeMove(event);
+                //     },
+                //     onSwipeRelease: function() {
+                //         document.removeEventListener('touchmove', handlers.onSwipeMove);
+                //         document.removeEventListener('mousemove', handlers.onSwipeMove);
+                //         document.removeEventListener('touchend', handlers.onSwipeRelease);
+                //         document.removeEventListener('mouseup', handlers.onSwipeRelease);
+                //         that.onSwipeRelease();
+                //     }
+                // };
+                // document.addEventListener('touchmove', handlers.onSwipeMove);
+                // document.addEventListener('mousemove', handlers.onSwipeMove);
+                // document.addEventListener('touchend', handlers.onSwipeRelease);
+                // document.addEventListener('mouseup', handlers.onSwipeRelease);
+
+                document.addEventListener('touchmove', this._onSwipeMove);
+                document.addEventListener('mousemove', this._onSwipeMove);
+                document.addEventListener('touchend', this._onSwipeRelease);
+                document.addEventListener('mouseup', this._onSwipeRelease);
+
                 this.startSwipeTimer();
             },
             onSwipeRelease: function() {
 
+                document.removeEventListener('touchmove', this._onSwipeMove);
+                document.removeEventListener('mousemove', this._onSwipeMove);
+                document.removeEventListener('touchend', this._onSwipeRelease);
+                document.removeEventListener('mouseup', this._onSwipeRelease);
+
+                this.swipePreventDefault = false;
                 this.container.style.cursor = '-webkit-grab';
                 if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
@@ -804,25 +823,33 @@
                     this.choke = 1;
     
                     // Wait a few milliseconds, otherwise prev / next will be invoked.
-                    var that = this;
+                    // var that = this;
                     setTimeout(function() {
-                        if(that.timerSwipe) {
-                            clearInterval(that.timerSwipe);
-                            that.timerSwipe = 0;
+                        if(this.timerSwipe) {
+                            // clearInterval(that.timerSwipe);
+                            cancelAnimationFrame(this.timerSwipe);
+                            this.timerSwipe = 0;
                         }
                         // that.animateTo(targetIndex);
-                        that.targetIndex = targetIndex;
-                        that.targetVal = that.targetIndex;
-                        that.animateToTarget();
-                    }, 1);
+                        this.targetIndex = targetIndex;
+                        this.targetVal = this.targetIndex;
+                        this.animateToTarget();
+                    }.bind(this), 1);
                 }
                 else {
-                    clearInterval(this.timerSwipe);
+                    // clearInterval(this.timerSwipe);
+                    cancelAnimationFrame(this.timerSwipe);
                     this.timerSwipe = 0;
                 }
     
             },
             onSwipeMove: function(event) {
+
+                event.preventDefault();
+                // if(this.swipePreventDefault) {
+                //     event.preventDefault();
+                // }
+
                 // Check if child slider is swiping.
                 // If so, lock this parent slider until child slider no longer swipes (first / last slide reached).
                 // Child sliders should probably have loop=false. Otherwise this parent slider will
@@ -833,6 +860,10 @@
     
                     var containerWidth = this.getContainerWidth();
                     if(containerWidth) {
+
+                        this.swipePreventDefault = true;
+                        event.preventDefault();
+
                         this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
                         var swipeTargetVal = this.swipePressPointerVal + (this.swipeX / containerWidth);
@@ -863,10 +894,12 @@
             },
             startSwipeTimer: function() {
                 if(!this.timerSwipe) {
-                    var that = this;
-                    this.timerSwipe = setInterval(function() {
-                        that.onTimerSwipe();
-                    }, 25);
+                    // var that = this;
+                    // this.timerSwipe = setInterval(function() {
+                    //     that.onTimerSwipe();
+                    // }, 25);
+
+                    this.timerSwipe = requestAnimationFrame(this._onTimerSwipe);
                 }
             },
             onTimerSwipe: function() {
@@ -877,6 +910,7 @@
                 this.stepAbs = this.step < 0 ? -this.step : this.step;
                 pointerVal += step;
                 this.setPointer(pointerVal);
+                this.timerSwipe = requestAnimationFrame(this._onTimerSwipe);
             },
             getContainerWidth: function() {
                 if(!this.containerWidth) {
