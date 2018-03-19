@@ -414,6 +414,8 @@
                     }
                 }
 
+                this._onAnimationTimer = this.onAnimationTimer.bind(this);
+
             },
             css: function(element, styles) {
                 for(var style in styles) {
@@ -740,7 +742,8 @@
                 }
     
                 if(this.timerAnimate) {
-                    clearInterval(this.timerAnimate);
+                    // clearInterval(this.timerAnimate);
+                    cancelAnimationFrame(this.timerAnimate);
                     this.timerAnimate = 0;
                 }
     
@@ -921,10 +924,12 @@
                     this.updateContainerHeight();
                 }
                 if(!this.timerAnimate) {
-                    var that = this;
-                    this.timerAnimate = setInterval(function() {
-                        that.onAnimationTimer();
-                    }, 25);
+                    // var that = this;
+                    // this.timerAnimate = setInterval(function() {
+                    //     that.onAnimationTimer();
+                    // }, 25);
+
+                    this.timerAnimate = requestAnimationFrame(this._onAnimationTimer);
                 }
             },
             onAnimationTimer: function() {
@@ -934,7 +939,8 @@
                 if(diffAbs < this.settings.stepSnap) {
                     this.step = this.stepAbs = 0;
                     this.setPointer(this.targetVal);
-                    clearInterval(this.timerAnimate);
+                    // clearInterval(this.timerAnimate);
+                    cancelAnimationFrame(this.timerAnimate);
                     this.timerAnimate = 0;
                 }
                 else {
@@ -978,6 +984,7 @@
                     this.stepAbs = this.step < 0 ? -this.step : this.step;
                     this.setPointer(pointerVal);
                 }
+                this.timerAnimate = requestAnimationFrame(this._onAnimationTimer);
             },
             goTo: function(index) {
                 // Clear timer used for non looping hint.
@@ -988,7 +995,8 @@
                 }
                 // Stop animation.
                 if(this.timerAnimate) {
-                    clearInterval(this.timerAnimate);
+                    // clearInterval(this.timerAnimate);
+                    cancelAnimationFrame(this.timerAnimate);
                     this.timerAnimate = 0;
                 }
                 // Calculate correct target index.
@@ -1119,7 +1127,7 @@
     
                     // Horizontal slide.
                     if(this.settings.effects.slideHorizontal.on) {
-                        transforms.push('translateX('+((this.settings.effects.slideHorizontal.offset*100)*-progress)+'%)');
+                        transforms.push('translate3d('+((this.settings.effects.slideHorizontal.offset*100)*-progress)+'%, 0, 0)');
                     }
     
                     // Scale
