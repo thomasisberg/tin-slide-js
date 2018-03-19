@@ -285,7 +285,16 @@
                 if(this.settings.zIndex) {
                     this.container.style.zIndex = this.settings.zIndex;
                 }
-    
+                
+                /**
+                 * Create callback functions bound to this scope.
+                 */
+                this._onAnimationTimer = this.onAnimationTimer.bind(this);
+                this._onSwipePress = this.onSwipePress.bind(this);
+                this._onSwipeRelease = this.onSwipeRelease.bind(this);
+                this._onSwipeMove = this.onSwipeMove.bind(this);
+                this._onTimerSwipe = this.onTimerSwipe.bind(this);
+
                 var that = this;
     
                 /**
@@ -293,16 +302,16 @@
                  */
                 if(this.settings.useContainerClickNextPrev) {
                     this.container.addEventListener('click', function(event) {
-                        var containerWidth = that.getContainerWidth();
+                        var containerWidth = this.getContainerWidth();
                         if(containerWidth) {
-                            if((event.layerX - that.container.offsetLeft) < containerWidth / 2) {
-                                that.previous();
+                            if((event.layerX - this.container.offsetLeft) < containerWidth / 2) {
+                                this.previous();
                             }
                             else {
-                                that.next();
+                                this.next();
                             }
                         }
-                    });
+                    }.bind(this));
                 }
     
                 /**
@@ -331,12 +340,14 @@
                         }
     
                         // Container swipe events.
-                        this.container.addEventListener('touchstart', function(event) {
-                            that.onSwipePress(event);
-                        });
-                        this.container.addEventListener('mousedown', function(event) {
-                            that.onSwipePress(event);
-                        });
+                        // this.container.addEventListener('touchstart', function(event) {
+                        //     that.onSwipePress(event);
+                        // });
+                        // this.container.addEventListener('mousedown', function(event) {
+                        //     that.onSwipePress(event);
+                        // });
+                        this.container.addEventListener('touchstart', this._onSwipePress);
+                        this.container.addEventListener('mousedown', this._onSwipePress);
                     }
                 }
     
@@ -415,14 +426,11 @@
                     }
                 }
 
-                /**
-                 * Create callback functions bound to this scope.
-                 */
-                this._onAnimationTimer = this.onAnimationTimer.bind(this);
-                this._onSwipePress = this.onSwipePress.bind(this);
-                this._onSwipeRelease = this.onSwipeRelease.bind(this);
-                this._onSwipeMove = this.onSwipeMove.bind(this);
-                this._onTimerSwipe = this.onTimerSwipe.bind(this);
+                document.addEventListener('touchmove', function(event) {
+                    if(that.swipePreventDefault) {
+                        event.preventDefault();
+                    }
+                });
             },
             css: function(element, styles) {
                 for(var style in styles) {
@@ -792,16 +800,6 @@
             },
             onSwipeMove: function(event) {
 
-                // event.preventDefault();
-                // event.stopPropagation();
-                // event.stopImmediatePropagation()
-
-                // console.log(event);
-                
-                // if(this.swipePreventDefault) {
-                //     event.preventDefault();
-                // }
-
                 // Check if child slider is swiping.
                 // If so, lock this parent slider until child slider no longer swipes (first / last slide reached).
                 // Child sliders should probably have loop=false. Otherwise this parent slider will
@@ -818,6 +816,13 @@
 
                         this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
+
+                        if(!this.swipePreventDefault) {
+                            if(this.swipeXAbs > 10) {
+                                this.swipePreventDefault = true;
+                            }
+                        }
+
                         var swipeTargetVal = this.swipePressPointerVal + (this.swipeX / containerWidth);
                         if(!this.settings.loop) {
                             var offset = this.settings.useNonLoopingHint ? 0.05 : 0;
@@ -852,6 +857,7 @@
                 document.removeEventListener('mouseup', this._onSwipeRelease);
 
                 this.swipePreventDefault = false;
+
                 this.container.style.cursor = '-webkit-grab';
                 if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
