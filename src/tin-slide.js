@@ -790,6 +790,60 @@
 
                 this.startSwipeTimer();
             },
+            onSwipeMove: function(event) {
+
+                // event.preventDefault();
+                // event.stopPropagation();
+                // event.stopImmediatePropagation()
+
+                // console.log(event);
+                
+                // if(this.swipePreventDefault) {
+                //     event.preventDefault();
+                // }
+
+                // Check if child slider is swiping.
+                // If so, lock this parent slider until child slider no longer swipes (first / last slide reached).
+                // Child sliders should probably have loop=false. Otherwise this parent slider will
+                // never slide again once child slider has been grabbed.
+                if(event.tinSlideMoved === undefined) {
+    
+                    var isTouch = event.type === 'touchmove';
+    
+                    var containerWidth = this.getContainerWidth();
+                    if(containerWidth) {
+
+                        this.swipePreventDefault = true;
+                        event.preventDefault();
+
+                        this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
+                        this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
+                        var swipeTargetVal = this.swipePressPointerVal + (this.swipeX / containerWidth);
+                        if(!this.settings.loop) {
+                            var offset = this.settings.useNonLoopingHint ? 0.05 : 0;
+                            if(swipeTargetVal < -offset) {
+                                swipeTargetVal = -offset;
+                            }
+                            else if(swipeTargetVal > this.numItems - 1 + offset) {
+                                swipeTargetVal = this.numItems - 1 + offset;
+                            }
+                            else {
+                                event.tinSlideMoved = this;
+                            }
+                        }
+                        else {
+                            event.tinSlideMoved = this;
+                        }
+                        this.swipeTargetVal = swipeTargetVal;
+                        var targetIndexWithinBounds = Math.round(this.swipeTargetVal) % this.numItems;
+                        if(targetIndexWithinBounds < 0) {
+                            targetIndexWithinBounds += this.numItems;
+                        }
+                        this.targetIndexWithinBounds = targetIndexWithinBounds;
+                        this.updateDots();
+                    }
+                }
+            },
             onSwipeRelease: function() {
 
                 document.removeEventListener('touchmove', this._onSwipeMove);
@@ -842,55 +896,6 @@
                     this.timerSwipe = 0;
                 }
     
-            },
-            onSwipeMove: function(event) {
-
-                event.preventDefault();
-                // if(this.swipePreventDefault) {
-                //     event.preventDefault();
-                // }
-
-                // Check if child slider is swiping.
-                // If so, lock this parent slider until child slider no longer swipes (first / last slide reached).
-                // Child sliders should probably have loop=false. Otherwise this parent slider will
-                // never slide again once child slider has been grabbed.
-                if(event.tinSlideMoved === undefined) {
-    
-                    var isTouch = event.type === 'touchmove';
-    
-                    var containerWidth = this.getContainerWidth();
-                    if(containerWidth) {
-
-                        this.swipePreventDefault = true;
-                        event.preventDefault();
-
-                        this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
-                        this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
-                        var swipeTargetVal = this.swipePressPointerVal + (this.swipeX / containerWidth);
-                        if(!this.settings.loop) {
-                            var offset = this.settings.useNonLoopingHint ? 0.05 : 0;
-                            if(swipeTargetVal < -offset) {
-                                swipeTargetVal = -offset;
-                            }
-                            else if(swipeTargetVal > this.numItems - 1 + offset) {
-                                swipeTargetVal = this.numItems - 1 + offset;
-                            }
-                            else {
-                                event.tinSlideMoved = this;
-                            }
-                        }
-                        else {
-                            event.tinSlideMoved = this;
-                        }
-                        this.swipeTargetVal = swipeTargetVal;
-                        var targetIndexWithinBounds = Math.round(this.swipeTargetVal) % this.numItems;
-                        if(targetIndexWithinBounds < 0) {
-                            targetIndexWithinBounds += this.numItems;
-                        }
-                        this.targetIndexWithinBounds = targetIndexWithinBounds;
-                        this.updateDots();
-                    }
-                }
             },
             startSwipeTimer: function() {
                 if(!this.timerSwipe) {
