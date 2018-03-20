@@ -162,8 +162,17 @@ header + nav {
     background-color: rgba(0, 0, 0, 0.9);
     color: white;
     a {
+        display: block;
+        padding: 5px 20px;
+        margin: 0 -20px;
+        background-color: transparent;
         &, &:hover, &:active, &:visited {
             color: white;
+            text-decoration: none;
+        }
+
+        &:hover {
+            background-color: black;
         }
     }
 
@@ -214,7 +223,7 @@ header + nav {
         }
     }
 
-    @media screen and (min-width: 1400px) {
+    @media screen and (min-width: 1500px) {
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;

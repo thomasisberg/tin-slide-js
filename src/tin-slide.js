@@ -85,6 +85,7 @@
                 useContainerClickNextPrev: false,
                 // Optional swipe navigation.
                 useSwipeNavigation: true,
+                swipeTouchOnly: false,
                 swipeStepFactor: 0.25,
                 swipeStepFactorTouch: 0.75,
                 // Optionally wait before invoke grabbing.
@@ -324,30 +325,32 @@
                  *  Set up swipe navigation.
                  */
                 if(this.items.length > 1) {
-                    if(this.settings.useSwipeNavigation) {
-    
-                        // Swipe styles.
-                        this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
 
-                        var styles = {
-                            'user-drag': 'none',
-                            'user-select': 'none',
-                            '-moz-user-select': 'none',
-                            '-webkit-user-drag': 'none',
-                            '-webkit-user-select': 'none',
-                            '-ms-user-select': 'none'
-                        };
-                        for(i=0; i<this.numItems; i++) {
-                            this.css(this.items[i], styles);
-                            var images = this.items[i].getElementsByTagName('img');
-                            n = images.length;
-                            for(var j=0; j<n; j++) {
-                                this.css(images[j], styles);
-                            }
+                    var styles = {
+                        'user-drag': 'none',
+                        'user-select': 'none',
+                        '-moz-user-select': 'none',
+                        '-webkit-user-drag': 'none',
+                        '-webkit-user-select': 'none',
+                        '-ms-user-select': 'none'
+                    };
+                    for(i=0; i<this.numItems; i++) {
+                        this.css(this.items[i], styles);
+                        var images = this.items[i].getElementsByTagName('img');
+                        n = images.length;
+                        for(var j=0; j<n; j++) {
+                            this.css(images[j], styles);
                         }
-                        
+                    }
+
+                    if(this.settings.useSwipeNavigation) {
                         this.container.addEventListener('touchstart', this._onSwipePress);
-                        this.container.addEventListener('mousedown', this._onSwipePress);
+
+                        // Swipe styles.
+                        if(!this.settings.swipeTouchOnly) {
+                            this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
+                            this.container.addEventListener('mousedown', this._onSwipePress);
+                        }
                     }
                 }
     
@@ -357,8 +360,8 @@
                 if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
                     window.addEventListener('resize', function() {
-                        that.updateContainerHeight();
-                    });
+                        this.updateContainerHeight();
+                    }.bind(this));
                     // Update height every second.
                     // this.timerUpdateContainerHeight = setInterval(function() {
                     //     that.updateContainerHeight();
@@ -372,6 +375,7 @@
                 }.bind(this));
     
                 if(this.items.length > 1) {
+
                     /**
                      *  Generate dots.
                      */
@@ -518,24 +522,32 @@
                 var that = this;
                 var nav = document.createElement("NAV");
                 nav.setAttribute('class', 'tin-slide-next-prev');
-    
+
                 var prev = document.createElement("DIV");
                 prev.setAttribute('class', 'tin-slide-prev');
                 prev.style.cursor = 'pointer';
-                prev.addEventListener('click', function(event) {
-                    that.previous();
+                // Added to prevent text selection from double click.
+                prev.addEventListener('mousedown', function(event) {
+                    event.preventDefault();
                 });
+                prev.addEventListener('click', function(event) {
+                    this.previous();
+                }.bind(this));
                 nav.appendChild(prev);
     
                 var next = document.createElement("DIV");
                 next.setAttribute('class', 'tin-slide-next');
                 next.style.cursor = 'pointer';
-                next.addEventListener('click', function(event) {
-                    that.next();
+                // Added to prevent text selection from double click.
+                next.addEventListener('mousedown', function(event) {
+                    event.preventDefault();
                 });
+                next.addEventListener('click', function(event) {
+                    this.next();
+                }.bind(this));
                 nav.appendChild(next);
+
                 return nav;
-    
             },
 
             createStyles: function() {
@@ -758,7 +770,9 @@
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
 
-                this.container.style.cssText += '; cursor: -webkit-grabbing; cursor: grabbing;';
+                if(!this.settings.swipeTouchOnly) {
+                    this.container.style.cssText += '; cursor: -webkit-grabbing; cursor: grabbing;';
+                }
 
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
@@ -804,9 +818,11 @@
                 // document.addEventListener('mouseup', handlers.onSwipeRelease);
 
                 document.addEventListener('touchmove', this._onSwipeMove);
-                document.addEventListener('mousemove', this._onSwipeMove);
                 document.addEventListener('touchend', this._onSwipeRelease);
-                document.addEventListener('mouseup', this._onSwipeRelease);
+                if(!this.settings.swipeTouchOnly) {
+                    document.addEventListener('mousemove', this._onSwipeMove);
+                    document.addEventListener('mouseup', this._onSwipeRelease);
+                }
 
                 this.startSwipeTimer();
             },
@@ -876,14 +892,15 @@
             onSwipeRelease: function() {
 
                 document.removeEventListener('touchmove', this._onSwipeMove);
-                document.removeEventListener('mousemove', this._onSwipeMove);
                 document.removeEventListener('touchend', this._onSwipeRelease);
-                document.removeEventListener('mouseup', this._onSwipeRelease);
+                if(!this.settings.swipeTouchOnly) {
+                    document.removeEventListener('mousemove', this._onSwipeMove);
+                    document.removeEventListener('mouseup', this._onSwipeRelease);
+                    this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
+                }
 
                 this.swipePreventDefault = false;
                 this.swipeScrollsElementCounter = 0;
-
-                this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
 
                 if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
