@@ -1,8 +1,8 @@
 {
     "name": "tin-slide",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "description": "Dependency free content slider for Javascript",
-    "main": "tin-slide.js",
+    "main": "./dist/tin-slide.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
