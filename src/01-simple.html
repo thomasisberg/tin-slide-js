@@ -11,8 +11,11 @@
             <h1>TinSlide</h1>
             <h2>Simple – default settings</h2>
             <p>Generates navigation markup as siblings to the slider.</p>
+            <code>
+                TinSlide(document.getElementById('slider'));
+            </code>
             <div class="slider-wrapper">
-                <div class="slider">
+                <div id="slider">
                     <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
                     <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
                     <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
@@ -21,7 +24,7 @@
         </div>
         <script src="tin-slide.js"></script>
         <script>
-            TinSlide(document.getElementsByClassName('slider')[0]);
+            TinSlide(document.getElementById('slider'));
         </script>
     </body>
 </html>

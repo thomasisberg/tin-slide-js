@@ -11,11 +11,13 @@ html, body, div, img, ul, li {
     margin: 0;
     padding: 0;
 }
-img {
-    width: 100%;
-    height: auto;
+html {
+    height: 100%;
 }
 body {
+    box-sizing: border-box;
+    min-height: 100%;
+    flex: 1 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -23,9 +25,17 @@ body {
     line-height: 1.6;
     padding: 20px 20px 60px 20px;
 }
+img {
+    width: 100%;
+    height: auto;
+}
 h1, h2, h3, h4, h5, h6 {
     margin-top: 0.6em;
     margin-bottom: 0.4em;
+    font-weight: 400;
+}
+h4 {
+    font-size: 0.8em;
 }
 a {
     &, &:hover, &:active, &:visited {
@@ -42,12 +52,14 @@ p {
     text-align: left
 }
 code {
+    border: 4px solid #f0f0f0;
     display: block;
     background-color: #f0f0f0;
     padding: 20px;
     white-space: nowrap;
     word-wrap: none;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     font-family: 'Roboto Mono', monospace;
     max-width: 600px;
     margin-top: 2px;
@@ -79,6 +91,7 @@ code {
 
     p {
         border-left: 0;
+        padding-left: 0;
     }
 }
 .tin-slide-prev, .tin-slide-next {
@@ -172,13 +185,4 @@ code {
     &.on {
         background-color: white;
     }
-}
-.sub-slider {
-    padding: 50px;
-}
-.sub-slider .tin-slide-next-prev {
-    position: absolute;
-    width: 100%;
-    left: 0;
-    bottom: 0;
 }

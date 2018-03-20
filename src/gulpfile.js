@@ -3,6 +3,8 @@ const sass = require('gulp-sass');
 const jshint = require('gulp-jshint');
 const rename = require('gulp-rename');
 const uglify = require('gulp-uglify');
+const concat = require('gulp-concat');
+const autoprefixer = require('gulp-autoprefixer');
 
 const dest = '../public/';
 
@@ -16,6 +18,17 @@ function dist() {
 function styles() {
     return gulp.src('*.scss')
         .pipe(sass())
+        .pipe(autoprefixer({
+            browsers: [
+                'last 2 versions',
+                'ie 8',
+                'ie 9',
+                'android 2.3',
+                'android 4',
+                'opera 12'
+            ]
+        }))
+        .pipe(concat('style.css'))
         .pipe(gulp.dest(dest));
 }
 

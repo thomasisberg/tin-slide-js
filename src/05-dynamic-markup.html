@@ -6,14 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" type="text/css" href="style.css" />
         <style>
-            .slider .slider-wrapper {
-                margin: 10%;
+            .padded {
+                padding: 20px;
             }
             .tin-slide-bg {
                 padding-top: 75%;
-            }
-            .tin-slide-prev, .tin-slide-next {
-                margin-top: 25px;
             }
         </style>
     </head>
@@ -21,39 +18,48 @@
         <div class="wrapper">
             <h1>TinSlide</h1>
             <h2>Dynamic markup</h2>
-            <p>Used to avoid content from being displayed before the slider has been initialized</p>
-            <code>
-                &lt;div class="tin-slide-img" data-src="img-1.jpg"&gt;&lt;/div&gt;
-            </code>
-            <code>
-                &lt;div class="tin-slide-bg" data-bg="img-2.jpg"&gt;&lt;/div&gt;
-            </code>
-            <code>
-                &lt;div class="tin-slide-markup" data-markup="&lt;div&gt;&lt;p&gt;Dynamically generated markup&lt;/p&gt;&lt;img src='img-3.jpg' /&gt;&lt;/div>"&gt;&lt;/div&gt;
-            </code>
+            <p>Can be used to prevent content from being displayed before the slider has been initialized.</p>
             <div class="slider-wrapper bg">
-                <div class="slider">
+                <div id="slider">
                     <div>
-                        <p>Dynamically created &lt;img&gt; tag.</p>
+                        <div class="padded">
+                        <h4>This &lt;div&gt; is replaced with an &lt;img&gt;</h4>
+                        <code>
+                            &lt;div class="tin-slide-img" data-src="img-1.jpg"&gt;&lt;/div&gt; Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+                        </code>
+                        </div>
                         <div class="tin-slide-img" data-src="img-1.jpg"></div>
                     </div>
                     <div>
-                        <p>Dynamically added background image.</p>
+                        <div class="padded">
+                            <h4>This div gets a background image</h4>
+                            <code>
+                                &lt;div class="tin-slide-bg" data-bg="img-2.jpg"&gt;&lt;/div&gt;
+                            </code>
+                        </div>
                         <div class="tin-slide-bg" data-bg="img-2.jpg"></div>
                     </div>
                     <div>
-                        <div class="tin-slide-markup" data-markup="<div><p>Dynamically generated markup</p><img src='img-3.jpg' /></div>"></div>
+                        <div class="padded">
+                            <h4>This &lt;div&gt; is replaced with whatever markup is defined in the data-markup attribute</h4>
+                            <code>
+                                &lt;div class="tin-slide-markup" data-markup="&lt;div&gt;&lt;img src='img-3.jpg' /&gt;&lt;/div>"&gt;&lt;/div&gt;
+                            </code>
+                        </div>
+                        <div class="tin-slide-markup" data-markup="<div><img src='img-3.jpg' /></div>"></div>
                     </div>
                 </div>
             </div>
         </div>
         <script src="tin-slide.js"></script>
         <script>
-            var slides = document.getElementsByClassName('slider');
-
-            for(var ii=0; ii<slides.length; ii++) {
-                TinSlide(slides[ii]);
-            }
+            TinSlide(document.getElementById('slider'), {
+                generate: {
+                    nav: {
+                        on: false
+                    }
+                }
+            });
         </script>
     </body>
 </html>

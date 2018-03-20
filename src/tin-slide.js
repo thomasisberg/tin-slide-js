@@ -86,6 +86,7 @@
                 // Optional swipe navigation.
                 useSwipeNavigation: true,
                 swipeStepFactor: 0.25,
+                swipeStepFactorTouch: 0.75,
                 // Optionally wait before invoke grabbing.
                 // Useful if the entire container is clickable.
                 // Especially if clicking either half navigates to previous / next.
@@ -158,6 +159,8 @@
             swipeX: 0,
             swipeXAbs: 0,
             swipePreventDefault: false,
+            swipeIsTouch: false,
+            swipeScrollsElementCounter: 0,
             // Dots.
             dotsItems: null,
             currentDotIndex: null,
@@ -205,7 +208,7 @@
                     if(bg && bg !== undefined && bg !== '') {
                         img.setAttribute('style', 'background: url("'+bg+'") no-repeat center; background-size: cover;');
                     }
-                    element.replaceWith(img);
+                    element.parentNode.replaceChild(img, element);
                 }
 
                 /**
@@ -236,7 +239,7 @@
                     element = tinSlideMarkupArr.shift();
                     var template = document.createElement('template');
                     template.innerHTML = element.getAttribute('data-markup');
-                    element.replaceWith(template.content.firstChild);
+                    element.parentNode.replaceChild(template.content.firstChild, element);
                 }
 
                 var items = [];
@@ -260,12 +263,9 @@
                     item.tinSlideIndex = i;
     
                     // Item styles
-                    item.style.top = '0';
+                    item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
                     item.style.left = '0';
                     item.style.width = '100%';
-                    // if(this.settings.ratio) {
-                    //     item.style.marginTop = -this.settings.ratioPercent+'%';
-                    // }
     
                     // Hide all items
                     item.style.position = 'absolute';
@@ -321,7 +321,9 @@
                     if(this.settings.useSwipeNavigation) {
     
                         // Swipe styles.
-                        this.container.style.cursor = '-webkit-grab';
+                        // this.container.style.cursor = '-webkit-grab';
+                        this.container.style.cursor = 'grab';
+
                         var styles = {
                             'user-drag': 'none',
                             'user-select': 'none',
@@ -338,14 +340,7 @@
                                 this.css(images[j], styles);
                             }
                         }
-    
-                        // Container swipe events.
-                        // this.container.addEventListener('touchstart', function(event) {
-                        //     that.onSwipePress(event);
-                        // });
-                        // this.container.addEventListener('mousedown', function(event) {
-                        //     that.onSwipePress(event);
-                        // });
+                        
                         this.container.addEventListener('touchstart', this._onSwipePress);
                         this.container.addEventListener('mousedown', this._onSwipePress);
                     }
@@ -364,23 +359,11 @@
                     //     that.updateContainerHeight();
                     // }, 1000);
                 }
-
-                /**
-                 * Vertically center slides.
-                 */
-                if(this.settings.verticallyCenter) {
-                    this.container.style.display = 'flex';
-                    this.container.style.flexDirection = 'column';
-                    this.container.style.justifyContent = 'center';
-                }
     
                 // Force recalculation of container width on window resize.
                 // Calculation will occur when width is needed.
                 window.addEventListener('resize', function() {
                     this.containerWidth = 0;
-                    if(this.settings.verticallyCenter) {
-                        this.verticallyCenterItems();
-                    }
                 }.bind(this));
     
                 if(this.items.length > 1) {
@@ -589,11 +572,6 @@
                         // (in separate CSS) or ratio.
                         if(!(this.settings.useUpdateContainerHeight || this.settings.ratio || this.settings.hasHeight)) {
                             item.style.position = 'relative';
-                            // If slides are vertically centered.
-                            if(this.settings.verticallyCenter) {
-                                item.style.top = 'auto';
-                                item.style.marginTop = 'inherit';
-                            }
                         }
                         if(this.settings.zIndex) {
                             visibleItems[i].style.zIndex = this.settings.zIndex + 1;
@@ -601,10 +579,6 @@
                     }
                     else {
                         item.style.position = 'absolute';
-                        if(this.settings.verticallyCenter) {
-                            item.style.top = '50%';
-                            item.style.marginTop = '-'+parseInt(0.5*item.offsetHeight, 10)+'px';
-                        }
                         item.style.zIndex = '';
                     }
     
@@ -619,12 +593,6 @@
                     }
                 }
                 this.applySlideEffect();
-            },
-
-            verticallyCenterItems: function() {
-                for(var i in this.itemsVisible) {
-                    this.items[i].style.marginTop = '-'+parseInt(0.5*this.items[i].offsetHeight, 10)+'px';
-                }
             },
 
             /**
@@ -746,7 +714,8 @@
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
 
-                this.container.style.cursor = '-webkit-grabbing';
+                // this.container.style.cursor = '-webkit-grabbing';
+                this.container.style.cursor = 'grabbing';
 
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
@@ -807,12 +776,24 @@
                 if(event.tinSlideMoved === undefined) {
     
                     var isTouch = event.type === 'touchmove';
+                    this.swipeIsTouch = isTouch;
     
                     var containerWidth = this.getContainerWidth();
                     if(containerWidth) {
 
-                        // this.swipePreventDefault = true;
-                        // event.preventDefault();
+                        /**
+                         * Check if touch scrolls an element in the slider.
+                         */
+                        if(isTouch && event.target !== undefined) {
+                            var t = event.target;
+                            if(t.scrollWidth > t.offsetWidth) {
+                                this.swipeScrollsElementCounter++;
+                                if(this.swipeScrollsElementCounter < 7 || (t.scrollLeft >= 0 && (t.scrollLeft + t.offsetWidth) < t.scrollWidth)) {
+                                    event.tinSlideMoved = this;
+                                    return;
+                                }
+                            }
+                        }
 
                         this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
@@ -857,8 +838,11 @@
                 document.removeEventListener('mouseup', this._onSwipeRelease);
 
                 this.swipePreventDefault = false;
+                this.swipeScrollsElementCounter = 0;
 
-                this.container.style.cursor = '-webkit-grab';
+                // this.container.style.cursor = '-webkit-grab';
+                this.container.style.cursor = 'grab';
+
                 if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
                     var targetIndex;
@@ -876,6 +860,12 @@
                             stepAdd *= this.settings.swipeStepFactor;
                             step += stepAdd;
                         }
+                        if(step > 1) {
+                            step = 1;
+                        }
+                        else if(step < -1) {
+                            step = -1;
+                        }
                         var targetVal = this.pointerVal + step;
                         targetIndex = Math.round(targetVal);
                     }
@@ -883,21 +873,17 @@
                     this.choke = 1;
     
                     // Wait a few milliseconds, otherwise prev / next will be invoked.
-                    // var that = this;
                     setTimeout(function() {
                         if(this.timerSwipe) {
-                            // clearInterval(that.timerSwipe);
                             cancelAnimationFrame(this.timerSwipe);
                             this.timerSwipe = 0;
                         }
-                        // that.animateTo(targetIndex);
                         this.targetIndex = targetIndex;
                         this.targetVal = this.targetIndex;
                         this.animateToTarget();
                     }.bind(this), 1);
                 }
                 else {
-                    // clearInterval(this.timerSwipe);
                     cancelAnimationFrame(this.timerSwipe);
                     this.timerSwipe = 0;
                 }
@@ -905,18 +891,13 @@
             },
             startSwipeTimer: function() {
                 if(!this.timerSwipe) {
-                    // var that = this;
-                    // this.timerSwipe = setInterval(function() {
-                    //     that.onTimerSwipe();
-                    // }, 25);
-
                     this.timerSwipe = requestAnimationFrame(this._onTimerSwipe);
                 }
             },
             onTimerSwipe: function() {
                 var pointerVal = this.pointerVal;
                 var diff = this.swipeTargetVal - pointerVal;
-                var step = diff * this.settings.swipeStepFactor;
+                var step = diff * (!this.swipeIsTouch ? this.settings.swipeStepFactor : this.settings.swipeStepFactorTouch);
                 this.step = step;
                 this.stepAbs = this.step < 0 ? -this.step : this.step;
                 pointerVal += step;
@@ -1172,7 +1153,8 @@
     
                     // Horizontal slide.
                     if(this.settings.effects.slideHorizontal.on) {
-                        transforms.push('translate3d('+((this.settings.effects.slideHorizontal.offset*100)*-progress)+'%, 0, 0)');
+                        var translateY = !this.settings.verticallyCenter ? 0 : '-50%';
+                        transforms.push('translate3d('+((this.settings.effects.slideHorizontal.offset*100)*-progress)+'%, '+translateY+', 0)');
                     }
     
                     // Scale
