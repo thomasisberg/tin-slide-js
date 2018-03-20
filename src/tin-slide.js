@@ -104,7 +104,7 @@
                         afterContainer: true
                     },
                     styles: {
-                        on: false,
+                        on: true,
                         containerParentPosition: "relative"
                     }
                 },
@@ -406,7 +406,9 @@
                             this.container.parentNode.style.position = this.settings.generate.styles.containerParentPosition;
                         }
                         var style = this.createStyles();
-                        document.getElementsByTagName('head')[0].appendChild(style);
+                        // document.getElementsByTagName('head')[0].appendChild(style);
+                        var head = document.getElementsByTagName('head')[0];
+                        head.insertBefore(style, head.firstChild);
                     }
                 }
     
