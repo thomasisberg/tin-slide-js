@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.5
+ * TinSlide v0.1.6
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -85,6 +85,7 @@
                 useContainerClickNextPrev: false,
                 // Optional swipe navigation.
                 useSwipeNavigation: true,
+                swipeTouchOnly: false,
                 swipeStepFactor: 0.25,
                 swipeStepFactorTouch: 0.75,
                 // Optionally wait before invoke grabbing.
@@ -101,6 +102,10 @@
                     nav: {
                         on: true,
                         afterContainer: true
+                    },
+                    styles: {
+                        on: true,
+                        containerParentPosition: "relative"
                     }
                 },
                 // Optional ratio.
@@ -320,30 +325,32 @@
                  *  Set up swipe navigation.
                  */
                 if(this.items.length > 1) {
-                    if(this.settings.useSwipeNavigation) {
-    
-                        // Swipe styles.
-                        this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
 
-                        var styles = {
-                            'user-drag': 'none',
-                            'user-select': 'none',
-                            '-moz-user-select': 'none',
-                            '-webkit-user-drag': 'none',
-                            '-webkit-user-select': 'none',
-                            '-ms-user-select': 'none'
-                        };
-                        for(i=0; i<this.numItems; i++) {
-                            this.css(this.items[i], styles);
-                            var images = this.items[i].getElementsByTagName('img');
-                            n = images.length;
-                            for(var j=0; j<n; j++) {
-                                this.css(images[j], styles);
-                            }
+                    var styles = {
+                        'user-drag': 'none',
+                        'user-select': 'none',
+                        '-moz-user-select': 'none',
+                        '-webkit-user-drag': 'none',
+                        '-webkit-user-select': 'none',
+                        '-ms-user-select': 'none'
+                    };
+                    for(i=0; i<this.numItems; i++) {
+                        this.css(this.items[i], styles);
+                        var images = this.items[i].getElementsByTagName('img');
+                        n = images.length;
+                        for(var j=0; j<n; j++) {
+                            this.css(images[j], styles);
                         }
-                        
+                    }
+
+                    if(this.settings.useSwipeNavigation) {
                         this.container.addEventListener('touchstart', this._onSwipePress);
-                        this.container.addEventListener('mousedown', this._onSwipePress);
+
+                        // Swipe styles.
+                        if(!this.settings.swipeTouchOnly) {
+                            this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
+                            this.container.addEventListener('mousedown', this._onSwipePress);
+                        }
                     }
                 }
     
@@ -353,8 +360,8 @@
                 if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
                     window.addEventListener('resize', function() {
-                        that.updateContainerHeight();
-                    });
+                        this.updateContainerHeight();
+                    }.bind(this));
                     // Update height every second.
                     // this.timerUpdateContainerHeight = setInterval(function() {
                     //     that.updateContainerHeight();
@@ -368,6 +375,7 @@
                 }.bind(this));
     
                 if(this.items.length > 1) {
+
                     /**
                      *  Generate dots.
                      */
@@ -388,6 +396,19 @@
                             this.nav,
                             this.settings.generate.nav.afterContainer ? this.container.nextSibling : this.container
                         );
+                    }
+
+                    /**
+                     * Generate default styles.
+                     */
+                    if(this.settings.generate.styles.on) {
+                        if(this.settings.generate.styles.containerParentPosition) {
+                            this.container.parentNode.style.position = this.settings.generate.styles.containerParentPosition;
+                        }
+                        var style = this.createStyles();
+                        // document.getElementsByTagName('head')[0].appendChild(style);
+                        var head = document.getElementsByTagName('head')[0];
+                        head.insertBefore(style, head.firstChild);
                     }
                 }
     
@@ -503,24 +524,55 @@
                 var that = this;
                 var nav = document.createElement("NAV");
                 nav.setAttribute('class', 'tin-slide-next-prev');
-    
+
                 var prev = document.createElement("DIV");
                 prev.setAttribute('class', 'tin-slide-prev');
                 prev.style.cursor = 'pointer';
-                prev.addEventListener('click', function(event) {
-                    that.previous();
+                // Added to prevent text selection from double click.
+                prev.addEventListener('mousedown', function(event) {
+                    event.preventDefault();
                 });
+                prev.addEventListener('click', function(event) {
+                    this.previous();
+                }.bind(this));
                 nav.appendChild(prev);
     
                 var next = document.createElement("DIV");
                 next.setAttribute('class', 'tin-slide-next');
                 next.style.cursor = 'pointer';
-                next.addEventListener('click', function(event) {
-                    that.next();
+                // Added to prevent text selection from double click.
+                next.addEventListener('mousedown', function(event) {
+                    event.preventDefault();
                 });
+                next.addEventListener('click', function(event) {
+                    this.next();
+                }.bind(this));
                 nav.appendChild(next);
+
                 return nav;
-    
+            },
+
+            createStyles: function() {
+                var styles = [];
+                styles.push(".tin-slide-prev, .tin-slide-next {position: absolute;left: 10px;top: 50%;}");
+                styles.push(".tin-slide-prev:before, .tin-slide-prev:after, .tin-slide-next:before, .tin-slide-next:after {content: '';display: block;width: 0;height: 0;position: absolute;top: 0;-webkit-transform: translateY(-50%);-ms-transform: translateY(-50%);-o-transform: translateY(-50%);transform: translateY(-50%);}");
+                styles.push(".tin-slide-prev:before, .tin-slide-next:before {opacity: 0.1;-webkit-transition: opacity 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: opacity 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: opacity 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
+                styles.push(".tin-slide-prev:hover:before, .tin-slide-next:hover:before {opacity: 0;}");                  
+                styles.push(".tin-slide-prev:before {left: 0;border-top: 23px solid transparent;border-bottom: 23px solid transparent;border-right: 41px solid black;margin-left: -4px;}");                  
+                styles.push(".tin-slide-prev:after {left: 0;border-top: 20px solid transparent;border-bottom: 20px solid transparent;border-right: 35px solid rgba(255, 255, 255, 0.4);-webkit-transition: border-right-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: border-right-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: border-right-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
+                styles.push(".tin-slide-prev:hover:after {border-right-color: white;}");
+                styles.push(".tin-slide-next {left: inherit;right: 10px;}");
+                styles.push(".tin-slide-next:before {right: 0;border-top: 23px solid transparent;border-bottom: 23px solid transparent;border-left: 41px solid black;margin-right: -4px;}");
+                styles.push(".tin-slide-next:after {right: 0;border-top: 20px solid transparent;border-bottom: 20px solid transparent;border-left: 35px solid rgba(255, 255, 255, 0.4);-webkit-transition: border-left-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: border-left-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: border-left-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
+                styles.push(".tin-slide-next:hover:after {border-left-color: white;}");                  
+                styles.push(".tin-slide-dots {position: absolute;bottom: 10px;left: 50%;-webkit-transform: translateX(-50%);-ms-transform: translateX(-50%);-o-transform: translateX(-50%);transform: translateX(-50%);}");
+                styles.push(".tin-slide-dots li {-webkit-box-sizing: border-box;box-sizing: border-box;display: inline-block;width: 16px;height: 16px;border-radius: 8px;background-color: transparent;border: 2px solid white;margin-right: 5px;opacity: 0.9;-webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);-webkit-transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
+                styles.push(".tin-slide-dots li:hover {background-color: rgba(255, 255, 255, 0.5);}");
+                styles.push(".tin-slide-dots li.on {background-color: white; }");
+                
+                var style = document.createElement('STYLE');
+                style.innerHTML = styles.join("\n");
+                return style;
             },
     
             /**
@@ -720,14 +772,16 @@
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
 
-                this.container.style.cssText += '; cursor: -webkit-grabbing; cursor: grabbing;';
+                if(!this.settings.swipeTouchOnly) {
+                    this.container.style.cssText += '; cursor: -webkit-grabbing; cursor: grabbing;';
+                }
 
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
-    
+                
                 // Stop auto play.
                 if(this.settings.autoPlayStopOnNavigation) {
-                    this.stopAuto();
+                    this.pauseAuto();
                 }
     
                 if(this.timerAnimate) {
@@ -746,29 +800,13 @@
     
                 this.swipePressPointerVal = this.pointerVal + step;
                 this.swipeTargetVal = this.swipePressPointerVal;
-    
-                // var that = this;
-                // var handlers = {
-                //     onSwipeMove: function(event) {
-                //         that.onSwipeMove(event);
-                //     },
-                //     onSwipeRelease: function() {
-                //         document.removeEventListener('touchmove', handlers.onSwipeMove);
-                //         document.removeEventListener('mousemove', handlers.onSwipeMove);
-                //         document.removeEventListener('touchend', handlers.onSwipeRelease);
-                //         document.removeEventListener('mouseup', handlers.onSwipeRelease);
-                //         that.onSwipeRelease();
-                //     }
-                // };
-                // document.addEventListener('touchmove', handlers.onSwipeMove);
-                // document.addEventListener('mousemove', handlers.onSwipeMove);
-                // document.addEventListener('touchend', handlers.onSwipeRelease);
-                // document.addEventListener('mouseup', handlers.onSwipeRelease);
 
                 document.addEventListener('touchmove', this._onSwipeMove);
-                document.addEventListener('mousemove', this._onSwipeMove);
                 document.addEventListener('touchend', this._onSwipeRelease);
-                document.addEventListener('mouseup', this._onSwipeRelease);
+                if(!this.settings.swipeTouchOnly) {
+                    document.addEventListener('mousemove', this._onSwipeMove);
+                    document.addEventListener('mouseup', this._onSwipeRelease);
+                }
 
                 this.startSwipeTimer();
             },
@@ -838,22 +876,32 @@
             onSwipeRelease: function() {
 
                 document.removeEventListener('touchmove', this._onSwipeMove);
-                document.removeEventListener('mousemove', this._onSwipeMove);
                 document.removeEventListener('touchend', this._onSwipeRelease);
-                document.removeEventListener('mouseup', this._onSwipeRelease);
+                if(!this.settings.swipeTouchOnly) {
+                    document.removeEventListener('mousemove', this._onSwipeMove);
+                    document.removeEventListener('mouseup', this._onSwipeRelease);
+                    this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
+                }
 
                 this.swipePreventDefault = false;
                 this.swipeScrollsElementCounter = 0;
 
-                this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
-
                 if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
+
                     var limit = 0.04;
                     var targetIndex;
                     if(this.step < -limit) {
+                        // Stop auto play.
+                        if(this.settings.autoPlayStopOnNavigation) {
+                            this.stopAuto();
+                        }
                         targetIndex = Math.floor(this.pointerVal);
                     }
                     else if(this.step > limit) {
+                        // Stop auto play.
+                        if(this.settings.autoPlayStopOnNavigation) {
+                            this.stopAuto();
+                        }
                         targetIndex = Math.ceil(this.pointerVal);
                     }
                     else {
@@ -872,6 +920,13 @@
                         }
                         var targetVal = this.pointerVal + step;
                         targetIndex = Math.round(targetVal);
+
+                        if(targetIndex !== this.targetIndex) {
+                            // Stop auto play.
+                            if(this.settings.autoPlayStopOnNavigation) {
+                                this.stopAuto();
+                            }
+                        }
                     }
     
                     this.choke = 1;
@@ -1273,9 +1328,10 @@
                     this.autoPlayState = 'started';
                     clearInterval(this.timerAutoPlay);
                     this.timerAutoPlay = setInterval(function() {
+                        // Only auto slide if swiping is not active.
                         // Only auto slide if slider is visible.
                         // Also don't slide if window isn't visible.
-                        if(this.container.clientHeight && !this.hasClass(this.container, 'window-hidden')) {
+                        if(!this.timerSwipe && this.container.clientHeight && !this.hasClass(this.container, 'window-hidden')) {
                             var status = this.autoPlayForwards ? this.next(true) : this.previous(true);
                             // Change direction if navigation failed.
                             if(!status) {
