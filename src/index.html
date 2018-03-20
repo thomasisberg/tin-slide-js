@@ -9,7 +9,7 @@
     <body>
         <header>
                 <button id="nav-button"></button>
-                <h1><a href="/">TinSlide</a></h1>
+                <h1><a href="/">TinSlide <span>0.1.3</span></a></h1>
             </header>
             <nav id="nav">
             <ul>
@@ -23,10 +23,90 @@
             </ul>
         </nav>
         <div class="main">
-            <div class="wrapper">
-                <h2>TinSlide</h2>
+            <div class="wrapper wrap">
+                <div class="info">
+                    <h2>What is TinSlide?</h2>
+                    <p>TinSlide is a dependency free Javascript content slider interface.</p>
+                    <div class="slider-wrapper">
+                        <div id="info-slider">
+                            <div><h1>TinSlide is</h1></div>
+                            <div><h1>a dependency free</h1></div>
+                            <div><h1>Javascript content slider</h1></div>
+                            <div><h1>inurface.</h1></div>
+                            <div><h1>😉</h1></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info">
+                    <h2>Why TinSlide?</h2>
+                    <p>
+                        Because you want to<br>
+                        <code>clickclickclickclickclick</code><br>
+                        Because you <strong>don't</strong> want to<br>
+                        <code>click ... wait ... click ... ugh ... wait ... click ... roll eyes ... eat crisps ... get tired ... go to bed ...</code>
+                    </p>
+                </div>
+
+                <div class="info">
+                        <h2>Why not TinSlide?</h2>
+                        <p>
+                            Because you need a Javascript interface that's been thoroughly tested on every browser in the world. TinSlide is still in beta and has mainly been tested with Chrome and Firefox on MacOS, and with Safari on iOS during development.
+                        </p>
+                    </div>
+
+                <div class="info">
+                    <h2>Installation</h2>
+                    <code>yarn add tin-slide --save</code>                
+                    <code>npm install tin-slide --save</code>
+                    <code>bower install tin-slide --save</code>
+                </div>    
+
+                <div class="info">
+                    <h2>Usage</h2>
+                    <h3>As a module</h3>
+                    <code>
+                        import TinSlide from 'tin-slide';<br>
+                        TinSlide(document.getElementById('TinSlide'), {<br>
+                            &nbsp;&nbsp;// Options.<br>
+                        });
+                    </code>
+
+                    <h3>Script tag</h3>
+                    <p>You can choose to load the script separately, or implement the script in your pre processor any way you like.</p>
+                    <code>
+                        &lt;script src="node_modules/tin-slide/dist/tin-slide.js"&gt;&lt;/script&gt;<br>
+                        &lt;script&gt;<br>
+                            &nbsp;&nbsp;TinSlide(document.getElementById('TinSlide'), {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;// Options.<br>
+                            &nbsp;&nbsp;});<br>
+                        &lt;/script&gt;
+                    </code>
+                </div>
             </div>
         </div>
         <script src="main.js"></script>
+        <script>
+            TinSlide(document.getElementById('info-slider'), {
+                ratio: 16/9,
+                autoPlay: true,
+                autoPlayTime: 2000,
+                verticallyCenter: true,
+                effects: {
+                    slideHorizontal: {
+                        offset: 0.3
+                    },
+                    scale: {
+                        on: true
+                    },
+                    fade: {
+                        on: true
+                    },
+                    motionBlur: {
+                        on: true
+                    }
+                }
+            });
+        </script>
     </body>
 </html>

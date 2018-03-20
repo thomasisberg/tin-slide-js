@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto+Mono');
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,600|Roboto+Mono');
 
 @import "reset";
 
@@ -7,6 +7,9 @@ $easeout: cubic-bezier(0,.8,.21,1);
 $easeinout: cubic-bezier(.48,.01,.21,1);
 $easein: cubic-bezier(0.895, 0.010, 0.965, 0.390);
 $easeinfast: cubic-bezier(0.400, 0.010, 0.605, 0.360);
+
+$color_blue: #02a5fa;
+$color_blue_dark: #01689d;
 
 * {
     box-sizing: border-box;
@@ -20,17 +23,25 @@ body {
     flex: 1 0 auto;
     display: flex;
     font-family: 'Poppins', sans-serif;
+    font-weight: 400;
     font-size: 16px;
     line-height: 1.6;
+}
+strong {
+    font-weight: 600;
 }
 img {
     width: 100%;
     height: auto;
 }
 h1, h2, h3, h4, h5, h6 {
-    margin-top: 0.6em;
+    margin-top: 1.8em;
     margin-bottom: 0.4em;
-    font-weight: 400;
+    font-weight: 600;
+
+    & + h1, & + h2, & + h3, & + h4, & + h5, & + h6 {
+        margin-top: 0.6em;
+    }
 }
 h1 {
     font-size: 30px;
@@ -42,7 +53,7 @@ h3 {
     font-size: 16px
 }
 h4 {
-    font-size: 12px;
+    font-size: 14px;
 }
 a {
     &, &:hover, &:active, &:visited {
@@ -89,6 +100,13 @@ header {
     display: flex;
     align-items: center;
 
+    a {
+        &, &:hover, &:active, &:visited {
+            color: $color_blue;
+            text-decoration: none;
+        }
+    }
+
     #nav-button {
         display: block;
         -webkit-appearance: none;
@@ -119,11 +137,13 @@ header {
         font-size: 24px;
         margin: 0 0 0 0;
         line-height: 1;
-    }
-    a {
-        &, &:hover, &:active, &:visited {
-            color: white;
-            text-decoration: none;
+
+        span {
+            padding-left: 5px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 20px;
+            font-weight: 400;
+            color: $color_blue_dark;
         }
     }
 }
@@ -196,15 +216,24 @@ header + nav {
     @media screen and (min-width: 1400px) {
         display: flex;
         justify-content: flex-start;
-        align-items: flex-end;
+        align-items: flex-start;
         max-width: none;
         .info {
             max-width: 600px;
             margin-right: 40px;
         }
         .slider-column {
-            flex: 0 1 600px;
-            max-width: 600px;
+            flex: 0 1 1000px;
+            max-width: 1000px;
+        }
+        &.wrap {
+            flex-wrap: wrap;
+            .info {
+                flex: 1 0 400px;
+                margin-left: 40px;
+                margin-bottom: 20px;
+                padding: 40px;
+            }
         }
     }
 }
@@ -310,5 +339,20 @@ header + nav {
     }
     &.on {
         background-color: white;
+    }
+}
+#info-slider {
+    background-color: $color_blue;
+    // border: 2px solid $color_blue_dark;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(1, 104, 157, 0.5);
+    text-align: center;
+    & > div {
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+    h1 {
+        margin: 0;
+        line-height: 1.1;
     }
 }

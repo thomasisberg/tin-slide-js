@@ -6,7 +6,7 @@ Dependency free content slider for Javascript
 yarn add tin-slide --save
 ```
 ```
-nmp install tin-slide --save
+npm install tin-slide --save
 ```
 ```
 bower install tin-slide --save
