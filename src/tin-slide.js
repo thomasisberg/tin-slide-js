@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.5
+ * TinSlide v0.1.6
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -778,10 +778,10 @@
 
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
-    
+                
                 // Stop auto play.
                 if(this.settings.autoPlayStopOnNavigation) {
-                    this.stopAuto();
+                    this.pauseAuto();
                 }
     
                 if(this.timerAnimate) {
@@ -800,24 +800,6 @@
     
                 this.swipePressPointerVal = this.pointerVal + step;
                 this.swipeTargetVal = this.swipePressPointerVal;
-    
-                // var that = this;
-                // var handlers = {
-                //     onSwipeMove: function(event) {
-                //         that.onSwipeMove(event);
-                //     },
-                //     onSwipeRelease: function() {
-                //         document.removeEventListener('touchmove', handlers.onSwipeMove);
-                //         document.removeEventListener('mousemove', handlers.onSwipeMove);
-                //         document.removeEventListener('touchend', handlers.onSwipeRelease);
-                //         document.removeEventListener('mouseup', handlers.onSwipeRelease);
-                //         that.onSwipeRelease();
-                //     }
-                // };
-                // document.addEventListener('touchmove', handlers.onSwipeMove);
-                // document.addEventListener('mousemove', handlers.onSwipeMove);
-                // document.addEventListener('touchend', handlers.onSwipeRelease);
-                // document.addEventListener('mouseup', handlers.onSwipeRelease);
 
                 document.addEventListener('touchmove', this._onSwipeMove);
                 document.addEventListener('touchend', this._onSwipeRelease);
@@ -905,12 +887,21 @@
                 this.swipeScrollsElementCounter = 0;
 
                 if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
+
                     var limit = 0.04;
                     var targetIndex;
                     if(this.step < -limit) {
+                        // Stop auto play.
+                        if(this.settings.autoPlayStopOnNavigation) {
+                            this.stopAuto();
+                        }
                         targetIndex = Math.floor(this.pointerVal);
                     }
                     else if(this.step > limit) {
+                        // Stop auto play.
+                        if(this.settings.autoPlayStopOnNavigation) {
+                            this.stopAuto();
+                        }
                         targetIndex = Math.ceil(this.pointerVal);
                     }
                     else {
@@ -929,6 +920,13 @@
                         }
                         var targetVal = this.pointerVal + step;
                         targetIndex = Math.round(targetVal);
+
+                        if(targetIndex !== this.targetIndex) {
+                            // Stop auto play.
+                            if(this.settings.autoPlayStopOnNavigation) {
+                                this.stopAuto();
+                            }
+                        }
                     }
     
                     this.choke = 1;
@@ -1330,9 +1328,10 @@
                     this.autoPlayState = 'started';
                     clearInterval(this.timerAutoPlay);
                     this.timerAutoPlay = setInterval(function() {
+                        // Only auto slide if swiping is not active.
                         // Only auto slide if slider is visible.
                         // Also don't slide if window isn't visible.
-                        if(this.container.clientHeight && !this.hasClass(this.container, 'window-hidden')) {
+                        if(!this.timerSwipe && this.container.clientHeight && !this.hasClass(this.container, 'window-hidden')) {
                             var status = this.autoPlayForwards ? this.next(true) : this.previous(true);
                             // Change direction if navigation failed.
                             if(!status) {
