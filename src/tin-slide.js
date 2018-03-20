@@ -789,7 +789,7 @@
                         /**
                          * Check if touch scrolls an element in the slider.
                          */
-                        if(isTouch && event.target !== undefined) {
+                        if(isTouch && event.target !== undefined && event.target !== this.container) {
                             var t = event.target;
                             if(t.scrollWidth > t.offsetWidth) {
                                 this.swipeScrollsElementCounter++;
@@ -1271,19 +1271,19 @@
                 // Don't do anything if auto play isn't activated.
                 if(this.autoPlayState) {
                     this.autoPlayState = 'started';
-                    var that = this;
+                    clearInterval(this.timerAutoPlay);
                     this.timerAutoPlay = setInterval(function() {
                         // Only auto slide if slider is visible.
                         // Also don't slide if window isn't visible.
-                        if(that.container.clientHeight && !that.hasClass(that.body, 'window-hidden')) {
-                            var status = that.autoPlayForwards ? that.next(true) : that.previous(true);
+                        if(this.container.clientHeight && !this.hasClass(this.body, 'window-hidden')) {
+                            var status = this.autoPlayForwards ? this.next(true) : this.previous(true);
                             // Change direction if navigation failed.
                             if(!status) {
-                                that.autoPlayForwards = !that.autoPlayForwards;
-                                status = that.autoPlayForwards ? that.next(true) : that.previous(true);
+                                this.autoPlayForwards = !this.autoPlayForwards;
+                                status = this.autoPlayForwards ? this.next(true) : this.previous(true);
                             }
                         }
-                    }, this.settings.autoPlayTime);
+                    }.bind(this), this.settings.autoPlayTime);
                 }
             },
             stopAuto: function() {

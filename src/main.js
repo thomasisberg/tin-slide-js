@@ -4,17 +4,18 @@
     if(window.requestAnimationFrame === undefined) {
         window.requestAnimationFrame = function(callback) {
             setTimeout(callback, 1000/60);
-        }
+        };
     }
 
     var nav = document.getElementById('nav');
     var navButton = document.getElementById('nav-button');
     var navOn = false;
+    var toggleNav;
 
-    var documentClickHandler = function(event) {
+    function documentClickHandler(event) {
         var scope = event.target;
         do {
-            if(scope === nav || scope == navButton) {
+            if(scope === nav || scope === navButton) {
                 break;
             }
             scope = scope.parentNode;
@@ -23,9 +24,9 @@
             event.preventDefault();
             toggleNav();
         }
-    };
-    
-    var toggleNav = function() {
+    }
+
+    toggleNav = function() {
         navOn = !navOn;
         nav.className = navOn ? 'on' : '';
         if(navOn) {
@@ -39,7 +40,6 @@
             document.removeEventListener('touchend', documentClickHandler);
         }
     };
-
     navButton.addEventListener('click', toggleNav);
     
 })();

@@ -354,5 +354,8 @@ header + nav {
     h1 {
         margin: 0;
         line-height: 1.1;
+        &.smiley {
+            font-size: 50px;
+        }
     }
 }
