@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.7
+ * TinSlide v0.1.8
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -1159,7 +1159,7 @@
                 if(containerHeight < minHeight) {
                     containerHeight = minHeight;
                 }
-                if(this.containerHeight !== containerHeight) {
+                if(containerHeight > 0 && this.containerHeight !== containerHeight) {
                     this.containerHeight = containerHeight;
                     this.css(this.container, {
                         height: containerHeight+'px'
