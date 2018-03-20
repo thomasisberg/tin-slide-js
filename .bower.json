@@ -6,7 +6,7 @@
     "_resolution": {
         "type": "version",
         "tag": "v0.1.9",
-        "commit": "fcfb8f4e1b76123cccb14cc797132bfa966c8aaf"
+        "commit": "2a64ab3d60ca90bce3ff952b05e57e53dee42cc0"
     },
         "_source": "https://github.com/thomasisberg/tin-slide-js.git",
         "_target": "0.1.9",
