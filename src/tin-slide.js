@@ -321,8 +321,7 @@
                     if(this.settings.useSwipeNavigation) {
     
                         // Swipe styles.
-                        // this.container.style.cursor = '-webkit-grab';
-                        this.container.style.cursor = 'grab';
+                        this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
 
                         var styles = {
                             'user-drag': 'none',
@@ -714,8 +713,7 @@
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
 
-                // this.container.style.cursor = '-webkit-grabbing';
-                this.container.style.cursor = 'grabbing';
+                this.container.style.cssText += '; cursor: -webkit-grabbing; cursor: grabbing;';
 
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
@@ -840,8 +838,7 @@
                 this.swipePreventDefault = false;
                 this.swipeScrollsElementCounter = 0;
 
-                // this.container.style.cursor = '-webkit-grab';
-                this.container.style.cursor = 'grab';
+                this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
 
                 if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
                     var limit = 0.04;
