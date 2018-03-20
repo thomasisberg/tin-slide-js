@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.6
+ * TinSlide v0.1.7
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -873,7 +873,7 @@
                     }
                 }
             },
-            onSwipeRelease: function() {
+            onSwipeRelease: function(event) {
 
                 document.removeEventListener('touchmove', this._onSwipeMove);
                 document.removeEventListener('touchend', this._onSwipeRelease);
@@ -921,9 +921,13 @@
                         var targetVal = this.pointerVal + step;
                         targetIndex = Math.round(targetVal);
 
-                        if(targetIndex !== this.targetIndex) {
-                            // Stop auto play.
-                            if(this.settings.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlayStopOnNavigation) {
+                            if(targetIndex === this.targetIndex) {
+                                if(event.type === 'touchend') {
+                                    this.resumeAuto();
+                                }
+                            }
+                            else {
                                 this.stopAuto();
                             }
                         }
@@ -945,6 +949,10 @@
                 else {
                     cancelAnimationFrame(this.timerSwipe);
                     this.timerSwipe = 0;
+
+                    if(event.type === 'touchend') {
+                        this.resumeAuto();
+                    }
                 }
     
             },
