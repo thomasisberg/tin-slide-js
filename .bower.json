@@ -12,6 +12,6 @@
         "_target": "0.1.3",
         "_originalSource": "tin-slide",
         "main": [
-            "./tin-slide.js"
+            "./dist/tin-slide.js"
     ]
 }
