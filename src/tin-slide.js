@@ -294,6 +294,8 @@
                 this._onSwipeRelease = this.onSwipeRelease.bind(this);
                 this._onSwipeMove = this.onSwipeMove.bind(this);
                 this._onTimerSwipe = this.onTimerSwipe.bind(this);
+                this._pauseAuto = this.pauseAuto.bind(this);
+                this._resumeAuto = this.resumeAuto.bind(this);
 
                 var that = this;
     
@@ -399,12 +401,17 @@
                         this.startAuto();
                     }
                     if(this.settings.autoPlayPauseOnHover) {
-                        this.container.addEventListener('mouseenter', function(event) {
-                            that.pauseAuto();
-                        });
-                        this.container.addEventListener('mouseleave', function(event) {
-                            that.resumeAuto();
-                        });
+                        var pauseElements = [this.container];
+                        if(this.dots) {
+                            pauseElements.push(this.dots);
+                        }
+                        if(this.nav) {
+                            pauseElements.push(this.nav);
+                        }
+                        for(i=0; i<pauseElements.length; i++) {
+                            pauseElements[i].addEventListener('mouseenter', this._pauseAuto);
+                            pauseElements[i].addEventListener('mouseleave', this._resumeAuto);
+                        }
                     }
                 }
 
