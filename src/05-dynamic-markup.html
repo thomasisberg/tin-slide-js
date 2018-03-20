@@ -16,57 +16,62 @@
     </head>
     <body>
         <header>
-            <nav>
-                <h1>TinSlide</h1>
-                <ul>
-                    <li><a href="01-simple.html">Simple</a></li>
-                    <li><a href="02-no-loop.html">No loop</a></li>
-                    <li><a href="03-height-transition.html">Height transition</a></li>
-                    <li><a href="04-slider-in-slider.html">Slider in slider</a></li>
-                    <li><a href="05-dynamic-markup.html">Dynamic markup</a></li>
-                    <li><a href="06-effects.html">Effects</a></li>
-                    <li><a href="07-auto-play.html">Auto play</a></li>
-                </ul>
-            </nav>
-        </header>
+                <button id="nav-button"></button>
+                <h1><a href="/">TinSlide</a></h1>
+            </header>
+            <nav id="nav">
+            <ul>
+                <li><a href="01-simple.html">Simple</a></li>
+                <li><a href="02-no-loop.html">No loop</a></li>
+                <li><a href="03-height-transition.html">Height transition</a></li>
+                <li><a href="04-slider-in-slider.html">Slider in slider</a></li>
+                <li><a href="05-dynamic-markup.html">Dynamic markup</a></li>
+                <li><a href="06-effects.html">Effects</a></li>
+                <li><a href="07-auto-play.html">Auto play</a></li>
+            </ul>
+        </nav>
         <div class="main">
             <div class="wrapper">
-                <h2>Dynamic markup</h2>
-                <p>Can be used to prevent content from being displayed before the slider has been initialized.</p>
-                <div class="slider-wrapper bg">
-                    <div id="slider">
-                        <div>
-                            <div class="padded">
-                            <h4>This &lt;div&gt; is replaced with an &lt;img&gt;</h4>
-                            <code>
-                                &lt;div class="tin-slide-img" data-src="img-1.jpg"&gt;&lt;/div&gt; Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-                            </code>
-                            </div>
-                            <div class="tin-slide-img" data-src="img-1.jpg"></div>
-                        </div>
-                        <div>
-                            <div class="padded">
-                                <h4>This &lt;div&gt; gets a background image</h4>
+                <div class="info">
+                    <h2>Dynamic markup</h2>
+                    <p>Can be used to prevent content from being displayed before the slider has been initialized.</p>
+                </div>
+                <div class="slider-column">
+                    <div class="slider-wrapper bg">
+                        <div id="slider">
+                            <div>
+                                <div class="padded">
+                                <h4>This &lt;div&gt; is replaced with an &lt;img&gt;</h4>
                                 <code>
-                                    &lt;div class="tin-slide-bg" data-bg="img-2.jpg"&gt;&lt;/div&gt;
+                                    &lt;div class="tin-slide-img" data-src="img-1.jpg"&gt;&lt;/div&gt; Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
                                 </code>
+                                </div>
+                                <div class="tin-slide-img" data-src="img-1.jpg"></div>
                             </div>
-                            <div class="tin-slide-bg" data-bg="img-2.jpg"></div>
-                        </div>
-                        <div>
-                            <div class="padded">
-                                <h4>This &lt;div&gt; is replaced with markup defined in the data-markup attribute</h4>
-                                <code>
-                                    &lt;div class="tin-slide-markup" data-markup="&lt;div&gt;&lt;img src='img-3.jpg' /&gt;&lt;/div>"&gt;&lt;/div&gt;
-                                </code>
+                            <div>
+                                <div class="padded">
+                                    <h4>This &lt;div&gt; gets a background image</h4>
+                                    <code>
+                                        &lt;div class="tin-slide-bg" data-bg="img-2.jpg"&gt;&lt;/div&gt;
+                                    </code>
+                                </div>
+                                <div class="tin-slide-bg" data-bg="img-2.jpg"></div>
                             </div>
-                            <div class="tin-slide-markup" data-markup="<div><img src='img-3.jpg' /></div>"></div>
+                            <div>
+                                <div class="padded">
+                                    <h4>This &lt;div&gt; is replaced with markup defined in the data-markup attribute</h4>
+                                    <code>
+                                        &lt;div class="tin-slide-markup" data-markup="&lt;div&gt;&lt;img src='img-3.jpg' /&gt;&lt;/div>"&gt;&lt;/div&gt;
+                                    </code>
+                                </div>
+                                <div class="tin-slide-markup" data-markup="<div><img src='img-3.jpg' /></div>"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <script src="tin-slide.js"></script>
+        <script src="main.js"></script>
         <script>
             TinSlide(document.getElementById('slider'), {
                 generate: {

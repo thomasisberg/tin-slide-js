@@ -33,10 +33,16 @@ function styles() {
 }
 
 function scripts() {
+    return gulp.src(['tin-slide.js', 'main.js'])
+        .pipe(jshint())
+        .pipe(jshint.reporter('jshint-stylish'))
+        .pipe(concat('main.js'))
+        .pipe(gulp.dest(dest))
+}
+function minify() {
     return gulp.src('tin-slide.js')
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(gulp.dest(dest))
         .pipe(rename('tin-slide.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('./'));
@@ -45,18 +51,20 @@ function scripts() {
 function watch() {
     gulp.watch(['*.html', '*.jpg'], dist).on('error', err);
     gulp.watch('*.scss', styles).on('error', err);
-    gulp.watch('tin-slide.js', scripts).on('error', err);
+    gulp.watch(['main.js'], scripts).on('error', err);
+    gulp.watch('tin-slide.js', gulp.series(scripts, minify)).on('error', err);
 }
 
 function err(error) {
     console.log(error);
 }
 
-var build = gulp.parallel(dist, styles, scripts);
+var build = gulp.parallel(dist, styles, scripts, minify);
 
 exports.dist = dist;
 exports.styles = styles;
 exports.scripts = scripts;
+exports.minify = minify;
 exports.watch = watch;
 exports.build = build;
 exports.default = build;
