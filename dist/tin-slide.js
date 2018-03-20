@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.8
+ * TinSlide v0.1.9
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -301,6 +301,15 @@
                 this._onTimerSwipe = this.onTimerSwipe.bind(this);
                 this._pauseAuto = this.pauseAuto.bind(this);
                 this._resumeAuto = this.resumeAuto.bind(this);
+                this._imageLoaded = this.imageLoaded.bind(this);
+
+                /**
+                 * Listen for images loaded.
+                 */
+                var images = this.container.querySelectorAll('img');
+                for(i=0; i<images.length; i++) {
+                    images[i].addEventListener('load', this._imageLoaded);
+                }
 
                 var that = this;
     
@@ -336,10 +345,10 @@
                     };
                     for(i=0; i<this.numItems; i++) {
                         this.css(this.items[i], styles);
-                        var images = this.items[i].getElementsByTagName('img');
-                        n = images.length;
+                        var imageNodes = this.items[i].getElementsByTagName('img');
+                        n = imageNodes.length;
                         for(var j=0; j<n; j++) {
-                            this.css(images[j], styles);
+                            this.css(imageNodes[j], styles);
                         }
                     }
 
@@ -1355,6 +1364,9 @@
                     this.pauseAuto();
                     this.autoPlayState = null;
                 }
+            },
+            imageLoaded: function(event) {
+                this.updateContainerHeight();
             }
         };
     
