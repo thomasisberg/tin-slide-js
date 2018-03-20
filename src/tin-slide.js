@@ -1159,7 +1159,7 @@
                 if(containerHeight < minHeight) {
                     containerHeight = minHeight;
                 }
-                if(this.containerHeight !== containerHeight) {
+                if(containerHeight > 0 && this.containerHeight !== containerHeight) {
                     this.containerHeight = containerHeight;
                     this.css(this.container, {
                         height: containerHeight+'px'

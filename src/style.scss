@@ -200,8 +200,9 @@ header + nav {
 .main {
     width: 100%;
     overflow-x: hidden;
-    padding: 77px 15px 60px 15px;
+    padding: 40px 15px 60px 15px;
     @media screen and (min-width: 780px) {
+        padding-top: 77px;
         padding-left: 40px;
         padding-right: 40px;
     }
