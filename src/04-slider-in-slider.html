@@ -12,56 +12,71 @@
         </style>
     </head>
     <body>
-        <div class="wrapper">
+        <header>
             <h1>TinSlide</h1>
-            <h2>Slider in slider</h2>
-            <p>Doesn't work well with animated slider height, since TinSlide can't tell the final height of a child slider (if it depends on margins and / or other elements) and correctly update the parent slider height.</p>
-            <p>Cool thing is you can use swipe navigation with nested sliders.</p>
-            <code>
-                var slides = document.getElementsByClassName('slider');<br>
-                for(var i=0; i&lt;slides.length; i++) {<br>
-                    &nbsp;&nbsp;TinSlide(slides[i], {<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;loop: false,<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;generate: {<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nav: {<br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on: false<br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-                        &nbsp;&nbsp;});<br>
-                }
-            </code>
-            <div class="slider-wrapper bg">
-                <div class="slider">
-                    <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
-                    <div>
-                        <div class="slider-wrapper bg">
-                            <div class="slider">
-                                <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
-                                <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
-                                <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+            <nav>
+                <ul>
+                    <li><a href="01-simple.html">Simple</a></li>
+                    <li><a href="02-no-loop.html">No loop</a></li>
+                    <li><a href="03-height-transition.html">Height transition</a></li>
+                    <li><a href="04-slider-in-slider.html">Slider in slider</a></li>
+                    <li><a href="05-dynamic-markup.html">Dynamic markup</a></li>
+                    <li><a href="06-effects.html">Effects</a></li>
+                    <li><a href="07-auto-play.html">Auto play</a></li>
+                </ul>
+            </nav>
+        </header>
+        <div class="main">
+            <div class="wrapper">
+                <h2>Slider in slider</h2>
+                <p>Doesn't work well with animated slider height, since TinSlide can't tell the final height of a child slider (if it depends on margins and / or other elements) and correctly update the parent slider height.</p>
+                <p>Cool thing is you can use swipe navigation with nested sliders.</p>
+                <code>
+                    var slides = document.getElementsByClassName('slider');<br>
+                    for(var i=0; i&lt;slides.length; i++) {<br>
+                        &nbsp;&nbsp;TinSlide(slides[i], {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;loop: false,<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;generate: {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nav: {<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on: false<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                            &nbsp;&nbsp;});<br>
+                    }
+                </code>
+                <div class="slider-wrapper bg">
+                    <div class="slider">
+                        <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                        <div>
+                            <div class="slider-wrapper bg">
+                                <div class="slider">
+                                    <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                                    <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                                    <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
-                    <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
-                    <div>
-                        <div class="slider-wrapper bg">
-                            <div class="slider">
-                                <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
-                                <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
-                                <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
-                                <div>
-                                    <div class="slider-wrapper bg">
-                                        <div class="slider">
-                                            <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
-                                            <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
-                                            <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
-                                            <div>
-                                                <div class="slider-wrapper bg">
-                                                    <div class="slider">
-                                                        <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
-                                                        <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
-                                                        <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                        <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                        <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                        <div>
+                            <div class="slider-wrapper bg">
+                                <div class="slider">
+                                    <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                                    <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                                    <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                                    <div>
+                                        <div class="slider-wrapper bg">
+                                            <div class="slider">
+                                                <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                                                <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                                                <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                                                <div>
+                                                    <div class="slider-wrapper bg">
+                                                        <div class="slider">
+                                                            <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                                                            <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                                                            <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
