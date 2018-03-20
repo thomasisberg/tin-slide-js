@@ -103,7 +103,8 @@
                         afterContainer: true
                     },
                     styles: {
-                        on: false
+                        on: false,
+                        containerParentPosition: "relative"
                     }
                 },
                 // Optional ratio.
@@ -396,8 +397,10 @@
                     /**
                      * Generate default styles.
                      */
-                    if(this.settings.generate.styles) {
-                        this.container.parentNode.style.position = "relative";
+                    if(this.settings.generate.styles.on) {
+                        if(this.settings.generate.styles.containerParentPosition) {
+                            this.container.parentNode.style.position = this.settings.generate.styles.containerParentPosition;
+                        }
                         var style = this.createStyles();
                         document.getElementsByTagName('head')[0].appendChild(style);
                     }
