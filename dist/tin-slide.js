@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.9
+ * TinSlide v0.1.10
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -1366,7 +1366,9 @@
                 }
             },
             imageLoaded: function(event) {
-                this.updateContainerHeight();
+                if(this.settings.useUpdateContainerHeight) {
+                    this.updateContainerHeight();
+                }
             }
         };
     
