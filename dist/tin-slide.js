@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.4
+ * TinSlide v0.1.5
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -793,7 +793,7 @@
                             var t = event.target;
                             if(t.scrollWidth > t.offsetWidth) {
                                 this.swipeScrollsElementCounter++;
-                                if(this.swipeScrollsElementCounter < 7 || (t.scrollLeft >= 0 && (t.scrollLeft + t.offsetWidth) < t.scrollWidth)) {
+                                if(this.swipeScrollsElementCounter < 4 || (t.scrollLeft > 0 && (t.scrollLeft + t.offsetWidth) < t.scrollWidth)) {
                                     event.tinSlideMoved = this;
                                     return;
                                 }
@@ -1275,7 +1275,7 @@
                     this.timerAutoPlay = setInterval(function() {
                         // Only auto slide if slider is visible.
                         // Also don't slide if window isn't visible.
-                        if(this.container.clientHeight && !this.hasClass(this.body, 'window-hidden')) {
+                        if(this.container.clientHeight && !this.hasClass(this.container, 'window-hidden')) {
                             var status = this.autoPlayForwards ? this.next(true) : this.previous(true);
                             // Change direction if navigation failed.
                             if(!status) {
@@ -1340,31 +1340,60 @@
          *  Experimentally check if window is hidden.
          *  Used to pause autoplay when window is hidden.
          */
-        // var hidden = null;
-        // if (hidden = "hidden" in document) {
-        //     document.addEventListener("visibilitychange", onchange);
-        // }
-        // else if ((hidden = "mozHidden") in document) {
-        //     document.addEventListener("mozvisibilitychange", onchange);
-        // }
-        // else if ((hidden = "webkitHidden") in document) {
-        //     document.addEventListener("webkitvisibilitychange", onchange);
-        // }
-        // else if ((hidden = "msHidden") in document) {
-        //     document.addEventListener("msvisibilitychange", onchange);
-        // }
-        // // IE 9 and lower:
-        // else if ("onfocusin" in document) {
-        //     document.onfocusin = document.onfocusout = onchange;
-        // }
-        // // All others:
-        // else {
-        //     window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
-        // }
-        // // set the initial state (but only if browser supports the Page Visibility API)
-        // if(hidden && document[hidden] !== undefined) {
-        //     onchange({type: document[hidden] ? "blur" : "focus"});
-        // }
+        var documentHiddenName = null;
+        function onVisibilityChange(event) {
+            var v = "visible", h = "hidden";
+            var eventMap = {
+                focus: v, 
+                focusin: v, 
+                pageshow: v, 
+                blur: h, 
+                focusout: h, 
+                pagehide: h
+            };
+            event = event || window.event;
+            var isHidden = false;
+            if(event.type in eventMap) {
+                isHidden = eventMap[event.type] === 'hidden';
+            }
+            else {
+                isHidden = document[documentHiddenName] ? true : false;
+            }
+            if(isHidden) {
+                logic.addClass(logic.container, 'window-hidden');
+            }
+            else {
+                logic.removeClass(logic.container, 'window-hidden');
+            }
+        }
+        if("hidden" in document) {
+            documentHiddenName = "hidden";
+            document.addEventListener("visibilitychange", onVisibilityChange);
+        }
+        else if("mozHidden" in document) {
+            documentHiddenName = "mozHidden";
+            document.addEventListener("mozvisibilitychange", onVisibilityChange);
+        }
+        else if("webkitHidden" in document) {
+            documentHiddenName = "webkitHidden";
+            document.addEventListener("webkitvisibilitychange", onVisibilityChange);
+        }
+        else if ("msHidden" in document) {
+            documentHiddenName = "msHidden";
+            document.addEventListener("msvisibilitychange", onVisibilityChange);
+        }
+        // IE 9 and lower:
+        else if ("onfocusin" in document) {
+            document.onfocusin = document.onfocusout = onVisibilityChange;
+        }
+        // All others:
+        else {
+            window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onVisibilityChange;
+        }
+        // set the initial state (but only if browser supports the Page Visibility API)
+        if(documentHiddenName && document[documentHiddenName] !== undefined) {
+            onVisibilityChange({type: document[documentHiddenName] ? "blur" : "focus"});
+        }
 
         container.tinSlide = tinSlide;
 
