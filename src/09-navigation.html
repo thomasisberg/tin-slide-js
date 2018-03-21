@@ -31,8 +31,10 @@
                     <p>Opt out of non touch swipe navigation. Also opt out of dots navigation.</p>
                     <code>
                         TinSlide(document.getElementById('slider'), {<br>
-                            &nbsp;&nbsp;useSwipeNavigation: true,&nbsp;// Default<br>
-                            &nbsp;&nbsp;swipeTouchOnly: true,<br>
+                            &nbsp;&nbsp;swipe: {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;on: true,&nbsp;&nbsp;// Default<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;touchOnly: true<br>
+                            &nbsp;&nbsp;},<br>
                             &nbsp;&nbsp;generate: {<br>
                                 &nbsp;&nbsp;&nbsp;&nbsp;dots: {<br>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on: false<br>
@@ -58,8 +60,10 @@
         <script src="main.js"></script>
         <script>
             TinSlide(document.getElementById('slider'), {
-                useSwipeNavigation: true,  // Default
-                swipeTouchOnly: true,
+                swipe: {
+                    on: true,  // Default
+                    touchOnly: true
+                },
                 generate: {
                     dots: {
                         on: false

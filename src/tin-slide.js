@@ -26,30 +26,6 @@
             |-------------------------------------------------*/
             settings: {
                 debug: false,
-                // Minimal amount of step required to reach target.
-                stepSnap: 0.0003,
-                // Step factor every step. Applied on step to target.
-                stepFactor: 0.2,
-                // Max step every step.
-                stepMax: 0.20,
-                // Minimum step.
-                stepMin: 0.0004,
-                // 0 - 1
-                // 0 = No break (will never turn).
-                // 1 = Instant break – turns immediately.
-                stepTurnBreakFactor: 0.5,
-                // Choke is increased by this value every step.
-                chokeReleaseStep: 0.05,
-                // Choke is multiplied by this value every step.
-                chokeReleaseFactor: 1.5,
-                // 0 - X
-                // 0 = Slow break towards target. Higher values breaks harder.
-                // Brings back choke when target is approached.
-                // Distance to target multiplied by this value = choke.
-                // This is what makes the slider break in on target.
-                chokeReturnFactor: 2,
-                // Option to crop container (or not).
-                cropContainer: true,
                 // Desired slide effects.
                 effects: {
                     slideHorizontal: {
@@ -83,16 +59,21 @@
                 verticallyCenter: false,
                 // Optional next / prev navigation on container click.
                 useContainerClickNextPrev: false,
-                // Optional swipe navigation.
-                useSwipeNavigation: true,
-                swipeTouchOnly: false,
-                swipeStepFactor: 0.25,
-                swipeStepFactorTouch: 0.75,
-                // Optionally wait before invoke grabbing.
-                // Useful if the entire container is clickable.
-                // Especially if clicking either half navigates to previous / next.
-                swipePressWaitBeforeInvokeGrabbing: false,
-                swipeReleaseRequiredSwipeX: 0,
+                // Swipe navigation.
+                swipe: {
+                    on: true,
+                    // Disable swipe using mouse.
+                    touchOnly: false,
+                    // Step factor every step when swiping. Applied on step to target.
+                    stepFactor: 0.25,
+                    // Same as above, but for touch swipe. Generally nicer with a faster response.
+                    stepFactorTouch: 0.75,
+                    // Optionally wait before invoke grabbing.
+                    // Useful if the entire container is clickable.
+                    // Especially if clicking either half navigates to previous / next.
+                    pressWaitBeforeInvokeGrabbing: false,
+                    releaseRequiredSwipeX: 0,
+                },
                 // Optionally generate markup.
                 generate: {
                     dots: {
@@ -113,14 +94,18 @@
                 // If slider has height (separate CSS) we can absolute position all slides.
                 hasHeight: false,
                 // Auto play.
-                autoPlay: false,
-                autoPlayTime: 5000,
-                autoPlayPauseOnHover: true,
-                autoPlayStopOnNavigation: true,
+                autoPlay: {
+                    on: false,
+                    time: 5000,
+                    pauseOnHover: true,
+                    stopOnNavigation: true
+                },
                 // Loop
                 loop: true,
                 // Non looping next / prev animation when end reached.
                 useNonLoopingHint: true,
+                // Option to crop container (or not).
+                cropContainer: true,
                 // Base z-index. Slider will get base z, active slide +1.
                 // Overlying navigation can be set to higher in separate CSS.
                 // Disable zIndex by setting zIndex to 0.
@@ -128,6 +113,28 @@
                 // Hide using visibility:hidden instead of display:none.
                 // Useful if images aren't loaded as desired.
                 hideUsingVisibility: false,
+                // Minimal amount of step required to reach target.
+                stepSnap: 0.0003,
+                // Step factor every step. Applied on step to target.
+                stepFactor: 0.2,
+                // Max step every step.
+                stepMax: 0.20,
+                // Minimum step.
+                stepMin: 0.0004,
+                // 0 - 1
+                // 0 = No break (will never turn).
+                // 1 = Instant break – turns immediately.
+                stepTurnBreakFactor: 0.5,
+                // Choke is increased by this value every step.
+                chokeReleaseStep: 0.05,
+                // Choke is multiplied by this value every step.
+                chokeReleaseFactor: 1.5,
+                // 0 - X
+                // 0 = Slow break towards target. Higher values breaks harder.
+                // Brings back choke when target is approached.
+                // Distance to target multiplied by this value = choke.
+                // This is what makes the slider break in on target.
+                chokeReturnFactor: 2
             },
 
             /**
@@ -352,11 +359,11 @@
                         }
                     }
 
-                    if(this.settings.useSwipeNavigation) {
+                    if(this.settings.swipe.on) {
                         this.container.addEventListener('touchstart', this._onSwipePress);
 
                         // Swipe styles.
-                        if(!this.settings.swipeTouchOnly) {
+                        if(!this.settings.swipe.touchOnly) {
                             this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
                             this.container.addEventListener('mousedown', this._onSwipePress);
                         }
@@ -427,10 +434,10 @@
                 this.updateDots();
                 // Start auto play if desired.
                 if(this.items.length > 1) {
-                    if(this.settings.autoPlay) {
+                    if(this.settings.autoPlay.on) {
                         this.startAuto();
                     }
-                    if(this.settings.autoPlayPauseOnHover) {
+                    if(this.settings.autoPlay.pauseOnHover) {
                         var pauseElements = [this.container];
                         if(this.dots) {
                             pauseElements.push(this.dots);
@@ -670,7 +677,7 @@
                 if(this.items.length > 1) {
                     // Stop auto play if not an auto play navigation.
                     if(isAuto !== true) {
-                        if(this.settings.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlay.stopOnNavigation) {
                             this.stopAuto();
                         }
                     }
@@ -700,7 +707,7 @@
                 if(this.items.length > 1) {
                     // Stop auto play if not an auto play navigation.
                     if(isAuto !== true) {
-                        if(this.settings.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlay.stopOnNavigation) {
                             this.stopAuto();
                         }
                     }
@@ -751,7 +758,7 @@
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
     
-                    if(this.settings.swipePressWaitBeforeInvokeGrabbing) {
+                    if(this.settings.swipe.pressWaitBeforeInvokeGrabbing) {
                         var that = this;
                         // Wait before invoke grabbing.
                         clearTimeout(this.timerSwipePress);
@@ -781,7 +788,7 @@
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
 
-                if(!this.settings.swipeTouchOnly) {
+                if(!this.settings.swipe.touchOnly) {
                     this.container.style.cssText += '; cursor: -webkit-grabbing; cursor: grabbing;';
                 }
 
@@ -789,7 +796,7 @@
                 clearTimeout(this.timerNonLoopingHint);
                 
                 // Stop auto play.
-                if(this.settings.autoPlayStopOnNavigation) {
+                if(this.settings.autoPlay.stopOnNavigation) {
                     this.pauseAuto();
                 }
     
@@ -803,7 +810,7 @@
                 var step = 0;
                 var stepAdd = this.step;
                 for(var i=0; i<25; i++) {
-                    stepAdd *= this.settings.swipeStepFactor;
+                    stepAdd *= this.settings.swipe.stepFactor;
                     step += stepAdd;
                 }
     
@@ -812,7 +819,7 @@
 
                 document.addEventListener('touchmove', this._onSwipeMove);
                 document.addEventListener('touchend', this._onSwipeRelease);
-                if(!this.settings.swipeTouchOnly) {
+                if(!this.settings.swipe.touchOnly) {
                     document.addEventListener('mousemove', this._onSwipeMove);
                     document.addEventListener('mouseup', this._onSwipeRelease);
                 }
@@ -886,7 +893,7 @@
 
                 document.removeEventListener('touchmove', this._onSwipeMove);
                 document.removeEventListener('touchend', this._onSwipeRelease);
-                if(!this.settings.swipeTouchOnly) {
+                if(!this.settings.swipe.touchOnly) {
                     document.removeEventListener('mousemove', this._onSwipeMove);
                     document.removeEventListener('mouseup', this._onSwipeRelease);
                     this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
@@ -895,20 +902,20 @@
                 this.swipePreventDefault = false;
                 this.swipeScrollsElementCounter = 0;
 
-                if(this.swipeXAbs >= this.settings.swipeReleaseRequiredSwipeX) {
+                if(this.swipeXAbs >= this.settings.swipe.releaseRequiredSwipeX) {
 
                     var limit = 0.04;
                     var targetIndex;
                     if(this.step < -limit) {
                         // Stop auto play.
-                        if(this.settings.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlay.stopOnNavigation) {
                             this.stopAuto();
                         }
                         targetIndex = Math.floor(this.pointerVal);
                     }
                     else if(this.step > limit) {
                         // Stop auto play.
-                        if(this.settings.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlay.stopOnNavigation) {
                             this.stopAuto();
                         }
                         targetIndex = Math.ceil(this.pointerVal);
@@ -918,7 +925,7 @@
                         var step = this.step * 15;
                         var stepAdd = this.step;
                         for(var i=0; i<80; i++) {
-                            stepAdd *= this.settings.swipeStepFactor;
+                            stepAdd *= this.settings.swipe.stepFactor;
                             step += stepAdd;
                         }
                         if(step > 1) {
@@ -930,7 +937,7 @@
                         var targetVal = this.pointerVal + step;
                         targetIndex = Math.round(targetVal);
 
-                        if(this.settings.autoPlayStopOnNavigation) {
+                        if(this.settings.autoPlay.stopOnNavigation) {
                             if(targetIndex === this.targetIndex) {
                                 if(event.type === 'touchend') {
                                     this.resumeAuto();
@@ -973,7 +980,7 @@
             onTimerSwipe: function() {
                 var pointerVal = this.pointerVal;
                 var diff = this.swipeTargetVal - pointerVal;
-                var step = diff * (!this.swipeIsTouch ? this.settings.swipeStepFactor : this.settings.swipeStepFactorTouch);
+                var step = diff * (!this.swipeIsTouch ? this.settings.swipe.stepFactor : this.settings.swipe.stepFactorTouch);
                 this.step = step;
                 this.stepAbs = this.step < 0 ? -this.step : this.step;
                 pointerVal += step;
@@ -1092,7 +1099,7 @@
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
                 // Stop auto play.
-                if(this.settings.autoPlayStopOnNavigation) {
+                if(this.settings.autoPlay.stopOnNavigation) {
                     this.stopAuto();
                 }
                 // Stop animation.
@@ -1319,7 +1326,7 @@
             },
             onDotClick: function(event) {
                 // Stop auto play.
-                if(this.settings.autoPlayStopOnNavigation) {
+                if(this.settings.autoPlay.stopOnNavigation) {
                     this.stopAuto();
                 }
                 var index = parseInt(event.target.getAttribute('tin-slide-index'), 10);
@@ -1356,7 +1363,7 @@
                                 status = this.autoPlayForwards ? this.next(true) : this.previous(true);
                             }
                         }
-                    }.bind(this), this.settings.autoPlayTime);
+                    }.bind(this), this.settings.autoPlay.time);
                 }
             },
             stopAuto: function() {

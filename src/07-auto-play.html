@@ -30,10 +30,12 @@
                     <h2>Auto play</h2>
                     <code>
                         TinSlide(document.getElementById('slider'), {<br>
-                            &nbsp;&nbsp;autoPlay: true,<br>
-                            &nbsp;&nbsp;autoPlayTime: 5000,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Default<br>
-                            &nbsp;&nbsp;autoPlayPauseOnHover: true,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Default<br>
-                            &nbsp;&nbsp;autoPlayStopOnNavigation: true&nbsp;&nbsp;// Default<br>
+                            &nbsp;&nbsp;autoPlay: {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;on: true,<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;time: 5000,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Default<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;pauseOnHover: true,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Default<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;stopOnNavigation: true&nbsp;&nbsp;// Default<br>
+                            &nbsp;&nbsp;}<br>
                         });
                     </code>
                 </div>
@@ -51,10 +53,12 @@
         <script src="main.js"></script>
         <script>
             TinSlide(document.getElementById('slider'), {
-                autoPlay: true,
-                autoPlayTime: 5000,             // Default
-                autoPlayPauseOnHover: true,     // Default
-                autoPlayStopOnNavigation: true  // Default
+                autoPlay: {
+                    on: true,
+                    time: 5000,             // Default
+                    pauseOnHover: true,     // Default
+                    stopOnNavigation: true  // Default
+                }
             });
         </script>
     </body>
