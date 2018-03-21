@@ -92,8 +92,10 @@
         <script>
             TinSlide(document.getElementById('info-slider'), {
                 ratio: 16/9,
-                autoPlay: true,
-                autoPlayTime: 2000,
+                autoPlay: {
+                    on: true,
+                    time: 2000,
+                },
                 verticallyCenter: true,
                 effects: {
                     slideHorizontal: {
