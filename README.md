@@ -1,5 +1,5 @@
 # TinSlide
-A dependency free content slider for Javascript.
+A dependency-free content slider for Javascript.
 
 ## Documentation and examples
 It's certainly a work in progress, but you can test drive TinSlide at [tin-slide.com](https://tin-slide.com)
