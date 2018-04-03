@@ -475,8 +475,8 @@
                 var idx = classes.indexOf(className);
                 if(idx !== -1) {
                     classes.splice(idx, 1);
+                    element.className = classes.join(' ');
                 }
-                element.className = classes.join(' ');
             },
             hasClass: function(element, className) {
                 var classes = element.className.split(' ');
