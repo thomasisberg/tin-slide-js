@@ -27,7 +27,7 @@ TinSlide(document.getElementById('TinSlide'), {
 
 ### Script tag
 You can choose to load the script separately, or implement the script in your pre processor any way you like.
-```js
+```html
 <script src="node_modules/tin-slide/dist/tin-slide.js"></script>
 ```
 
