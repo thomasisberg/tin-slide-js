@@ -5,13 +5,13 @@ A dependency free content slider for Javascript
 It's certainly a work in progress, but you can test drive TinSlide at [tin-slide.com](https://tin-slide.com "TinSlide website")
 
 ## Installation options
-```
+```sh
 yarn add tin-slide --save
 ```
-```
+```sh
 npm install tin-slide --save
 ```
-```
+```sh
 bower install tin-slide --save
 ```
 
