@@ -10,9 +10,9 @@
     var nav = document.getElementById('nav');
     var navButton = document.getElementById('nav-button');
     var navOn = false;
-    var toggleNav;
+    var toggleNav, documentClickHandler;
 
-    function documentClickHandler(event) {
+    documentClickHandler = function(event) {
         var scope = event.target;
         do {
             if(scope === nav || scope === navButton) {
@@ -24,7 +24,7 @@
             event.preventDefault();
             toggleNav();
         }
-    }
+    };
 
     toggleNav = function() {
         navOn = !navOn;

@@ -458,9 +458,11 @@
                 }
 
                 document.addEventListener('touchmove', function(event) {
-                    if(that.swipePreventDefault) {
+                    if(this.swipePreventDefault) {
                         event.preventDefault();
                     }
+                }.bind(this), {
+                    passive: false
                 });
             },
             css: function(element, styles) {
@@ -758,8 +760,10 @@
                     if((nativeEvent.button !== undefined && nativeEvent.button === 2) || (nativeEvent.which !== undefined && nativeEvent.which === 3)) {
                         return;
                     }
-    
-                    this.swipePressX = isTouch ? event.layerX : event.clientX;
+                    
+                    // this.swipePressX = isTouch ? event.layerX : event.clientX;
+                    this.swipePressX = isTouch ? event.touches[0].clientX : event.clientX;
+                    
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
     
@@ -859,7 +863,18 @@
                             }
                         }
 
-                        this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
+                        // var currentX = isTouch ? event.layerX : event.clientX;
+                        var currentX = isTouch ? event.touches[0].clientX: event.clientX;
+                        if(currentX === undefined) {
+                            return;
+                        }
+
+                        if(this.swipePressX === undefined) {
+                            this.swipePressX = currentX;
+                        }
+
+                        this.swipeX = this.swipePressX - currentX;
+
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
 
                         if(!this.swipePreventDefault) {
@@ -884,6 +899,7 @@
                         else {
                             event.tinSlideMoved = this;
                         }
+
                         this.swipeTargetVal = swipeTargetVal;
                         var targetIndexWithinBounds = Math.round(this.swipeTargetVal) % this.numItems;
                         if(targetIndexWithinBounds < 0) {
@@ -1322,11 +1338,15 @@
                     var dot;
                     if(this.currentDotIndex !== null) {
                         dot = this.dotsItems[this.currentDotIndex];
-                        this.removeClass(dot, 'on');
+                        if(dot) {
+                            this.removeClass(dot, 'on');
+                        }
                     }
                     this.currentDotIndex = this.targetIndexWithinBounds;
                     dot = this.dotsItems[this.currentDotIndex];
-                    this.addClass(dot, 'on');
+                    if(dot) {
+                        this.addClass(dot, 'on');
+                    }
                 }
             },
             onDotClick: function(event) {
