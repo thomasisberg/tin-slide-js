@@ -30,3 +30,6 @@ You can choose to load the script separately, or implement the script in your pr
 ```
 <script src="node_modules/tin-slide/dist/tin-slide.js"></script>
 ```
+
+### License
+[MIT](https://github.com/thomasisberg/tin-slide-js/blob/master/LICENSE)
