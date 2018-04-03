@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.11
+ * TinSlide v0.1.12
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -249,9 +249,9 @@
                 }
                 while(tinSlideMarkupArr.length) {
                     element = tinSlideMarkupArr.shift();
-                    var template = document.createElement('template');
+                    var template = document.createElement('div');
                     template.innerHTML = element.getAttribute('data-markup');
-                    element.parentNode.replaceChild(template.content.firstChild, element);
+                    element.parentNode.replaceChild(template.firstElementChild, element);
                 }
 
                 var items = [];
@@ -341,25 +341,30 @@
                  *  Set up swipe navigation.
                  */
                 if(this.items.length > 1) {
-
-                    var styles = {
-                        'user-drag': 'none',
-                        'user-select': 'none',
-                        '-moz-user-select': 'none',
-                        '-webkit-user-drag': 'none',
-                        '-webkit-user-select': 'none',
-                        '-ms-user-select': 'none'
-                    };
-                    for(i=0; i<this.numItems; i++) {
-                        this.css(this.items[i], styles);
-                        var imageNodes = this.items[i].getElementsByTagName('img');
-                        n = imageNodes.length;
-                        for(var j=0; j<n; j++) {
-                            this.css(imageNodes[j], styles);
-                        }
-                    }
-
                     if(this.settings.swipe.on) {
+                        
+                        var styles = {
+                            'user-drag': 'none',
+                            'user-select': 'none',
+                            '-moz-user-select': 'none',
+                            '-webkit-user-drag': 'none',
+                            '-webkit-user-select': 'none',
+                            '-ms-user-select': 'none'
+                        };
+                        var imageStyles = {};
+                        for(var v in styles) {
+                            imageStyles[v] = styles[v];
+                        }
+                        imageStyles['pointer-events'] = 'none';
+                        for(i=0; i<this.numItems; i++) {
+                            this.css(this.items[i], styles);
+                            var imageNodes = this.items[i].getElementsByTagName('img');
+                            n = imageNodes.length;
+                            for(var j=0; j<n; j++) {
+                                this.css(imageNodes[j], imageStyles);
+                            }
+                        }
+
                         this.container.addEventListener('touchstart', this._onSwipePress);
 
                         // Swipe styles.
@@ -475,8 +480,8 @@
                 var idx = classes.indexOf(className);
                 if(idx !== -1) {
                     classes.splice(idx, 1);
+                    element.className = classes.join(' ');
                 }
-                element.className = classes.join(' ');
             },
             hasClass: function(element, className) {
                 var classes = element.className.split(' ');
@@ -1421,6 +1426,11 @@
             }
         };
 
+        /*--------------------------------------------------
+        | Prevent IE image dragging.
+        |-------------------------------------------------*/
+        document.ondragstart = function () { return false; };
+
         /**
          *  Experimentally check if window is hidden.
          *  Used to pause autoplay when window is hidden.
@@ -1482,9 +1492,43 @@
 
         container.tinSlide = tinSlide;
 
-        return this;
-
+        return tinSlide;
     }
+
+    /*--------------------------------------------------
+    | Element.firstElementChild polyfill.
+    |-------------------------------------------------*/
+    ;(function(constructor) {
+        if (constructor &&
+            constructor.prototype &&
+            constructor.prototype.firstElementChild == null) {
+            Object.defineProperty(constructor.prototype, 'firstElementChild', {
+                get: function() {
+                    var nodes = this.childNodes, i = 0;
+                    var node = nodes[i++];
+                    while (node) {
+                        if (node.nodeType === 1) {
+                            return node;
+                        }
+                        node = nodes[i++];
+                    }
+                    return null;
+                }
+            });
+        }
+    })(window.Node || window.Element);
+
+    /*--------------------------------------------------
+    | Window.requestAnimationFrame polyfill.
+    |-------------------------------------------------*/
+    window.requestAnimFrame = (function() {
+        return window.requestAnimationFrame    ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            function(callback) {
+                window.setTimeout(callback, 1000 / 60);
+            };
+    })();
 
     return TinSlide$;
 

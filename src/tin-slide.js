@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.11
+ * TinSlide v0.1.12
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -1426,6 +1426,11 @@
             }
         };
 
+        /*--------------------------------------------------
+        | Prevent IE image dragging.
+        |-------------------------------------------------*/
+        document.ondragstart = function () { return false; };
+
         /**
          *  Experimentally check if window is hidden.
          *  Used to pause autoplay when window is hidden.
@@ -1524,11 +1529,6 @@
                 window.setTimeout(callback, 1000 / 60);
             };
     })();
-
-    /*--------------------------------------------------
-    | Prevent IE image dragging.
-    |-------------------------------------------------*/
-    document.ondragstart = function () { return false; };
 
     return TinSlide$;
 
