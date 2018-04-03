@@ -32,4 +32,4 @@ You can choose to load the script separately, or implement the script in your pr
 ```
 
 ## License
-[MIT](https://github.com/thomasisberg/tin-slide-js/blob/master/LICENSE)
+[MIT](LICENSE)
