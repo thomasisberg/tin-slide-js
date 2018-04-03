@@ -1,8 +1,8 @@
-# tin-slide-js
-Dependency free content slider for Javascript
+# TinSlide
+A dependency free content slider for Javascript
 
-## Website
-See TinSlide in action @ [tin-slide.com](https://tin-slide.com "TinSlide website")
+## Documentation and examples
+It's certainly a work in progress, but you can test drive TinSlide at [tin-slide.com](https://tin-slide.com "TinSlide website").
 
 ## Installation options
 ```
