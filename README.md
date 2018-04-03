@@ -1,6 +1,9 @@
 # tin-slide-js
 Dependency free content slider for Javascript
 
+## Website
+See TinSlide in action @ [tin-slide.com](https://tin-slide.com "TinSlide website")
+
 ## Installation options
 ```
 yarn add tin-slide --save
