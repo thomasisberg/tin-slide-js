@@ -137,9 +137,9 @@
                 chokeReturnFactor: 2
             },
 
-            /**
-             *  Properties – all possible to override with options argument.
-             */
+            /*--------------------------------------------------
+            | Local working variables.
+            |-------------------------------------------------*/
             container: null,
             containerWidth: 0,
             items: [],
@@ -197,9 +197,9 @@
                     this.setOptions(this.settings, options);
                 }
 
-                /**
-                 *  Replace all tin-slide-image sources with images.
-                 */
+                /*--------------------------------------------------
+                | Replace all .tin-slide-image elements.
+                |-------------------------------------------------*/
                 var tinSlideImages = container.getElementsByClassName('tin-slide-img');
                 var tinSlideImagesArr = [];
                 for(i=0, n=tinSlideImages.length; i<n; i++) {
@@ -223,9 +223,10 @@
                     element.parentNode.replaceChild(img, element);
                 }
 
-                /**
-                 *  Replace all tin-slide-background sources with images.
-                 */
+                /*--------------------------------------------------
+                | Add background image to all 
+                | .tin-slide-background elements.
+                |-------------------------------------------------*/
                 var tinSlideBackgrounds = container.getElementsByClassName('tin-slide-bg');
                 var tinSlideBackgroundsArr = [];
                 for(i=0, n=tinSlideBackgrounds.length; i<n; i++) {
@@ -238,10 +239,10 @@
                         element.setAttribute('style', 'background: url("'+src+'") no-repeat center; background-size: cover;');
                     }
                 }
-    
-                /**
-                 *  Replace all tin-slide-markup with desired markup.
-                 */
+                
+                /*--------------------------------------------------
+                | Replace all .tin-slide-markup elements.
+                |-------------------------------------------------*/
                 var tinSlideMarkup = container.getElementsByClassName('tin-slide-markup');
                 var tinSlideMarkupArr = [];
                 for(i=0, n=tinSlideMarkup.length; i<n; i++) {
@@ -254,6 +255,9 @@
                     element.parentNode.replaceChild(template.firstElementChild, element);
                 }
 
+                /*--------------------------------------------------
+                | Traverse children and create slider items.
+                |-------------------------------------------------*/
                 var items = [];
                 for(i=0, n=this.container.childNodes.length; i<n; i++) {
                     item = this.container.childNodes[i];
@@ -282,6 +286,9 @@
                     // Hide all items
                     item.style.position = 'absolute';
                     this.hideOrShowElement(item, true);
+
+                    // Remove tin-slide-cloak
+                    item.removeAttribute('tin-slide-cloak');
                 }
     
                 /**
