@@ -60,16 +60,37 @@
                 <li><a href="08-styles.html">Styles</a></li>
                 <li><a href="09-navigation.html">Navigation</a></li>
                 <li><a href="10-cloak.html">Cloak</a></li>
+                <li><a href="11-multi-items.html">Multiple items</a></li>
             </ul>
         </nav>
         <div class="main">
             <div class="wrapper">
                 <div class="info">
                     <h2>Multiple items</h2>
+                    <p>For the horizontal slide effect – you may choose to display multiple items in the slider.</p>
+                    <code>
+                        TinSlide(document.getElementById('slider'), {<br>
+                            &nbsp;&nbsp;effects: {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;slideHorizontal: {<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numVisible: 3,<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;centerSelected: true&nbsp;&nbsp;// Default<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;},<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;scale: {<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on: true,<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min: 0.75,<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxAt: 0.6,<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAt: 1.3<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                            &nbsp;&nbsp;}<br>
+                        });
+                    </code>
                 </div>
                 <div class="slider-column">
                     <div class="slider-wrapper">
                         <div id="slider">
+                            <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                            <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                            <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
                             <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
                             <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
                             <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
@@ -84,7 +105,18 @@
         <script src="main.js"></script>
         <script>
             TinSlide(document.getElementById('slider'), {
-                numItemsVisible: 3
+                effects: {
+                    slideHorizontal: {
+                        numVisible: 3,
+                        centerSelected: true  // Default
+                    },
+                    scale: {
+                        on: true,
+                        min: 0.7,
+                        maxAt: 0.6,
+                        minAt: 1.3
+                    }
+                }
             });
         </script>
     </body>
