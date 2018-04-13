@@ -53,6 +53,7 @@
                         factor: 500
                     }
                 },
+                numItemsVisible: 1,
                 // If container height should actively match item height.
                 useUpdateContainerHeight: false,
                 // Vertically center slides.
@@ -281,7 +282,7 @@
                     // Item styles
                     item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
                     item.style.left = '0';
-                    item.style.width = '100%';
+                    item.style.width = (100/this.settings.numItemsVisible)+'%';
     
                     // Hide all items
                     item.style.position = 'absolute';
@@ -611,7 +612,9 @@
              *  Update the slider.
              */
             setPointer: function(val) {
-    
+                
+                var i;
+
                 this.pointerVal = val;
                 var pointer = val % this.numItems;
                 if(pointer < 0 && this.settings.loop) {
@@ -622,17 +625,34 @@
                 // Visible items – first add the floor index.
                 var visibleItems = [];
                 var floorPointer = Math.floor(this.pointer);
-                if(floorPointer >= 0) {
-                    visibleItems.push(this.items[floorPointer]);
-                }
-                // Add ceil index if pointer is not at destination.
-                if(this.pointer !== floorPointer) {
-                    var ceilPointer = Math.ceil(this.pointer);
-                    if(this.settings.loop) {
-                        ceilPointer %= this.numItems;
+
+                /*--------------------------------------------------
+                | If only one item fits in the slider,
+                | we optimize and move as few as possible.
+                |-------------------------------------------------*/
+                if(this.settings.numItemsVisible === 1) {
+                    if(floorPointer >= 0) {
+                        visibleItems.push(this.items[floorPointer]);
                     }
-                    if(ceilPointer < this.items.length) {
-                        visibleItems.push(this.items[ceilPointer]);
+
+                    // Add ceil index if pointer is not at destination.
+                    if(this.pointer !== floorPointer) {
+                        var ceilPointer = Math.ceil(this.pointer);
+                        if(this.settings.loop) {
+                            ceilPointer %= this.numItems;
+                        }
+                        if(ceilPointer < this.items.length) {
+                            visibleItems.push(this.items[ceilPointer]);
+                        }
+                    }
+                }
+                /*--------------------------------------------------
+                | If more than one item fits in the slider,
+                | we move them all.
+                |-------------------------------------------------*/
+                else {
+                    for(i=0; i<this.numItems; i++) {
+                        visibleItems.push(this.items[i]);
                     }
                 }
                 var index;
@@ -643,7 +663,7 @@
                 var item;
                 var len=visibleItems.length;
                 var relativeItem = false;
-                for(var i=0; i<len; i++) {
+                for(i=0; i<len; i++) {
                     item = visibleItems[i];
                     // If previously non visible item becomes visible.
                     if(this.itemsVisible[item.tinSlideIndex] === undefined) {

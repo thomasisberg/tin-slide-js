@@ -1,0 +1,91 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Multiple items / TinSlide</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="style.css" />
+
+        <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta name="description" content="TinSlide is a dependency-free content slider for Javascript.">
+        <meta name="keywords" content="javascript, frontend, slider, slideshow, slides">
+        <meta name="author" content="Thomas Isberg <thomas@tintonic.com>">
+        <meta property="og:image" content="https://tin-slide.com/tin-slide.jpg">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:site_name" content="TinSlide"/>
+        <meta property="og:description" content="TinSlide is a dependency-free content slider for Javascript.">
+        <meta property="og:title" content="TinSlide">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://tin-slide.com/09-navigation.html">
+
+        <style>
+            *[tin-slide-cloak] {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <button id="nav-button"></button>
+            <h1><a href="/">TinSlide <span>0.1.14</span></a></h1>
+        </header>
+        <nav id="nav">
+            <ul>
+                <li><a href="01-simple.html">Simple</a></li>
+                <li><a href="02-no-loop.html">No loop</a></li>
+                <li><a href="03-height-transition.html">Height transition</a></li>
+                <li><a href="04-slider-in-slider.html">Slider in slider</a></li>
+                <li><a href="05-dynamic-markup.html">Dynamic markup</a></li>
+                <li><a href="06-effects.html">Effects</a></li>
+                <li><a href="07-auto-play.html">Auto play</a></li>
+                <li><a href="08-styles.html">Styles</a></li>
+                <li><a href="09-navigation.html">Navigation</a></li>
+                <li><a href="10-cloak.html">Cloak</a></li>
+            </ul>
+        </nav>
+        <div class="main">
+            <div class="wrapper">
+                <div class="info">
+                    <h2>Multiple items</h2>
+                </div>
+                <div class="slider-column">
+                    <div class="slider-wrapper">
+                        <div id="slider">
+                            <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                            <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                            <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                            <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
+                            <div><div class="tin-slide-img" data-src="img-2.jpg"></div></div>
+                            <div><div class="tin-slide-img" data-src="img-3.jpg"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="main.js"></script>
+        <script>
+            TinSlide(document.getElementById('slider'), {
+                numItemsVisible: 3
+            });
+        </script>
+    </body>
+</html>
