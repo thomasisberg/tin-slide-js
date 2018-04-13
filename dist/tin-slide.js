@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.12
+ * TinSlide v0.1.13
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -137,9 +137,9 @@
                 chokeReturnFactor: 2
             },
 
-            /**
-             *  Properties – all possible to override with options argument.
-             */
+            /*--------------------------------------------------
+            | Local working variables.
+            |-------------------------------------------------*/
             container: null,
             containerWidth: 0,
             items: [],
@@ -197,9 +197,9 @@
                     this.setOptions(this.settings, options);
                 }
 
-                /**
-                 *  Replace all tin-slide-image sources with images.
-                 */
+                /*--------------------------------------------------
+                | Replace all .tin-slide-image elements.
+                |-------------------------------------------------*/
                 var tinSlideImages = container.getElementsByClassName('tin-slide-img');
                 var tinSlideImagesArr = [];
                 for(i=0, n=tinSlideImages.length; i<n; i++) {
@@ -223,9 +223,10 @@
                     element.parentNode.replaceChild(img, element);
                 }
 
-                /**
-                 *  Replace all tin-slide-background sources with images.
-                 */
+                /*--------------------------------------------------
+                | Add background image to all 
+                | .tin-slide-background elements.
+                |-------------------------------------------------*/
                 var tinSlideBackgrounds = container.getElementsByClassName('tin-slide-bg');
                 var tinSlideBackgroundsArr = [];
                 for(i=0, n=tinSlideBackgrounds.length; i<n; i++) {
@@ -238,10 +239,10 @@
                         element.setAttribute('style', 'background: url("'+src+'") no-repeat center; background-size: cover;');
                     }
                 }
-    
-                /**
-                 *  Replace all tin-slide-markup with desired markup.
-                 */
+                
+                /*--------------------------------------------------
+                | Replace all .tin-slide-markup elements.
+                |-------------------------------------------------*/
                 var tinSlideMarkup = container.getElementsByClassName('tin-slide-markup');
                 var tinSlideMarkupArr = [];
                 for(i=0, n=tinSlideMarkup.length; i<n; i++) {
@@ -254,6 +255,9 @@
                     element.parentNode.replaceChild(template.firstElementChild, element);
                 }
 
+                /*--------------------------------------------------
+                | Traverse children and create slider items.
+                |-------------------------------------------------*/
                 var items = [];
                 for(i=0, n=this.container.childNodes.length; i<n; i++) {
                     item = this.container.childNodes[i];
@@ -282,6 +286,9 @@
                     // Hide all items
                     item.style.position = 'absolute';
                     this.hideOrShowElement(item, true);
+
+                    // Remove tin-slide-cloak
+                    item.removeAttribute('tin-slide-cloak');
                 }
     
                 /**
@@ -458,9 +465,11 @@
                 }
 
                 document.addEventListener('touchmove', function(event) {
-                    if(that.swipePreventDefault) {
+                    if(this.swipePreventDefault) {
                         event.preventDefault();
                     }
+                }.bind(this), {
+                    passive: false
                 });
             },
             css: function(element, styles) {
@@ -758,8 +767,10 @@
                     if((nativeEvent.button !== undefined && nativeEvent.button === 2) || (nativeEvent.which !== undefined && nativeEvent.which === 3)) {
                         return;
                     }
-    
-                    this.swipePressX = isTouch ? event.layerX : event.clientX;
+                    
+                    // this.swipePressX = isTouch ? event.layerX : event.clientX;
+                    this.swipePressX = isTouch ? event.touches[0].clientX : event.clientX;
+                    
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
     
@@ -859,7 +870,18 @@
                             }
                         }
 
-                        this.swipeX = this.swipePressX - (isTouch ? event.layerX : event.clientX);
+                        // var currentX = isTouch ? event.layerX : event.clientX;
+                        var currentX = isTouch ? event.touches[0].clientX: event.clientX;
+                        if(currentX === undefined) {
+                            return;
+                        }
+
+                        if(this.swipePressX === undefined) {
+                            this.swipePressX = currentX;
+                        }
+
+                        this.swipeX = this.swipePressX - currentX;
+
                         this.swipeXAbs = this.swipeX < 0 ? -this.swipeX : this.swipeX;
 
                         if(!this.swipePreventDefault) {
@@ -884,6 +906,7 @@
                         else {
                             event.tinSlideMoved = this;
                         }
+
                         this.swipeTargetVal = swipeTargetVal;
                         var targetIndexWithinBounds = Math.round(this.swipeTargetVal) % this.numItems;
                         if(targetIndexWithinBounds < 0) {
@@ -1322,11 +1345,15 @@
                     var dot;
                     if(this.currentDotIndex !== null) {
                         dot = this.dotsItems[this.currentDotIndex];
-                        this.removeClass(dot, 'on');
+                        if(dot) {
+                            this.removeClass(dot, 'on');
+                        }
                     }
                     this.currentDotIndex = this.targetIndexWithinBounds;
                     dot = this.dotsItems[this.currentDotIndex];
-                    this.addClass(dot, 'on');
+                    if(dot) {
+                        this.addClass(dot, 'on');
+                    }
                 }
             },
             onDotClick: function(event) {
