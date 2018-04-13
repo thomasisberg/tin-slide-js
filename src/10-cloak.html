@@ -36,6 +36,12 @@
         <meta property="og:title" content="TinSlide">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://tin-slide.com/09-navigation.html">
+
+        <style>
+            *[tin-slide-cloak] {
+                display: none;
+            }
+        </style>
     </head>
     <body>
         <header>
@@ -60,14 +66,23 @@
             <div class="wrapper">
                 <div class="info">
                     <h2>Cloak</h2>
-                    <p>If you're not using Dynamic markup and want to hide slider items until Tinlide has been initialized. Add the <span class="code">tin-slide-cloak</span> attribute to your slider, or to individual items, and hide them with CSS.</p>
+                    <p>If you're not using <a href="05-dynamic-markup.html">Dynamic markup</a> and want to hide slider items until TinSlide has been loaded and / or initialized. Add the <span class="code">tin-slide-cloak</span> attribute to your slider, or to individual items, and hide them with CSS. TinSlide removes the <span class="code">tin-slide-cloak</span> attribute when it's initialized.</p>
                     <code>
-                        
+                        *[tin-slide-cloak] {<br>
+                            &nbsp;&nbsp;display: none;<br>
+                        }
+                    </code>
+                    <code>
+                        &lt;div id="slider"&gt;<br>
+                            &nbsp;&nbsp;&lt;div&gt;&lt;img src="img-1.jpg" /&gt;&lt;/div&gt;<br>
+                            &nbsp;&nbsp;&lt;div tin-slide-cloak&gt;&lt;img src="img-2.jpg" /&gt;&lt;/div&gt;<br>
+                            &nbsp;&nbsp;&lt;div tin-slide-cloak&gt;&lt;img src="img-3.jpg" /&gt;&lt;/div&gt;<br>
+                        &lt;/div&gt;
                     </code>
                 </div>
                 <div class="slider-column">
                     <div class="slider-wrapper">
-                        <div id="slider">
+                        <div id="slider" tin-slide-cloak>
                             <div><img src="img-1.jpg" /></div>
                             <div tin-slide-cloak><img src="img-2.jpg" /></div>
                             <div tin-slide-cloak><img src="img-3.jpg" /></div>
@@ -78,20 +93,7 @@
         </div>
         <script src="main.js"></script>
         <script>
-            TinSlide(document.getElementById('slider'), {
-                swipe: {
-                    on: true,  // Default
-                    touchOnly: true
-                },
-                generate: {
-                    dots: {
-                        on: false
-                    },
-                    nav: {
-                        on: true  // Default
-                    }
-                }
-            });
+            TinSlide(document.getElementById('slider'));
         </script>
     </body>
 </html>

@@ -290,6 +290,8 @@
                     // Remove tin-slide-cloak
                     item.removeAttribute('tin-slide-cloak');
                 }
+
+                container.removeAttribute('tin-slide-cloak');
     
                 /**
                  *  Container styles.
