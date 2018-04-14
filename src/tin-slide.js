@@ -151,8 +151,9 @@
             pointer: 0,
             pointerVal: 0,
             selectedItem: null,
+            numItemsInside: 1,
             itemsVisible: {},
-            itemsInHorizontalSlideView: {},
+            itemsOutside: {},
             targetVal: 0,
             targetIndex: 0,
             targetIndexWithinBounds: 0,
@@ -406,6 +407,7 @@
 
                 if(this.settings.effects.slideHorizontal.on) {
                     if(this.settings.effects.slideHorizontal.numVisible > 1) {
+                        this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
                         this.translateXOffsetProgress = 0.5*(this.settings.effects.slideHorizontal.numVisible-1);
                     }
                 }
@@ -624,7 +626,7 @@
              */
             setPointer: function(val) {
                 
-                var i;
+                var i, index;
 
                 this.pointerVal = val;
                 var pointer = val % this.numItems;
@@ -635,39 +637,64 @@
     
                 // Visible items – first add the floor index.
                 var visibleItems = [];
-                var floorPointer = Math.floor(this.pointer);
+                var visiblePointer = pointer;
+                if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
+                    visiblePointer -= this.translateXOffsetProgress;
+                }
+                if(visiblePointer < 0 && this.settings.loop) {
+                    visiblePointer += this.numItems;
+                }
+                var floorPointer = Math.floor(visiblePointer);
+                
+                if(floorPointer >= 0) {
+                    visibleItems.push(this.items[floorPointer]);
+                }
 
-                /*--------------------------------------------------
-                | If only one item fits in the slider,
-                | we optimize and move as few as possible.
-                |-------------------------------------------------*/
-                if(this.settings.hideItems && this.settings.effects.slideHorizontal.numVisible === 1) {
-                    if(floorPointer >= 0) {
-                        visibleItems.push(this.items[floorPointer]);
+                // Add ceil index if pointer is not at destination.
+                // if(this.pointer !== floorPointer) {
+                for(i=1; i<=this.numItemsInside-(Math.round(pointer) === this.pointer ? 1 : 0); i++) {
+                    // var ceilPointer = Math.ceil(this.pointer);
+                    var ceilPointer = floorPointer+i;
+                    if(this.settings.loop) {
+                        ceilPointer %= this.numItems;
                     }
-
-                    // Add ceil index if pointer is not at destination.
-                    if(this.pointer !== floorPointer) {
-                        var ceilPointer = Math.ceil(this.pointer);
-                        if(this.settings.loop) {
-                            ceilPointer %= this.numItems;
-                        }
-                        if(ceilPointer < this.items.length) {
-                            visibleItems.push(this.items[ceilPointer]);
-                        }
+                    if(ceilPointer < this.items.length && ceilPointer !== floorPointer) {
+                        visibleItems.push(this.items[ceilPointer]);
                     }
                 }
+
                 /*--------------------------------------------------
-                | If more than one item fits in the slider,
-                | we move them all.
-                | @todo Optimize to only move necessary items.
+                | If items should not be hidden,
+                | give them a special class for outside styling
                 |-------------------------------------------------*/
-                else {
+                if(!this.settings.hideItems) {
+                    var itemsOutside = {};
+                    for(i=0; i<this.numItems; i++) {
+                        itemsOutside[this.items[i].tinSlideIndex] = this.items[i];
+                    }
+                    for(i=0; i<visibleItems.length; i++) {
+                        delete itemsOutside[visibleItems[i].tinSlideIndex];
+                    }
+                    for(index in this.itemsOutside) {
+                        if(itemsOutside[index] === undefined) {
+                            this.removeClass(this.itemsOutside[index], 'tin-slide-outside');
+                            delete this.itemsOutside[index];
+                        }
+                        else {
+                            delete itemsOutside[index];
+                        }
+                    }
+                    for(index in itemsOutside) {
+                        this.itemsOutside[index] = itemsOutside[index];
+                        this.addClass(this.itemsOutside[index], 'tin-slide-outside');
+                    }
+
+                    visibleItems = [];
                     for(i=0; i<this.numItems; i++) {
                         visibleItems.push(this.items[i]);
                     }
                 }
-                var index;
+
                 // Mark previously visible items for check.
                 for(index in this.itemsVisible) {
                     this.itemsVisible[index] = null;
@@ -1321,18 +1348,20 @@
                         var translateY = !this.settings.verticallyCenter ? 0 : '-50%';
                         transforms.push('translate3d('+translateX+', '+translateY+', 0)');
 
-                        if(translateXProgress < 1 && translateXProgress > -this.settings.effects.slideHorizontal.numVisible) {
-                            if(this.itemsInHorizontalSlideView[item.tinSlideIndex] === undefined) {
-                                this.itemsInHorizontalSlideView[item.tinSlideIndex] = true;
-                                this.addClass(item, 'tin-slide-horizontal-visible');
-                            }
-                        }
-                        else {
-                            if(this.itemsInHorizontalSlideView[item.tinSlideIndex] !== undefined) {
-                                delete this.itemsInHorizontalSlideView[item.tinSlideIndex];
-                                this.removeClass(item, 'tin-slide-horizontal-visible');
-                            }
-                        }
+                        // if(!this.settings.hideItems) {
+                        //     if(translateXProgress < 1 && translateXProgress > -this.settings.effects.slideHorizontal.numVisible) {
+                        //         if(this.itemsOutside[item.tinSlideIndex] !== undefined) {
+                        //             delete this.itemsOutside[item.tinSlideIndex];
+                        //             this.removeClass(item, 'tin-slide-outside');
+                        //         }
+                        //     }
+                        //     else {
+                        //         if(this.itemsOutside[item.tinSlideIndex] === undefined) {
+                        //             this.itemsOutside[item.tinSlideIndex] = true;
+                        //             this.addClass(item, 'tin-slide-outside');
+                        //         }
+                        //     }
+                        // }
                     }
     
                     // Scale
