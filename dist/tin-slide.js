@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.14
+ * TinSlide v0.1.15
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -31,6 +31,8 @@
                     slideHorizontal: {
                         on: true,
                         offset: 1, // 0 - x
+                        numVisible: 1,
+                        centerSelected: true
                     },
                     scale: {
                         on: false,
@@ -110,6 +112,7 @@
                 // Overlying navigation can be set to higher in separate CSS.
                 // Disable zIndex by setting zIndex to 0.
                 zIndex: 0,
+                hideItems: true,
                 // Hide using visibility:hidden instead of display:none.
                 // Useful if images aren't loaded as desired.
                 hideUsingVisibility: false,
@@ -147,7 +150,10 @@
             numHalfItems: 0,
             pointer: 0,
             pointerVal: 0,
+            selectedItem: null,
+            numItemsInside: 1,
             itemsVisible: {},
+            itemsOutside: {},
             targetVal: 0,
             targetIndex: 0,
             targetIndexWithinBounds: 0,
@@ -183,6 +189,7 @@
             autoPlayState: null,
             autoPlayForwards: true,
             timerNonLoopingHint: 0,
+            translateXOffsetProgress: 0,
     
             /**
              *  Methods.
@@ -281,7 +288,7 @@
                     // Item styles
                     item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
                     item.style.left = '0';
-                    item.style.width = '100%';
+                    item.style.width = (100/this.settings.effects.slideHorizontal.numVisible)+'%';
     
                     // Hide all items
                     item.style.position = 'absolute';
@@ -290,6 +297,8 @@
                     // Remove tin-slide-cloak
                     item.removeAttribute('tin-slide-cloak');
                 }
+
+                container.removeAttribute('tin-slide-cloak');
     
                 /**
                  *  Container styles.
@@ -394,6 +403,13 @@
                     // this.timerUpdateContainerHeight = setInterval(function() {
                     //     that.updateContainerHeight();
                     // }, 1000);
+                }
+
+                if(this.settings.effects.slideHorizontal.on) {
+                    if(this.settings.effects.slideHorizontal.numVisible > 1) {
+                        this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
+                        this.translateXOffsetProgress = 0.5*(this.settings.effects.slideHorizontal.numVisible-1);
+                    }
                 }
     
                 // Force recalculation of container width on window resize.
@@ -609,7 +625,9 @@
              *  Update the slider.
              */
             setPointer: function(val) {
-    
+                
+                var i, index;
+
                 this.pointerVal = val;
                 var pointer = val % this.numItems;
                 if(pointer < 0 && this.settings.loop) {
@@ -619,21 +637,64 @@
     
                 // Visible items – first add the floor index.
                 var visibleItems = [];
-                var floorPointer = Math.floor(this.pointer);
+                var visiblePointer = pointer;
+                if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
+                    visiblePointer -= this.translateXOffsetProgress;
+                }
+                if(visiblePointer < 0 && this.settings.loop) {
+                    visiblePointer += this.numItems;
+                }
+                var floorPointer = Math.floor(visiblePointer);
+                
                 if(floorPointer >= 0) {
                     visibleItems.push(this.items[floorPointer]);
                 }
+
                 // Add ceil index if pointer is not at destination.
-                if(this.pointer !== floorPointer) {
-                    var ceilPointer = Math.ceil(this.pointer);
+                // if(this.pointer !== floorPointer) {
+                for(i=1; i<=this.numItemsInside-(Math.round(pointer) === this.pointer ? 1 : 0); i++) {
+                    // var ceilPointer = Math.ceil(this.pointer);
+                    var ceilPointer = floorPointer+i;
                     if(this.settings.loop) {
                         ceilPointer %= this.numItems;
                     }
-                    if(ceilPointer < this.items.length) {
+                    if(ceilPointer < this.items.length && ceilPointer !== floorPointer) {
                         visibleItems.push(this.items[ceilPointer]);
                     }
                 }
-                var index;
+
+                /*--------------------------------------------------
+                | If items should not be hidden,
+                | give them a special class for outside styling
+                |-------------------------------------------------*/
+                if(!this.settings.hideItems) {
+                    var itemsOutside = {};
+                    for(i=0; i<this.numItems; i++) {
+                        itemsOutside[this.items[i].tinSlideIndex] = this.items[i];
+                    }
+                    for(i=0; i<visibleItems.length; i++) {
+                        delete itemsOutside[visibleItems[i].tinSlideIndex];
+                    }
+                    for(index in this.itemsOutside) {
+                        if(itemsOutside[index] === undefined) {
+                            this.removeClass(this.itemsOutside[index], 'tin-slide-outside');
+                            delete this.itemsOutside[index];
+                        }
+                        else {
+                            delete itemsOutside[index];
+                        }
+                    }
+                    for(index in itemsOutside) {
+                        this.itemsOutside[index] = itemsOutside[index];
+                        this.addClass(this.itemsOutside[index], 'tin-slide-outside');
+                    }
+
+                    visibleItems = [];
+                    for(i=0; i<this.numItems; i++) {
+                        visibleItems.push(this.items[i]);
+                    }
+                }
+
                 // Mark previously visible items for check.
                 for(index in this.itemsVisible) {
                     this.itemsVisible[index] = null;
@@ -641,7 +702,7 @@
                 var item;
                 var len=visibleItems.length;
                 var relativeItem = false;
-                for(var i=0; i<len; i++) {
+                for(i=0; i<len; i++) {
                     item = visibleItems[i];
                     // If previously non visible item becomes visible.
                     if(this.itemsVisible[item.tinSlideIndex] === undefined) {
@@ -649,20 +710,37 @@
                     }
                     // Store progress.
                     var progress = this.pointer - item.tinSlideIndex;
-                    if(progress > 1) {progress -= this.numItems;}
+                    // if(progress > 1) {
+                    if(progress > this.numHalfItems) {
+                        progress -= this.numItems;
+                    }
+                    else if(progress < -this.numHalfItems) {
+                        progress += this.numItems;
+                    }
                     this.itemsVisible[item.tinSlideIndex] = progress;
     
                     // Make the most visible item relatively positioned,
                     // and put it in front of the others.
                     if(!(progress > 0.5 || progress < -0.5) && !relativeItem) {
                         relativeItem = true;
-                        // All slides absolute positioned if slider has a defined height
-                        // (in separate CSS) or ratio.
-                        if(!(this.settings.useUpdateContainerHeight || this.settings.ratio || this.settings.hasHeight)) {
-                            item.style.position = 'relative';
-                        }
-                        if(this.settings.zIndex) {
-                            visibleItems[i].style.zIndex = this.settings.zIndex + 1;
+
+                        // If new item becomes selected.
+                        if(this.selectedItem !== item) {
+                            // Remove selected class from previously selected.
+                            if(this.selectedItem) {
+                                this.removeClass(this.selectedItem, 'tin-slide-selected');
+                            }
+                            this.selectedItem = item;
+                            this.addClass(item, 'tin-slide-selected');
+
+                            // All slides absolute positioned if slider has a defined height
+                            // (in separate CSS) or ratio.
+                            if(!(this.settings.useUpdateContainerHeight || this.settings.ratio || this.settings.hasHeight)) {
+                                item.style.position = 'relative';
+                            }
+                            if(this.settings.zIndex) {
+                                visibleItems[i].style.zIndex = this.settings.zIndex + 1;
+                            }
                         }
                     }
                     else {
@@ -678,6 +756,7 @@
                         item = this.items[index];
                         this.hideOrShowElement(item, true);
                         item.style.position = 'absolute';
+                        item.style.zIndex = '';
                     }
                 }
                 this.applySlideEffect();
@@ -1264,8 +1343,25 @@
     
                     // Horizontal slide.
                     if(this.settings.effects.slideHorizontal.on) {
+                        var translateXProgress = this.settings.effects.slideHorizontal.numVisible === 1 || !this.settings.effects.slideHorizontal.centerSelected ? progress : progress - this.translateXOffsetProgress;
+                        var translateX = ((this.settings.effects.slideHorizontal.offset*100)*-translateXProgress)+'%';
                         var translateY = !this.settings.verticallyCenter ? 0 : '-50%';
-                        transforms.push('translate3d('+((this.settings.effects.slideHorizontal.offset*100)*-progress)+'%, '+translateY+', 0)');
+                        transforms.push('translate3d('+translateX+', '+translateY+', 0)');
+
+                        // if(!this.settings.hideItems) {
+                        //     if(translateXProgress < 1 && translateXProgress > -this.settings.effects.slideHorizontal.numVisible) {
+                        //         if(this.itemsOutside[item.tinSlideIndex] !== undefined) {
+                        //             delete this.itemsOutside[item.tinSlideIndex];
+                        //             this.removeClass(item, 'tin-slide-outside');
+                        //         }
+                        //     }
+                        //     else {
+                        //         if(this.itemsOutside[item.tinSlideIndex] === undefined) {
+                        //             this.itemsOutside[item.tinSlideIndex] = true;
+                        //             this.addClass(item, 'tin-slide-outside');
+                        //         }
+                        //     }
+                        // }
                     }
     
                     // Scale
@@ -1281,7 +1377,6 @@
                         else {
                             scale = this.settings.effects.scale.min;
                         }
-                        // var scale = this.settings.effects.scale.min + (1 - (progress < 0 ? -progress : progress)) * (this.settings.effects.scale.max - this.settings.effects.scale.min);
                         transforms.push('scale('+scale+', '+scale+')');
                     }
     
