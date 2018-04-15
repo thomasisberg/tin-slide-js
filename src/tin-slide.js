@@ -32,7 +32,7 @@
                         on: true,
                         offset: 1, // 0 - x
                         numVisible: 1,
-                        centerSelected: true
+                        centerSelected: false
                     },
                     scale: {
                         on: false,
@@ -615,6 +615,7 @@
                 styles.push(".tin-slide-dots li {-webkit-box-sizing: border-box;box-sizing: border-box;display: inline-block;width: 16px;height: 16px;border-radius: 8px;background-color: transparent;border: 2px solid white;margin-right: 5px;opacity: 0.9;-webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);-webkit-transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
                 styles.push(".tin-slide-dots li:hover {background-color: rgba(255, 255, 255, 0.5);}");
                 styles.push(".tin-slide-dots li.on {background-color: white; }");
+                styles.push(".tin-slide-outside {pointer-events: none;}");
                 
                 var style = document.createElement('STYLE');
                 style.innerHTML = styles.join("\n");
@@ -634,64 +635,44 @@
                     pointer += this.numItems;
                 }
                 this.pointer = pointer;
-    
-                // Visible items – first add the floor index.
-                var visibleItems = [];
-                var visiblePointer = pointer;
-                if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
-                    visiblePointer -= this.translateXOffsetProgress;
-                }
-                if(visiblePointer < 0 && this.settings.loop) {
-                    visiblePointer += this.numItems;
-                }
-                var floorPointer = Math.floor(visiblePointer);
-                
-                if(floorPointer >= 0) {
-                    visibleItems.push(this.items[floorPointer]);
-                }
 
-                // Add ceil index if pointer is not at destination.
-                // if(this.pointer !== floorPointer) {
-                for(i=1; i<=this.numItemsInside-(Math.round(pointer) === this.pointer ? 1 : 0); i++) {
-                    // var ceilPointer = Math.ceil(this.pointer);
-                    var ceilPointer = floorPointer+i;
-                    if(this.settings.loop) {
-                        ceilPointer %= this.numItems;
-                    }
-                    if(ceilPointer < this.items.length && ceilPointer !== floorPointer) {
-                        visibleItems.push(this.items[ceilPointer]);
-                    }
-                }
+                var visibleItems = [];
 
                 /*--------------------------------------------------
                 | If items should not be hidden,
-                | give them a special class for outside styling
+                | slide all items.
                 |-------------------------------------------------*/
                 if(!this.settings.hideItems) {
-                    var itemsOutside = {};
-                    for(i=0; i<this.numItems; i++) {
-                        itemsOutside[this.items[i].tinSlideIndex] = this.items[i];
-                    }
-                    for(i=0; i<visibleItems.length; i++) {
-                        delete itemsOutside[visibleItems[i].tinSlideIndex];
-                    }
-                    for(index in this.itemsOutside) {
-                        if(itemsOutside[index] === undefined) {
-                            this.removeClass(this.itemsOutside[index], 'tin-slide-outside');
-                            delete this.itemsOutside[index];
-                        }
-                        else {
-                            delete itemsOutside[index];
-                        }
-                    }
-                    for(index in itemsOutside) {
-                        this.itemsOutside[index] = itemsOutside[index];
-                        this.addClass(this.itemsOutside[index], 'tin-slide-outside');
-                    }
-
-                    visibleItems = [];
                     for(i=0; i<this.numItems; i++) {
                         visibleItems.push(this.items[i]);
+                    }
+                }
+                else {
+                    // Visible items – first add the floor index.
+                    var visiblePointer = pointer;
+                    if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
+                        visiblePointer -= this.translateXOffsetProgress;
+                    }
+                    if(visiblePointer < 0 && this.settings.loop) {
+                        visiblePointer += this.numItems;
+                    }
+                    var floorPointer = Math.floor(visiblePointer);
+                    if(floorPointer >= 0) {
+                        visibleItems.push(this.items[floorPointer]);
+                    }
+
+                    // Add ceil index if pointer is not at destination.
+                    // if(this.pointer !== floorPointer) {
+                    for(i=1; i<=this.numItemsInside; i++) {
+                        // var ceilPointer = Math.ceil(this.pointer);
+                        var ceilPointer = floorPointer+i;
+                        if(this.settings.loop) {
+                            ceilPointer %= this.numItems;
+                        }
+                        // if(ceilPointer < this.items.length && ceilPointer !== floorPointer) {
+                        if(ceilPointer < this.items.length && visibleItems.indexOf(this.items[ceilPointer]) === -1) {
+                            visibleItems.push(this.items[ceilPointer]);
+                        }
                     }
                 }
 
@@ -710,12 +691,18 @@
                     }
                     // Store progress.
                     var progress = this.pointer - item.tinSlideIndex;
-                    // if(progress > 1) {
-                    if(progress > this.numHalfItems) {
-                        progress -= this.numItems;
+                    if(this.settings.hideItems) {
+                        if(progress > 1) {
+                            progress -= this.numItems;
+                        }
                     }
-                    else if(progress < -this.numHalfItems) {
-                        progress += this.numItems;
+                    else {
+                        if(progress > this.numHalfItems) {
+                            progress -= this.numItems;
+                        }
+                        else if(progress < -this.numHalfItems) {
+                            progress += this.numItems;
+                        }
                     }
                     this.itemsVisible[item.tinSlideIndex] = progress;
     
@@ -739,7 +726,7 @@
                                 item.style.position = 'relative';
                             }
                             if(this.settings.zIndex) {
-                                visibleItems[i].style.zIndex = this.settings.zIndex + 1;
+                                visibleItems[i].style.zIndex = this.settings.zIndex;
                             }
                         }
                     }
@@ -747,7 +734,6 @@
                         item.style.position = 'absolute';
                         item.style.zIndex = '';
                     }
-    
                 }
                 // Hide previously visible items no longer visible.
                 for(index in this.itemsVisible) {
@@ -1348,20 +1334,22 @@
                         var translateY = !this.settings.verticallyCenter ? 0 : '-50%';
                         transforms.push('translate3d('+translateX+', '+translateY+', 0)');
 
-                        // if(!this.settings.hideItems) {
-                        //     if(translateXProgress < 1 && translateXProgress > -this.settings.effects.slideHorizontal.numVisible) {
-                        //         if(this.itemsOutside[item.tinSlideIndex] !== undefined) {
-                        //             delete this.itemsOutside[item.tinSlideIndex];
-                        //             this.removeClass(item, 'tin-slide-outside');
-                        //         }
-                        //     }
-                        //     else {
-                        //         if(this.itemsOutside[item.tinSlideIndex] === undefined) {
-                        //             this.itemsOutside[item.tinSlideIndex] = true;
-                        //             this.addClass(item, 'tin-slide-outside');
-                        //         }
-                        //     }
-                        // }
+                        /*--------------------------------------------------
+                        | Add class to visible items outside of slider.
+                        | Mostly usable when hideItems = false.
+                        |-------------------------------------------------*/
+                        if(translateXProgress > 0.75 || translateXProgress < -(this.settings.effects.slideHorizontal.numVisible-0.25)) {
+                            if(this.itemsOutside[index] === undefined) {
+                                this.itemsOutside[index] = item;
+                                this.addClass(item, 'tin-slide-outside');
+                            }
+                        }
+                        else {
+                            if(this.itemsOutside[index] !== undefined) {
+                                delete this.itemsOutside[index];
+                                this.removeClass(item, 'tin-slide-outside');
+                            }
+                        }
                     }
     
                     // Scale

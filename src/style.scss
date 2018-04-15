@@ -227,6 +227,7 @@ header + nav {
         margin-top: 40px;
         margin-left: -15px;
         margin-right: -15px;
+        margin-bottom: 80px;
         @media screen and (min-width: 780px) {
             margin-left: -40px;
             margin-right: -40px
@@ -371,6 +372,9 @@ header + nav {
     &.on {
         background-color: white;
     }
+}
+.tin-slide-outside {
+    pointer-events: none;
 }
 #info-slider {
     background-color: $color_blue;
