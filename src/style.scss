@@ -285,6 +285,18 @@ header + nav {
         border: 4px solid #c0c0c0;
     }
 
+    &.narrow {
+        width: 75%;
+        margin-left: auto;
+        margin-right: auto;
+
+        @media screen and (min-width: 880px) {
+            width: auto;
+            margin-left: 0;
+            margin-right: 0;
+        }
+    }
+
     p {
         border-left: 0;
         padding-left: 0;
