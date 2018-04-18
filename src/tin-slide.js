@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.16
+ * TinSlide v0.1.17
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -19,7 +19,9 @@
 
     function TinSlide$(container, options) {
         
-        var logic = {
+        var tinSlide, logic;
+
+        logic = {
 
             /*--------------------------------------------------
             | Settings – possible to override using options.
@@ -728,6 +730,14 @@
                             if(this.settings.zIndex) {
                                 visibleItems[i].style.zIndex = this.settings.zIndex;
                             }
+
+                            /*--------------------------------------------------
+                            | Emit event with selected item.
+                            |-------------------------------------------------*/
+                            tinSlide.emit('itemSelected', {
+                                index: item.tinSlideIndex,
+                                item: item
+                            });
                         }
                     }
                     else {
@@ -1493,14 +1503,13 @@
                 }
             }
         };
-    
-        // Initialize.
-        logic.init(container, options);
 
         /**
          *  Public methods.
          */
-        var tinSlide = {
+        var events = {};
+
+        tinSlide = {
             next: function(index) {
                 logic.next();
             },
@@ -1533,8 +1542,36 @@
             },
             getCurrentItem: function() {
                 return logic.items[logic.targetIndexWithinBounds];
+            },
+            on: function(eventType, listener) {
+                if (typeof events[eventType] !== 'object') {
+                    events[eventType] = [];
+                }
+                events[eventType].push(listener);
+            },
+            removeListener: function(eventType, listener) {
+                var idx;
+                if (typeof events[eventType] === 'object') {
+                    idx = events[eventType].indexOf(listener);
+                    if (idx > -1) {
+                        events[eventType].splice(idx, 1);
+                    }
+                }
+            },
+            emit: function(eventType, event) {
+                var i, listeners, len, args = [].slice.call(arguments, 1);
+                if (typeof events[eventType] === 'object') {
+                    listeners = events[eventType].slice();
+                    len = listeners.length;
+                    for(i = 0; i < len; i++) {
+                        listeners[i].apply(this, args);
+                    }
+                }
             }
         };
+
+        // Initialize.
+        logic.init(container, options);
 
         /*--------------------------------------------------
         | Prevent IE image dragging.
