@@ -201,6 +201,8 @@
             translateXOffsetProgress: 0,
             // Generated styles element.
             style: null,
+            breakPoints: [],
+            currentBreakPointOptions: null,
     
             /**
              *  Methods.
@@ -208,7 +210,7 @@
             init: function(container, options) {
     
                 this.container = container;
-                var item, i, n, element, src;
+                var item, i, n, v, element, src;
                 this.body = document.getElementsByTagName('body')[0];
 
                 /*--------------------------------------------------
@@ -306,12 +308,38 @@
                 |-------------------------------------------------*/
                 if(options !== undefined) {
                     this.setOptions(this.defaultSettings, options);
+
+                    /*--------------------------------------------------
+                    | Create sorted array with break points.
+                    |-------------------------------------------------*/
+                    if(options.breakPoints !== undefined) {
+                        for(v in options.breakPoints) {
+                            var width = parseInt(v, 10);
+                            if(!isNaN(width)) {
+                                this.breakPoints.push({
+                                    width: width,
+                                    options: options.breakPoints[v]
+                                });
+                            }
+                        }
+                        this.breakPoints.sort(function(a, b) {
+                            return a.width-b.width;
+                        });
+                        // Create merged options objects.
+                        var breakPointOptions = {};
+                        for(i=0; i<this.breakPoints.length; i++) {
+                            this.mergeObjects(breakPointOptions, this.breakPoints[i].options);
+                            this.breakPoints[i].options = this.cloneObject(breakPointOptions, {});
+                        }
+
+                        // console.log(this.breakPoints);
+                    }
                 }
 
                 /*--------------------------------------------------
-                | Set default settings.
+                | Settings for current break point.
                 |-------------------------------------------------*/
-                this.initSettings();
+                this.initSettings(this.getBreakPointOptions());
     
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
@@ -326,20 +354,18 @@
                 for(i=0; i<images.length; i++) {
                     images[i].addEventListener('load', this._imageLoaded);
                 }
-
-                var that = this;
     
                 // Force recalculation of container width on window resize.
                 // Calculation will occur when width is needed.
                 window.addEventListener('resize', function() {
                     this.containerWidth = 0;
+                    // Check if new size means new break point.
+                    var breakPointOptions = this.getBreakPointOptions();
+                    if(this.currentBreakPointOptions !== breakPointOptions) {
+                        this.initSettings(breakPointOptions);
+                    }
                 }.bind(this));
-    
-                // Set slider to initial position.
-                this.setPointer(this.targetIndex);
 
-                // Update dots.
-                this.updateDots();
 
                 document.addEventListener('touchmove', function(event) {
                     if(this.swipePreventDefault) {
@@ -350,28 +376,39 @@
                 });
             },
             /*--------------------------------------------------
+            | Get break point options.
+            |-------------------------------------------------*/
+            getBreakPointOptions: function() {
+                var breakPointOptions = null;
+                var i, n, w = this.getContainerWidth();
+                for(i=0, n=this.breakPoints.length; i<n; i++) {
+                    if(w >= this.breakPoints[i].width) {
+                        breakPointOptions = this.breakPoints[i].options;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                return breakPointOptions;
+            },
+            /*--------------------------------------------------
             | Initialize settings for break point (or default).
             |-------------------------------------------------*/
             initSettings: function(breakPointOptions) {
+                this.currentBreakPointOptions = breakPointOptions;
                 if(breakPointOptions === undefined) {
                     this.settings = this.defaultSettings;
                 }
                 else {
-                    this.settings = {};
-                    this.cloneSettings(this.defaultSettings, this.settings);
-                    this.setOptions(this.settings, breakPointOptions);
+                    var settings = this.cloneObject(this.defaultSettings, {});
+                    this.setOptions(settings, breakPointOptions);
+                    this.settings = settings;
                 }
 
                 var i, n, item;
 
-                if(this.settings.ratio) {
-                    this.settings.ratioPercent = 100 * (1/this.settings.ratio);
-                }
-
-                var containerHeight = 0;
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
-                    item.tinSlideIndex = i;
     
                     // Item styles
                     item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
@@ -381,12 +418,7 @@
                     // Hide all items
                     item.style.position = 'absolute';
                     this.hideOrShowElement(item, true);
-
-                    // Remove tin-slide-cloak
-                    item.removeAttribute('tin-slide-cloak');
                 }
-
-                container.removeAttribute('tin-slide-cloak');
     
                 /**
                  *  Container styles.
@@ -395,11 +427,21 @@
                 if(this.settings.cropContainer) {
                     this.container.style.overflow = 'hidden';
                 }
+                else if(this.container.style.overflow === 'hidden') {
+                    this.container.style.overflow = '';
+                }
                 if(this.settings.ratio) {
+                    this.settings.ratioPercent = 100 * (1/this.settings.ratio);
                     this.container.style.paddingTop = this.settings.ratioPercent+'%';
+                }
+                else if(this.container.style.paddingTop !== '') {
+                    this.container.style.paddingTop = '';
                 }
                 if(this.settings.zIndex) {
                     this.container.style.zIndex = this.settings.zIndex;
+                }
+                else if(this.container.style.zIndex !== '') {
+                    this.container.style.zIndex = '';
                 }
 
                 /*--------------------------------------------------
@@ -453,6 +495,13 @@
                             this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
                             this.container.addEventListener('mousedown', this._onSwipePress);
                         }
+                        else {
+                            this.container.removeEventListener('mousedown', this._onSwipePress);
+                        }
+                    }
+                    else {
+                        this.container.removeEventListener('touchstart', this._onSwipePress);
+                        this.container.removeEventListener('mousedown', this._onSwipePress);
                     }
                 }
 
@@ -463,6 +512,10 @@
                 if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
                     window.addEventListener('resize', this._updateContainerHeight);
+                }
+                else {
+                    this.container.style.height = '';
+                    window.removeEventListener('resize', this._updateContainerHeight);
                 }
 
                 /*--------------------------------------------------
@@ -542,6 +595,16 @@
                         }
                     }
                 }
+
+                this.itemsVisible = {};
+                this.itemsOutside = {};
+                this.selectedItem = null;
+
+                // Set slider to initial position.
+                this.setPointer(this.targetIndex);
+
+                // Update dots.
+                this.updateDots();
             },
             css: function(element, styles) {
                 for(var style in styles) {
@@ -593,17 +656,46 @@
                     }
                 }
             },
-            cloneSettings: function(settings, clone) {
-                for(var v in settings) {
-                    var type = typeof settings[v];
-                    if(type === 'object' && settings[v] !== null) {
-                        clone[v] = {};
-                        this.cloneSettings(settings[v], clone[v]);
-                    }
-                    else {
-                        clone[v] = settings[v];
+            cloneObject: function(original, clone) {
+                var v, i;
+                if(!Array.isArray(original)) {
+                    for(v in original) {
+                        if(typeof original[v] === 'object' && original[v] !== null) {
+                            clone[v] = Array.isArray(original[v]) ? [] : {};
+                            this.cloneObject(original[v], clone[v]);
+                        }
+                        else {
+                            clone[v] = original[v];
+                        }
                     }
                 }
+                else {
+                    for(i=0; i<original.length; i++) {
+                        if(typeof original[i] === 'object' && settings[i] !== null) {
+                            clone.push(Array.isArray(original[v]) ? [] : {});
+                            this.cloneObject(original[i], clone[i]);
+                        }
+                        else {
+                            clone.push(original[i]);
+                        }
+                    }
+                }
+                return clone;
+            },
+            mergeObjects: function(original, add) {
+                var v, i;
+                for(v in add) {
+                    if(typeof add[v] === 'object' && add[v] !== null && !Array.isArray(add[v])) {
+                        if(typeof original[v] !== 'object' || original[v] === null || Array.isArray(original[v])) {
+                            original[v] = {};
+                        }
+                        this.mergeObjects(original[v], add[v]);
+                    }
+                    else {
+                        original[v] = add[v];
+                    }
+                }
+                return original;
             },
             createDots: function() {
     
