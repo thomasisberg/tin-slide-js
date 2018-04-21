@@ -199,6 +199,8 @@
             autoPlayForwards: true,
             timerNonLoopingHint: 0,
             translateXOffsetProgress: 0,
+            // Generated styles element.
+            style: null,
     
             /**
              *  Methods.
@@ -281,6 +283,24 @@
                 this.numItems = this.items.length;
                 this.numHalfItems = this.numItems / 2;
 
+                for(i=0; i<this.numItems; i++) {
+                    item = this.items[i];
+                    item.tinSlideIndex = i;
+                }
+
+                /*--------------------------------------------------
+                | Create functions bound to this scope.
+                |-------------------------------------------------*/
+                this._onAnimationTimer = this.onAnimationTimer.bind(this);
+                this._onSwipePress = this.onSwipePress.bind(this);
+                this._onSwipeRelease = this.onSwipeRelease.bind(this);
+                this._onSwipeMove = this.onSwipeMove.bind(this);
+                this._onTimerSwipe = this.onTimerSwipe.bind(this);
+                this._pauseAuto = this.pauseAuto.bind(this);
+                this._resumeAuto = this.resumeAuto.bind(this);
+                this._imageLoaded = this.imageLoaded.bind(this);
+                this._updateContainerHeight = this.updateContainerHeight.bind(this);
+
                 /*--------------------------------------------------
                 | Store default settings with standard options.
                 |-------------------------------------------------*/
@@ -295,27 +315,9 @@
     
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
-
-                    // Store index on item.
-                    item.tinSlideIndex = i;
-
-                    // Remove tin-slide-cloak
                     item.removeAttribute('tin-slide-cloak');
                 }
-
                 container.removeAttribute('tin-slide-cloak');
-                
-                /**
-                 * Create callback functions bound to this scope.
-                 */
-                this._onAnimationTimer = this.onAnimationTimer.bind(this);
-                this._onSwipePress = this.onSwipePress.bind(this);
-                this._onSwipeRelease = this.onSwipeRelease.bind(this);
-                this._onSwipeMove = this.onSwipeMove.bind(this);
-                this._onTimerSwipe = this.onTimerSwipe.bind(this);
-                this._pauseAuto = this.pauseAuto.bind(this);
-                this._resumeAuto = this.resumeAuto.bind(this);
-                this._imageLoaded = this.imageLoaded.bind(this);
 
                 /**
                  * Listen for images loaded.
@@ -400,9 +402,9 @@
                     this.container.style.zIndex = this.settings.zIndex;
                 }
 
-                /**
-                 *  Set up prev / next navigation.
-                 */
+                /*--------------------------------------------------
+                | Set container click navigation.
+                |-------------------------------------------------*/
                 if(this.settings.useContainerClickNextPrev) {
                     this.container.addEventListener('click', function(event) {
                         var containerWidth = this.getContainerWidth();
@@ -416,10 +418,10 @@
                         }
                     }.bind(this));
                 }
-    
-                /**
-                 *  Set up swipe navigation.
-                 */
+                
+                /*--------------------------------------------------
+                | Set up swipe navigation.
+                |-------------------------------------------------*/
                 if(this.items.length > 1) {
                     if(this.settings.swipe.on) {
                         var styles = {
@@ -454,14 +456,13 @@
                     }
                 }
 
-                /**
-                 *  If container height should always match selected item.
-                 */
+                /*--------------------------------------------------
+                | If container height should always 
+                | match selected item.
+                |-------------------------------------------------*/
                 if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
-                    window.addEventListener('resize', function() {
-                        this.updateContainerHeight();
-                    }.bind(this));
+                    window.addEventListener('resize', this._updateContainerHeight);
                 }
 
                 /*--------------------------------------------------
@@ -474,45 +475,55 @@
                     }
                 }
 
+                /*--------------------------------------------------
+                | Generate markup.
+                |-------------------------------------------------*/
                 if(this.items.length > 1) {
 
-                    /**
-                     *  Generate dots.
-                     */
+                    /*--------------------------------------------------
+                    | Generate dots.
+                    |-------------------------------------------------*/
                     if(this.settings.generate.dots.on) {
-                        this.dots = this.createDots();
+                        if(!this.dots) {
+                            this.dots = this.createDots();
+                        }
                         this.container.parentNode.insertBefore(
                             this.dots,
                             this.settings.generate.dots.afterContainer ? this.container.nextSibling : this.container
                         );
                     }
     
-                    /**
-                     *  Generate nav.
-                     */
+                    /*--------------------------------------------------
+                    | Generate nav.
+                    |-------------------------------------------------*/
                     if(this.settings.generate.nav.on) {
-                        this.nav = this.createNav();
+                        if(!this.nav) {
+                            this.nav = this.createNav();
+                        }
                         this.container.parentNode.insertBefore(
                             this.nav,
                             this.settings.generate.nav.afterContainer ? this.container.nextSibling : this.container
                         );
                     }
 
-                    /**
-                     * Generate default styles.
-                     */
+                    /*--------------------------------------------------
+                    | Generate default styles.
+                    |-------------------------------------------------*/
                     if(this.settings.generate.styles.on) {
                         if(this.settings.generate.styles.containerParentPosition) {
                             this.container.parentNode.style.position = this.settings.generate.styles.containerParentPosition;
                         }
-                        var style = this.createStyles();
-                        // document.getElementsByTagName('head')[0].appendChild(style);
+                        if(!this.style) {
+                            this.style = this.createStyles();
+                        }
                         var head = document.getElementsByTagName('head')[0];
-                        head.insertBefore(style, head.firstChild);
+                        head.insertBefore(this.style, head.firstChild);
                     }
                 }
 
-                // Start auto play if desired.
+                /*--------------------------------------------------
+                | Auto play.
+                |-------------------------------------------------*/
                 if(this.items.length > 1) {
                     if(this.settings.autoPlay.on) {
                         this.startAuto();
