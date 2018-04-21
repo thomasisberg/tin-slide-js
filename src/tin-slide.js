@@ -26,7 +26,7 @@
             /*--------------------------------------------------
             | Settings – possible to override using options.
             |-------------------------------------------------*/
-            settings: {
+            defaultSettings: {
                 debug: false,
                 // Desired slide effects.
                 effects: {
@@ -140,7 +140,14 @@
                 // Distance to target multiplied by this value = choke.
                 // This is what makes the slider break in on target.
                 chokeReturnFactor: 2
+                // // Break points allows for completely different settings
+                // // at desired sliders widths (break points). Pass object
+                // // with break point as key and settings aso bject as value,
+                // // for example {400: {}}
+                // breakPoints: null,
             },
+            // Settings for current break point.
+            settings: {},
 
             /*--------------------------------------------------
             | Local working variables.
@@ -201,10 +208,6 @@
                 this.container = container;
                 var item, i, n, element, src;
                 this.body = document.getElementsByTagName('body')[0];
-    
-                if(options !== undefined) {
-                    this.setOptions(this.settings, options);
-                }
 
                 /*--------------------------------------------------
                 | Replace all .tin-slide-image elements.
@@ -277,7 +280,88 @@
                 this.items = items;
                 this.numItems = this.items.length;
                 this.numHalfItems = this.numItems / 2;
+
+                /*--------------------------------------------------
+                | Store default settings with standard options.
+                |-------------------------------------------------*/
+                if(options !== undefined) {
+                    this.setOptions(this.defaultSettings, options);
+                }
+
+                /*--------------------------------------------------
+                | Set default settings.
+                |-------------------------------------------------*/
+                this.initSettings();
     
+                for(i=0; i<this.numItems; i++) {
+                    item = this.items[i];
+
+                    // Store index on item.
+                    item.tinSlideIndex = i;
+
+                    // Remove tin-slide-cloak
+                    item.removeAttribute('tin-slide-cloak');
+                }
+
+                container.removeAttribute('tin-slide-cloak');
+                
+                /**
+                 * Create callback functions bound to this scope.
+                 */
+                this._onAnimationTimer = this.onAnimationTimer.bind(this);
+                this._onSwipePress = this.onSwipePress.bind(this);
+                this._onSwipeRelease = this.onSwipeRelease.bind(this);
+                this._onSwipeMove = this.onSwipeMove.bind(this);
+                this._onTimerSwipe = this.onTimerSwipe.bind(this);
+                this._pauseAuto = this.pauseAuto.bind(this);
+                this._resumeAuto = this.resumeAuto.bind(this);
+                this._imageLoaded = this.imageLoaded.bind(this);
+
+                /**
+                 * Listen for images loaded.
+                 */
+                var images = this.container.querySelectorAll('img');
+                for(i=0; i<images.length; i++) {
+                    images[i].addEventListener('load', this._imageLoaded);
+                }
+
+                var that = this;
+    
+                // Force recalculation of container width on window resize.
+                // Calculation will occur when width is needed.
+                window.addEventListener('resize', function() {
+                    this.containerWidth = 0;
+                }.bind(this));
+    
+                // Set slider to initial position.
+                this.setPointer(this.targetIndex);
+
+                // Update dots.
+                this.updateDots();
+
+                document.addEventListener('touchmove', function(event) {
+                    if(this.swipePreventDefault) {
+                        event.preventDefault();
+                    }
+                }.bind(this), {
+                    passive: false
+                });
+            },
+            /*--------------------------------------------------
+            | Initialize settings for break point (or default).
+            |-------------------------------------------------*/
+            initSettings: function(breakPointOptions) {
+                if(breakPointOptions === undefined) {
+                    this.settings = this.defaultSettings;
+                }
+                else {
+                    this.settings = {};
+                    this.cloneSettings(this.defaultSettings, this.settings);
+                    this.setOptions(this.settings, breakPointOptions);
+                }
+
+                var i, n, item;
+
                 if(this.settings.ratio) {
                     this.settings.ratioPercent = 100 * (1/this.settings.ratio);
                 }
@@ -315,29 +399,7 @@
                 if(this.settings.zIndex) {
                     this.container.style.zIndex = this.settings.zIndex;
                 }
-                
-                /**
-                 * Create callback functions bound to this scope.
-                 */
-                this._onAnimationTimer = this.onAnimationTimer.bind(this);
-                this._onSwipePress = this.onSwipePress.bind(this);
-                this._onSwipeRelease = this.onSwipeRelease.bind(this);
-                this._onSwipeMove = this.onSwipeMove.bind(this);
-                this._onTimerSwipe = this.onTimerSwipe.bind(this);
-                this._pauseAuto = this.pauseAuto.bind(this);
-                this._resumeAuto = this.resumeAuto.bind(this);
-                this._imageLoaded = this.imageLoaded.bind(this);
 
-                /**
-                 * Listen for images loaded.
-                 */
-                var images = this.container.querySelectorAll('img');
-                for(i=0; i<images.length; i++) {
-                    images[i].addEventListener('load', this._imageLoaded);
-                }
-
-                var that = this;
-    
                 /**
                  *  Set up prev / next navigation.
                  */
@@ -360,7 +422,6 @@
                  */
                 if(this.items.length > 1) {
                     if(this.settings.swipe.on) {
-                        
                         var styles = {
                             'user-drag': 'none',
                             'user-select': 'none',
@@ -392,7 +453,7 @@
                         }
                     }
                 }
-    
+
                 /**
                  *  If container height should always match selected item.
                  */
@@ -401,25 +462,18 @@
                     window.addEventListener('resize', function() {
                         this.updateContainerHeight();
                     }.bind(this));
-                    // Update height every second.
-                    // this.timerUpdateContainerHeight = setInterval(function() {
-                    //     that.updateContainerHeight();
-                    // }, 1000);
                 }
 
+                /*--------------------------------------------------
+                | Store working variables for multiple items.
+                |-------------------------------------------------*/
                 if(this.settings.effects.slideHorizontal.on) {
                     if(this.settings.effects.slideHorizontal.numVisible > 1) {
                         this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
                         this.translateXOffsetProgress = 0.5*(this.settings.effects.slideHorizontal.numVisible-1);
                     }
                 }
-    
-                // Force recalculation of container width on window resize.
-                // Calculation will occur when width is needed.
-                window.addEventListener('resize', function() {
-                    this.containerWidth = 0;
-                }.bind(this));
-    
+
                 if(this.items.length > 1) {
 
                     /**
@@ -457,11 +511,7 @@
                         head.insertBefore(style, head.firstChild);
                     }
                 }
-    
-                // Set slider to initial position.
-                this.setPointer(this.targetIndex);
-                // Update dots.
-                this.updateDots();
+
                 // Start auto play if desired.
                 if(this.items.length > 1) {
                     if(this.settings.autoPlay.on) {
@@ -481,14 +531,6 @@
                         }
                     }
                 }
-
-                document.addEventListener('touchmove', function(event) {
-                    if(this.swipePreventDefault) {
-                        event.preventDefault();
-                    }
-                }.bind(this), {
-                    passive: false
-                });
             },
             css: function(element, styles) {
                 for(var style in styles) {
@@ -537,6 +579,18 @@
                         else {
                             scope[v] = options[v];
                         }
+                    }
+                }
+            },
+            cloneSettings: function(settings, clone) {
+                for(var v in settings) {
+                    var type = typeof settings[v];
+                    if(type === 'object' && settings[v] !== null) {
+                        clone[v] = {};
+                        this.cloneSettings(settings[v], clone[v]);
+                    }
+                    else {
+                        clone[v] = settings[v];
                     }
                 }
             },
