@@ -1320,10 +1320,10 @@
                 var pointerVal = this.pointerVal;
                 var diff = this.targetVal - pointerVal;
                 var diffAbs = diff < 0 ? -diff : diff;
+
                 if(diffAbs < this.settings.stepSnap) {
                     this.step = this.stepAbs = 0;
                     this.setPointer(this.targetVal);
-                    // clearInterval(this.timerAnimate);
                     cancelAnimationFrame(this.timerAnimate);
                     this.timerAnimate = 0;
                 }
@@ -1367,8 +1367,8 @@
                     }
                     this.stepAbs = this.step < 0 ? -this.step : this.step;
                     this.setPointer(pointerVal);
+                    this.timerAnimate = requestAnimationFrame(this._onAnimationTimer);
                 }
-                this.timerAnimate = requestAnimationFrame(this._onAnimationTimer);
             },
             goTo: function(index) {
                 // Clear timer used for non looping hint.
