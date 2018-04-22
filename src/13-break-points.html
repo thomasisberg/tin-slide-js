@@ -88,6 +88,11 @@
             var tinSlide = TinSlide(document.getElementById('slider'), {
                 breakPoints: {
                     400: {
+                        generate: {
+                            nav: {
+                                on: false
+                            }
+                        },
                         effects: {
                             slideHorizontal: {
                                 numVisible: 2,
@@ -96,6 +101,14 @@
                         }
                     },
                     500: {
+                        generate: {
+                            nav: {
+                                on: true
+                            },
+                            dots: {
+                                on: false
+                            }
+                        },
                         effects: {
                             slideHorizontal: {
                                 numVisible: 3,

@@ -545,6 +545,11 @@
                             this.settings.generate.dots.afterContainer ? this.container.nextSibling : this.container
                         );
                     }
+                    else {
+                        if(this.dots && this.dots.parentNode) {
+                            this.dots.parentNode.removeChild(this.dots);
+                        }
+                    }
     
                     /*--------------------------------------------------
                     | Generate nav.
@@ -557,6 +562,11 @@
                             this.nav,
                             this.settings.generate.nav.afterContainer ? this.container.nextSibling : this.container
                         );
+                    }
+                    else {
+                        if(this.nav && this.nav.parentNode) {
+                            this.nav.parentNode.removeChild(this.nav);
+                        }
                     }
 
                     /*--------------------------------------------------
@@ -571,6 +581,11 @@
                         }
                         var head = document.getElementsByTagName('head')[0];
                         head.insertBefore(this.style, head.firstChild);
+                    }
+                    else {
+                        if(this.style && this.style.parentNode) {
+                            this.style.parentNode.removeChild(this.style);
+                        }
                     }
                 }
 
