@@ -465,34 +465,10 @@
                 | Set up swipe navigation.
                 |-------------------------------------------------*/
                 if(this.items.length > 1) {
+                    this.setSwipeStyles();
                     if(this.settings.swipe.on) {
-                        var styles = {
-                            'user-drag': 'none',
-                            'user-select': 'none',
-                            '-moz-user-select': 'none',
-                            '-webkit-user-drag': 'none',
-                            '-webkit-user-select': 'none',
-                            '-ms-user-select': 'none'
-                        };
-                        var imageStyles = {};
-                        for(var v in styles) {
-                            imageStyles[v] = styles[v];
-                        }
-                        imageStyles['pointer-events'] = 'none';
-                        for(i=0; i<this.numItems; i++) {
-                            this.css(this.items[i], styles);
-                            var imageNodes = this.items[i].getElementsByTagName('img');
-                            n = imageNodes.length;
-                            for(var j=0; j<n; j++) {
-                                this.css(imageNodes[j], imageStyles);
-                            }
-                        }
-
                         this.container.addEventListener('touchstart', this._onSwipePress);
-
-                        // Swipe styles.
                         if(!this.settings.swipe.touchOnly) {
-                            this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
                             this.container.addEventListener('mousedown', this._onSwipePress);
                         }
                         else {
@@ -620,6 +596,36 @@
 
                 // Update dots.
                 this.updateDots();
+            },
+            setSwipeStyles: function() {
+                var i, n, j;
+                if(this.settings.swipe.on) {
+                    var styles = {
+                        'user-drag': 'none',
+                        'user-select': 'none',
+                        '-moz-user-select': 'none',
+                        '-webkit-user-drag': 'none',
+                        '-webkit-user-select': 'none',
+                        '-ms-user-select': 'none'
+                    };
+                    var imageStyles = {};
+                    for(var v in styles) {
+                        imageStyles[v] = styles[v];
+                    }
+                    imageStyles['pointer-events'] = 'none';
+                    for(i=0; i<this.numItems; i++) {
+                        this.css(this.items[i], styles);
+                        var imageNodes = this.items[i].getElementsByTagName('img');
+                        n = imageNodes.length;
+                        for(j=0; j<n; j++) {
+                            this.css(imageNodes[j], imageStyles);
+                        }
+                    }
+
+                    if(!this.settings.swipe.touchOnly) {
+                        this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
+                    }
+                }
             },
             css: function(element, styles) {
                 for(var style in styles) {

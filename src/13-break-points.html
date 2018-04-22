@@ -37,6 +37,11 @@
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://tin-slide.com/09-navigation.html">
 
+        <style>
+            .tin-slide-dots {
+                z-index: 1;
+            }
+        </style>
     </head>
     <body>
         <header>
@@ -88,6 +93,7 @@
             var tinSlide = TinSlide(document.getElementById('slider'), {
                 breakPoints: {
                     400: {
+                        cropContainer: false,
                         generate: {
                             nav: {
                                 on: false
@@ -97,10 +103,20 @@
                             slideHorizontal: {
                                 numVisible: 2,
                                 centerSelected: true
+                            },
+                            scale: {
+                                on: true,
+                                max: 1.2,
+                                min: 1
                             }
-                        }
+                        },
+                        zIndex: 1
                     },
                     500: {
+                        cropContainer: true,
+                        swipe: {
+                            on: false
+                        },
                         generate: {
                             nav: {
                                 on: true
@@ -111,10 +127,13 @@
                         },
                         effects: {
                             slideHorizontal: {
-                                numVisible: 3,
-                                centerSelected: false
+                                numVisible: 3
+                            },
+                            scale: {
+                                on: false
                             }
-                        }
+                        },
+                        zIndex: null
                     }
                 }
             });
