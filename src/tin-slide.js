@@ -1612,21 +1612,9 @@
                             opacity = this.settings.effects.fade.min;
                         }
                         item.style.opacity = opacity;
-                        /**
-                         *  Hide elements completely faded out.
-                         */
-                        // if(opacity) {
-                        //     if(item.style.display === 'none') {
-                        //         item.style.display = 'block';
-                        //     }
-                        // }
-                        // else {
-                        //     // Don't hide the relatively positioned element,
-                        //     // as the container will loose its height.
-                        //     if(item.style.position != 'relative' && item.style.display !== 'none') {
-                        //         item.style.display = 'none';
-                        //     }
-                        // }
+                    }
+                    else if(item.style.opacity !== '') {
+                        item.style.opacity = '';
                     }
                 }
     

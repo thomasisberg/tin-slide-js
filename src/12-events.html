@@ -63,12 +63,17 @@
             <div class="wrapper">
                 <div class="info">
                     <h2>Events</h2>
-                    <p></p>
+                    <h3>Events is a work in progress</h3>
+                    <p>The only event currently implemented is the <span class="code">itemSelected</span> event. It is dispatched every time a new item becomes the selected item. In TinSlide, the selected item is the item closest to be "in position". It is not necessarily the same as the targeted item – which the slider animates towards. However, the targeted item will eventually become the selected one (if the slider is not interacted with).</p>
                     <code>
-                        TinSlide(document.getElementById('slider'));
+                        var tinSlide = TinSlide(document.getElementById('slider'));<br>
+                        tinSlide.on('itemSelected', function(event) {<br>
+                            &nbsp;&nbsp;document.getElementById('slider-info').innerText = event.index;<br>
+                        });
                     </code>
                 </div>
                 <div class="slider-column">
+                    <h1>Selected index: <span id="slider-info">0</span></h1>
                     <div class="slider-wrapper">
                         <div id="slider">
                             <div><div class="tin-slide-img" data-src="img-1.jpg"></div></div>
@@ -82,12 +87,9 @@
         <script src="main.js"></script>
         <script>
             var tinSlide = TinSlide(document.getElementById('slider'));
-            
             tinSlide.on('itemSelected', function(event) {
-                console.log(event);
-                console.log(arguments);
-            })
-
+                document.getElementById('slider-info').innerText = event.index;
+            });
         </script>
     </body>
 </html>
