@@ -74,6 +74,7 @@
                 <div class="info">
                     <h2>Break points</h2>
                     <p>You may pass separate options for different slider widths, using break points. Break points are mobile first and specified in pixels without unit.</p>
+                    <p>Every break point inherits the options from previous break point (or from the default non break point options). That way you can specity the default values once, and then override specific ones using break points.</p>
                     <p>When a break point is active, the slider container gets a <span class="code">tin-slide-break-point</span> attribute with the current break point width as value. That way you can target the slider with CSS, for example using:</p>
                     <code>
                         #slider[tin-slide-break-point="450"] .tin-slide-selected<br>
