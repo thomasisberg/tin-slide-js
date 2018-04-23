@@ -91,8 +91,16 @@
         <script src="main.js"></script>
         <script>
             var tinSlide = TinSlide(document.getElementById('slider'), {
+                autoPlay: {
+                    on: true,
+                    time: 1000,
+                },
                 breakPoints: {
-                    400: {
+                    450: {
+                        autoPlay: {
+                            on: false,
+                            pauseOnHover: false
+                        },
                         cropContainer: false,
                         generate: {
                             nav: {
@@ -112,7 +120,10 @@
                         },
                         zIndex: 1
                     },
-                    500: {
+                    550: {
+                        autoPlay: {
+                            on: true
+                        },
                         cropContainer: true,
                         swipe: {
                             touchOnly: true

@@ -337,10 +337,12 @@
                     }
                 }
 
+                container.style.position = 'relative';
+
                 /*--------------------------------------------------
-                | Settings for current break point.
+                | Settings for current break point 
+                | (or none / default).
                 |-------------------------------------------------*/
-                // this.initSettings(this.getBreakPointOptions());
                 this.updateBreakPoint();
     
                 for(i=0; i<this.numItems; i++) {
@@ -434,7 +436,6 @@
                 /**
                  *  Container styles.
                  */
-                this.container.style.position = 'relative';
                 if(this.settings.cropContainer) {
                     this.container.style.overflow = 'hidden';
                 }
@@ -492,6 +493,7 @@
                 | If container height should always 
                 | match selected item.
                 |-------------------------------------------------*/
+                window.removeEventListener('resize', this._updateContainerHeight);
                 if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
                     window.addEventListener('resize', this._updateContainerHeight);
@@ -503,18 +505,13 @@
                 /*--------------------------------------------------
                 | Store working variables for multiple items.
                 |-------------------------------------------------*/
+                this.numItemsInside = 1;
+                this.translateXOffsetProgress = 0;
                 if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1) {
                     this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
                     if(this.settings.effects.slideHorizontal.centerSelected) {
                         this.translateXOffsetProgress = 0.5*(this.settings.effects.slideHorizontal.numVisible-1);
                     }
-                    else {
-                        this.translateXOffsetProgress = 0;    
-                    }
-                }
-                else {
-                    this.numItemsInside = 1;
-                    this.translateXOffsetProgress = 0;
                 }
 
                 /*--------------------------------------------------
@@ -582,21 +579,28 @@
                 | Auto play.
                 |-------------------------------------------------*/
                 if(this.items.length > 1) {
+                    var pauseElements = [this.container];
+                    if(this.dots) {
+                        pauseElements.push(this.dots);
+                    }
+                    if(this.nav) {
+                        pauseElements.push(this.nav);
+                    }
+                    for(i=0; i<pauseElements.length; i++) {
+                        pauseElements[i].removeEventListener('mouseenter', this._pauseAuto);
+                        pauseElements[i].removeEventListener('mouseleave', this._resumeAuto);
+                    }
                     if(this.settings.autoPlay.on) {
                         this.startAuto();
+                        if(this.settings.autoPlay.pauseOnHover) {   
+                            for(i=0; i<pauseElements.length; i++) {
+                                pauseElements[i].addEventListener('mouseenter', this._pauseAuto);
+                                pauseElements[i].addEventListener('mouseleave', this._resumeAuto);
+                            }
+                        }
                     }
-                    if(this.settings.autoPlay.pauseOnHover) {
-                        var pauseElements = [this.container];
-                        if(this.dots) {
-                            pauseElements.push(this.dots);
-                        }
-                        if(this.nav) {
-                            pauseElements.push(this.nav);
-                        }
-                        for(i=0; i<pauseElements.length; i++) {
-                            pauseElements[i].addEventListener('mouseenter', this._pauseAuto);
-                            pauseElements[i].addEventListener('mouseleave', this._resumeAuto);
-                        }
+                    else {
+                        this.pauseAuto();
                     }
                 }
 
@@ -607,7 +611,7 @@
                 this.setPointer(this.pointerVal);
 
                 // Update dots.
-                // this.updateDots();
+                this.updateDots();
             },
             setSwipeStyles: function() {
                 var i, n, j;
@@ -1669,12 +1673,18 @@
                 this.animateTo(index);
             },
             startAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 if(this.autoPlayState !== 'started') {
                     this.autoPlayState = 'started';
                     this.resumeAuto();
                 }
             },
             pauseAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 // Don't do anything if auto play isn't activated.
                 if(this.autoPlayState) {
                     this.autoPlayState = 'paused';
@@ -1683,6 +1693,9 @@
                 }
             },
             resumeAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 // Don't do anything if auto play isn't activated.
                 if(this.autoPlayState) {
                     this.autoPlayState = 'started';
@@ -1703,9 +1716,12 @@
                 }
             },
             stopAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 if(this.autoPlayState) {
                     this.pauseAuto();
-                    this.autoPlayState = null;
+                    this.autoPlayState = 'stopped';
                 }
             },
             imageLoaded: function(event) {
