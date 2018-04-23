@@ -202,7 +202,7 @@
             // Generated styles element.
             style: null,
             breakPoints: [],
-            currentBreakPointOptions: null,
+            currentBreakPoint: {},
     
             /**
              *  Methods.
@@ -288,6 +288,9 @@
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
                     item.tinSlideIndex = i;
+                    // Hide all items
+                    item.style.position = 'absolute';
+                    this.hideOrShowElement(item, true);
                 }
 
                 /*--------------------------------------------------
@@ -331,15 +334,14 @@
                             this.mergeObjects(breakPointOptions, this.breakPoints[i].options);
                             this.breakPoints[i].options = this.cloneObject(breakPointOptions, {});
                         }
-
-                        // console.log(this.breakPoints);
                     }
                 }
 
                 /*--------------------------------------------------
                 | Settings for current break point.
                 |-------------------------------------------------*/
-                this.initSettings(this.getBreakPointOptions());
+                // this.initSettings(this.getBreakPointOptions());
+                this.updateBreakPoint();
     
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
@@ -359,11 +361,7 @@
                 // Calculation will occur when width is needed.
                 window.addEventListener('resize', function() {
                     this.containerWidth = 0;
-                    // Check if new size means new break point.
-                    var breakPointOptions = this.getBreakPointOptions();
-                    if(this.currentBreakPointOptions !== breakPointOptions) {
-                        this.initSettings(breakPointOptions);
-                    }
+                    this.updateBreakPoint();
                 }.bind(this));
 
 
@@ -376,26 +374,43 @@
                 });
             },
             /*--------------------------------------------------
+            | Set break point.
+            |-------------------------------------------------*/
+            updateBreakPoint: function() {
+                var breakPoint = this.getBreakPoint();
+                if(breakPoint === this.currentBreakPoint) {
+                    return;
+                }
+                this.currentBreakPoint = breakPoint;
+                if(breakPoint) {
+                    this.container.setAttribute('tin-slide-break-point', breakPoint.width);
+                    this.initSettings(breakPoint.options);
+                }
+                else {
+                    this.container.removeAttribute('tin-slide-break-point');
+                    this.initSettings();
+                }
+            },
+            /*--------------------------------------------------
             | Get break point options.
             |-------------------------------------------------*/
-            getBreakPointOptions: function() {
-                var breakPointOptions = null;
+            getBreakPoint: function() {
+                var breakPoint = null;
                 var i, n, w = this.getContainerWidth();
                 for(i=0, n=this.breakPoints.length; i<n; i++) {
                     if(w >= this.breakPoints[i].width) {
-                        breakPointOptions = this.breakPoints[i].options;
+                        breakPoint = this.breakPoints[i];
                     }
                     else {
                         break;
                     }
                 }
-                return breakPointOptions;
+                return breakPoint;
             },
             /*--------------------------------------------------
             | Initialize settings for break point (or default).
             |-------------------------------------------------*/
             initSettings: function(breakPointOptions) {
-                this.currentBreakPointOptions = breakPointOptions;
                 if(breakPointOptions === undefined) {
                     this.settings = this.defaultSettings;
                 }
@@ -414,10 +429,6 @@
                     item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
                     item.style.left = '0';
                     item.style.width = (100/this.settings.effects.slideHorizontal.numVisible)+'%';
-    
-                    // Hide all items
-                    item.style.position = 'absolute';
-                    this.hideOrShowElement(item, true);
                 }
     
                 /**
@@ -466,18 +477,14 @@
                 |-------------------------------------------------*/
                 if(this.items.length > 1) {
                     this.setSwipeStyles();
+
+                    this.container.removeEventListener('touchstart', this._onSwipePress);
+                    this.container.removeEventListener('mousedown', this._onSwipePress);
                     if(this.settings.swipe.on) {
                         this.container.addEventListener('touchstart', this._onSwipePress);
                         if(!this.settings.swipe.touchOnly) {
                             this.container.addEventListener('mousedown', this._onSwipePress);
                         }
-                        else {
-                            this.container.removeEventListener('mousedown', this._onSwipePress);
-                        }
-                    }
-                    else {
-                        this.container.removeEventListener('touchstart', this._onSwipePress);
-                        this.container.removeEventListener('mousedown', this._onSwipePress);
                     }
                 }
 
@@ -491,17 +498,23 @@
                 }
                 else {
                     this.container.style.height = '';
-                    window.removeEventListener('resize', this._updateContainerHeight);
                 }
 
                 /*--------------------------------------------------
                 | Store working variables for multiple items.
                 |-------------------------------------------------*/
-                if(this.settings.effects.slideHorizontal.on) {
-                    if(this.settings.effects.slideHorizontal.numVisible > 1) {
-                        this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
+                if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1) {
+                    this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
+                    if(this.settings.effects.slideHorizontal.centerSelected) {
                         this.translateXOffsetProgress = 0.5*(this.settings.effects.slideHorizontal.numVisible-1);
                     }
+                    else {
+                        this.translateXOffsetProgress = 0;    
+                    }
+                }
+                else {
+                    this.numItemsInside = 1;
+                    this.translateXOffsetProgress = 0;
                 }
 
                 /*--------------------------------------------------
@@ -587,49 +600,71 @@
                     }
                 }
 
-                this.itemsVisible = {};
-                this.itemsOutside = {};
                 this.selectedItem = null;
 
                 // Set slider to initial position.
-                this.setPointer(this.targetIndex);
+                // this.setPointer(this.targetIndex);
+                this.setPointer(this.pointerVal);
 
                 // Update dots.
-                this.updateDots();
+                // this.updateDots();
             },
             setSwipeStyles: function() {
                 var i, n, j;
-                if(this.settings.swipe.on) {
-                    var styles = {
-                        'user-drag': 'none',
-                        'user-select': 'none',
-                        '-moz-user-select': 'none',
-                        '-webkit-user-drag': 'none',
-                        '-webkit-user-select': 'none',
-                        '-ms-user-select': 'none'
-                    };
-                    var imageStyles = {};
-                    for(var v in styles) {
-                        imageStyles[v] = styles[v];
-                    }
-                    imageStyles['pointer-events'] = 'none';
-                    for(i=0; i<this.numItems; i++) {
+                var styles = {
+                    'user-drag': 'none',
+                    'user-select': 'none',
+                    '-moz-user-select': 'none',
+                    '-webkit-user-drag': 'none',
+                    '-webkit-user-select': 'none',
+                    '-ms-user-select': 'none'
+                };
+                var imageStyles = {};
+                for(var v in styles) {
+                    imageStyles[v] = styles[v];
+                }
+                imageStyles['pointer-events'] = 'none';
+                for(i=0; i<this.numItems; i++) {
+                    if(this.settings.swipe.on) {
                         this.css(this.items[i], styles);
-                        var imageNodes = this.items[i].getElementsByTagName('img');
-                        n = imageNodes.length;
-                        for(j=0; j<n; j++) {
+                    }
+                    else {
+                        this.removeCss(this.items[i], styles);
+                    }
+                    var imageNodes = this.items[i].getElementsByTagName('img');
+                    n = imageNodes.length;
+                    for(j=0; j<n; j++) {
+                        if(this.settings.swipe.on) {
                             this.css(imageNodes[j], imageStyles);
                         }
+                        else {
+                            this.removeCss(imageNodes[j], imageStyles);
+                        }
                     }
+                }
 
-                    if(!this.settings.swipe.touchOnly) {
-                        this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
-                    }
+                if(this.settings.swipe.on && !this.settings.swipe.touchOnly) {
+                    this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
+                }
+                else {
+                    this.removeCss(this.container, ['cursor']);
                 }
             },
             css: function(element, styles) {
                 for(var style in styles) {
                     element.style[style] = styles[style];
+                }
+            },
+            removeCss: function(element, styles) {
+                if(Array.isArray(styles)) {
+                    for(var i=0; i<styles.length; i++) {
+                        element.style[styles[i]] = '';
+                    }
+                }
+                else {
+                    for(var style in styles) {
+                        element.style[style] = '';
+                    }
                 }
             },
             addClass: function(element, className) {
@@ -829,10 +864,10 @@
                 }
                 else {
                     // Visible items – first add the floor index.
-                    var visiblePointer = pointer;
-                    if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
-                        visiblePointer -= this.translateXOffsetProgress;
-                    }
+                    var visiblePointer = pointer - this.translateXOffsetProgress;
+                    // if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
+                    //     visiblePointer -= this.translateXOffsetProgress;
+                    // }
                     if(visiblePointer < 0 && this.settings.loop) {
                         visiblePointer += this.numItems;
                     }
@@ -842,14 +877,12 @@
                     }
 
                     // Add ceil index if pointer is not at destination.
-                    // if(this.pointer !== floorPointer) {
-                    for(i=1; i<=this.numItemsInside; i++) {
+                    for(i=1; i<=this.numItemsInside-(visiblePointer === floorPointer ? 1 : 0); i++) {
                         // var ceilPointer = Math.ceil(this.pointer);
                         var ceilPointer = floorPointer+i;
                         if(this.settings.loop) {
                             ceilPointer %= this.numItems;
                         }
-                        // if(ceilPointer < this.items.length && ceilPointer !== floorPointer) {
                         if(ceilPointer < this.items.length && visibleItems.indexOf(this.items[ceilPointer]) === -1) {
                             visibleItems.push(this.items[ceilPointer]);
                         }
@@ -871,7 +904,7 @@
                     }
                     // Store progress.
                     var progress = this.pointer - item.tinSlideIndex;
-                    if(this.settings.hideItems) {
+                    if(!this.translateXOffsetProgress) {
                         if(progress > 1) {
                             progress -= this.numItems;
                         }
@@ -1517,7 +1550,7 @@
     
                     // Horizontal slide.
                     if(this.settings.effects.slideHorizontal.on) {
-                        var translateXProgress = this.settings.effects.slideHorizontal.numVisible === 1 || !this.settings.effects.slideHorizontal.centerSelected ? progress : progress - this.translateXOffsetProgress;
+                        var translateXProgress = progress - this.translateXOffsetProgress;
                         var translateX = ((this.settings.effects.slideHorizontal.offset*100)*-translateXProgress)+'%';
                         var translateY = !this.settings.verticallyCenter ? 0 : '-50%';
                         transforms.push('translate3d('+translateX+', '+translateY+', 0)');
