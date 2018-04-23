@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.17
+ * TinSlide v0.1.18
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -26,7 +26,7 @@
             /*--------------------------------------------------
             | Settings – possible to override using options.
             |-------------------------------------------------*/
-            settings: {
+            defaultSettings: {
                 debug: false,
                 // Desired slide effects.
                 effects: {
@@ -140,7 +140,14 @@
                 // Distance to target multiplied by this value = choke.
                 // This is what makes the slider break in on target.
                 chokeReturnFactor: 2
+                // // Break points allows for completely different settings
+                // // at desired sliders widths (break points). Pass object
+                // // with break point as key and settings aso bject as value,
+                // // for example {400: {}}
+                // breakPoints: null,
             },
+            // Settings for current break point.
+            settings: {},
 
             /*--------------------------------------------------
             | Local working variables.
@@ -192,6 +199,10 @@
             autoPlayForwards: true,
             timerNonLoopingHint: 0,
             translateXOffsetProgress: 0,
+            // Generated styles element.
+            style: null,
+            breakPoints: [],
+            currentBreakPoint: {},
     
             /**
              *  Methods.
@@ -199,12 +210,8 @@
             init: function(container, options) {
     
                 this.container = container;
-                var item, i, n, element, src;
+                var item, i, n, v, element, src;
                 this.body = document.getElementsByTagName('body')[0];
-    
-                if(options !== undefined) {
-                    this.setOptions(this.settings, options);
-                }
 
                 /*--------------------------------------------------
                 | Replace all .tin-slide-image elements.
@@ -277,48 +284,18 @@
                 this.items = items;
                 this.numItems = this.items.length;
                 this.numHalfItems = this.numItems / 2;
-    
-                if(this.settings.ratio) {
-                    this.settings.ratioPercent = 100 * (1/this.settings.ratio);
-                }
 
-                var containerHeight = 0;
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
                     item.tinSlideIndex = i;
-    
-                    // Item styles
-                    item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
-                    item.style.left = '0';
-                    item.style.width = (100/this.settings.effects.slideHorizontal.numVisible)+'%';
-    
                     // Hide all items
                     item.style.position = 'absolute';
                     this.hideOrShowElement(item, true);
-
-                    // Remove tin-slide-cloak
-                    item.removeAttribute('tin-slide-cloak');
                 }
 
-                container.removeAttribute('tin-slide-cloak');
-    
-                /**
-                 *  Container styles.
-                 */
-                this.container.style.position = 'relative';
-                if(this.settings.cropContainer) {
-                    this.container.style.overflow = 'hidden';
-                }
-                if(this.settings.ratio) {
-                    this.container.style.paddingTop = this.settings.ratioPercent+'%';
-                }
-                if(this.settings.zIndex) {
-                    this.container.style.zIndex = this.settings.zIndex;
-                }
-                
-                /**
-                 * Create callback functions bound to this scope.
-                 */
+                /*--------------------------------------------------
+                | Create functions bound to this scope.
+                |-------------------------------------------------*/
                 this._onAnimationTimer = this.onAnimationTimer.bind(this);
                 this._onSwipePress = this.onSwipePress.bind(this);
                 this._onSwipeRelease = this.onSwipeRelease.bind(this);
@@ -327,6 +304,52 @@
                 this._pauseAuto = this.pauseAuto.bind(this);
                 this._resumeAuto = this.resumeAuto.bind(this);
                 this._imageLoaded = this.imageLoaded.bind(this);
+                this._updateContainerHeight = this.updateContainerHeight.bind(this);
+
+                /*--------------------------------------------------
+                | Store default settings with standard options.
+                |-------------------------------------------------*/
+                if(options !== undefined) {
+                    this.setOptions(this.defaultSettings, options);
+
+                    /*--------------------------------------------------
+                    | Create sorted array with break points.
+                    |-------------------------------------------------*/
+                    if(options.breakPoints !== undefined) {
+                        for(v in options.breakPoints) {
+                            var width = parseInt(v, 10);
+                            if(!isNaN(width)) {
+                                this.breakPoints.push({
+                                    width: width,
+                                    options: options.breakPoints[v]
+                                });
+                            }
+                        }
+                        this.breakPoints.sort(function(a, b) {
+                            return a.width-b.width;
+                        });
+                        // Create merged options objects.
+                        var breakPointOptions = {};
+                        for(i=0; i<this.breakPoints.length; i++) {
+                            this.mergeObjects(breakPointOptions, this.breakPoints[i].options);
+                            this.breakPoints[i].options = this.cloneObject(breakPointOptions, {});
+                        }
+                    }
+                }
+
+                container.style.position = 'relative';
+
+                /*--------------------------------------------------
+                | Settings for current break point 
+                | (or none / default).
+                |-------------------------------------------------*/
+                this.updateBreakPoint();
+    
+                for(i=0; i<this.numItems; i++) {
+                    item = this.items[i];
+                    item.removeAttribute('tin-slide-cloak');
+                }
+                container.removeAttribute('tin-slide-cloak');
 
                 /**
                  * Listen for images loaded.
@@ -335,12 +358,107 @@
                 for(i=0; i<images.length; i++) {
                     images[i].addEventListener('load', this._imageLoaded);
                 }
+    
+                // Force recalculation of container width on window resize.
+                // Calculation will occur when width is needed.
+                window.addEventListener('resize', function() {
+                    this.containerWidth = 0;
+                    this.updateBreakPoint();
+                }.bind(this));
 
-                var that = this;
+
+                document.addEventListener('touchmove', function(event) {
+                    if(this.swipePreventDefault) {
+                        event.preventDefault();
+                    }
+                }.bind(this), {
+                    passive: false
+                });
+            },
+            /*--------------------------------------------------
+            | Set break point.
+            |-------------------------------------------------*/
+            updateBreakPoint: function() {
+                var breakPoint = this.getBreakPoint();
+                if(breakPoint === this.currentBreakPoint) {
+                    return;
+                }
+                this.currentBreakPoint = breakPoint;
+                if(breakPoint) {
+                    this.container.setAttribute('tin-slide-break-point', breakPoint.width);
+                    this.initSettings(breakPoint.options);
+                }
+                else {
+                    this.container.removeAttribute('tin-slide-break-point');
+                    this.initSettings();
+                }
+            },
+            /*--------------------------------------------------
+            | Get break point options.
+            |-------------------------------------------------*/
+            getBreakPoint: function() {
+                var breakPoint = null;
+                var i, n, w = this.getContainerWidth();
+                for(i=0, n=this.breakPoints.length; i<n; i++) {
+                    if(w >= this.breakPoints[i].width) {
+                        breakPoint = this.breakPoints[i];
+                    }
+                    else {
+                        break;
+                    }
+                }
+                return breakPoint;
+            },
+            /*--------------------------------------------------
+            | Initialize settings for break point (or default).
+            |-------------------------------------------------*/
+            initSettings: function(breakPointOptions) {
+                if(breakPointOptions === undefined) {
+                    this.settings = this.defaultSettings;
+                }
+                else {
+                    var settings = this.cloneObject(this.defaultSettings, {});
+                    this.setOptions(settings, breakPointOptions);
+                    this.settings = settings;
+                }
+
+                var i, n, item;
+
+                for(i=0; i<this.numItems; i++) {
+                    item = this.items[i];
+    
+                    // Item styles
+                    item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
+                    item.style.left = '0';
+                    item.style.width = (100/this.settings.effects.slideHorizontal.numVisible)+'%';
+                }
     
                 /**
-                 *  Set up prev / next navigation.
+                 *  Container styles.
                  */
+                if(this.settings.cropContainer) {
+                    this.container.style.overflow = 'hidden';
+                }
+                else if(this.container.style.overflow === 'hidden') {
+                    this.container.style.overflow = '';
+                }
+                if(this.settings.ratio) {
+                    this.settings.ratioPercent = 100 * (1/this.settings.ratio);
+                    this.container.style.paddingTop = this.settings.ratioPercent+'%';
+                }
+                else if(this.container.style.paddingTop !== '') {
+                    this.container.style.paddingTop = '';
+                }
+                if(this.settings.zIndex) {
+                    this.container.style.zIndex = this.settings.zIndex;
+                }
+                else if(this.container.style.zIndex !== '') {
+                    this.container.style.zIndex = '';
+                }
+
+                /*--------------------------------------------------
+                | Set container click navigation.
+                |-------------------------------------------------*/
                 if(this.settings.useContainerClickNextPrev) {
                     this.container.addEventListener('click', function(event) {
                         var containerWidth = this.getContainerWidth();
@@ -354,145 +472,203 @@
                         }
                     }.bind(this));
                 }
-    
-                /**
-                 *  Set up swipe navigation.
-                 */
+                
+                /*--------------------------------------------------
+                | Set up swipe navigation.
+                |-------------------------------------------------*/
                 if(this.items.length > 1) {
+                    this.setSwipeStyles();
+
+                    this.container.removeEventListener('touchstart', this._onSwipePress);
+                    this.container.removeEventListener('mousedown', this._onSwipePress);
                     if(this.settings.swipe.on) {
-                        
-                        var styles = {
-                            'user-drag': 'none',
-                            'user-select': 'none',
-                            '-moz-user-select': 'none',
-                            '-webkit-user-drag': 'none',
-                            '-webkit-user-select': 'none',
-                            '-ms-user-select': 'none'
-                        };
-                        var imageStyles = {};
-                        for(var v in styles) {
-                            imageStyles[v] = styles[v];
-                        }
-                        imageStyles['pointer-events'] = 'none';
-                        for(i=0; i<this.numItems; i++) {
-                            this.css(this.items[i], styles);
-                            var imageNodes = this.items[i].getElementsByTagName('img');
-                            n = imageNodes.length;
-                            for(var j=0; j<n; j++) {
-                                this.css(imageNodes[j], imageStyles);
-                            }
-                        }
-
                         this.container.addEventListener('touchstart', this._onSwipePress);
-
-                        // Swipe styles.
                         if(!this.settings.swipe.touchOnly) {
-                            this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
                             this.container.addEventListener('mousedown', this._onSwipePress);
                         }
                     }
                 }
-    
-                /**
-                 *  If container height should always match selected item.
-                 */
+
+                /*--------------------------------------------------
+                | If container height should always 
+                | match selected item.
+                |-------------------------------------------------*/
+                window.removeEventListener('resize', this._updateContainerHeight);
                 if(this.settings.useUpdateContainerHeight) {
                     this.updateContainerHeight();
-                    window.addEventListener('resize', function() {
-                        this.updateContainerHeight();
-                    }.bind(this));
-                    // Update height every second.
-                    // this.timerUpdateContainerHeight = setInterval(function() {
-                    //     that.updateContainerHeight();
-                    // }, 1000);
+                    window.addEventListener('resize', this._updateContainerHeight);
+                }
+                else {
+                    this.container.style.height = '';
                 }
 
-                if(this.settings.effects.slideHorizontal.on) {
-                    if(this.settings.effects.slideHorizontal.numVisible > 1) {
-                        this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
+                /*--------------------------------------------------
+                | Store working variables for multiple items.
+                |-------------------------------------------------*/
+                this.numItemsInside = 1;
+                this.translateXOffsetProgress = 0;
+                if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1) {
+                    this.numItemsInside = this.settings.effects.slideHorizontal.numVisible;
+                    if(this.settings.effects.slideHorizontal.centerSelected) {
                         this.translateXOffsetProgress = 0.5*(this.settings.effects.slideHorizontal.numVisible-1);
                     }
                 }
-    
-                // Force recalculation of container width on window resize.
-                // Calculation will occur when width is needed.
-                window.addEventListener('resize', function() {
-                    this.containerWidth = 0;
-                }.bind(this));
-    
+
+                /*--------------------------------------------------
+                | Generate markup.
+                |-------------------------------------------------*/
                 if(this.items.length > 1) {
 
-                    /**
-                     *  Generate dots.
-                     */
+                    /*--------------------------------------------------
+                    | Generate dots.
+                    |-------------------------------------------------*/
                     if(this.settings.generate.dots.on) {
-                        this.dots = this.createDots();
+                        if(!this.dots) {
+                            this.dots = this.createDots();
+                        }
                         this.container.parentNode.insertBefore(
                             this.dots,
                             this.settings.generate.dots.afterContainer ? this.container.nextSibling : this.container
                         );
                     }
+                    else {
+                        if(this.dots && this.dots.parentNode) {
+                            this.dots.parentNode.removeChild(this.dots);
+                        }
+                    }
     
-                    /**
-                     *  Generate nav.
-                     */
+                    /*--------------------------------------------------
+                    | Generate nav.
+                    |-------------------------------------------------*/
                     if(this.settings.generate.nav.on) {
-                        this.nav = this.createNav();
+                        if(!this.nav) {
+                            this.nav = this.createNav();
+                        }
                         this.container.parentNode.insertBefore(
                             this.nav,
                             this.settings.generate.nav.afterContainer ? this.container.nextSibling : this.container
                         );
                     }
+                    else {
+                        if(this.nav && this.nav.parentNode) {
+                            this.nav.parentNode.removeChild(this.nav);
+                        }
+                    }
 
-                    /**
-                     * Generate default styles.
-                     */
+                    /*--------------------------------------------------
+                    | Generate default styles.
+                    |-------------------------------------------------*/
                     if(this.settings.generate.styles.on) {
                         if(this.settings.generate.styles.containerParentPosition) {
                             this.container.parentNode.style.position = this.settings.generate.styles.containerParentPosition;
                         }
-                        var style = this.createStyles();
-                        // document.getElementsByTagName('head')[0].appendChild(style);
+                        if(!this.style) {
+                            this.style = this.createStyles();
+                        }
                         var head = document.getElementsByTagName('head')[0];
-                        head.insertBefore(style, head.firstChild);
+                        head.insertBefore(this.style, head.firstChild);
                     }
-                }
-    
-                // Set slider to initial position.
-                this.setPointer(this.targetIndex);
-                // Update dots.
-                this.updateDots();
-                // Start auto play if desired.
-                if(this.items.length > 1) {
-                    if(this.settings.autoPlay.on) {
-                        this.startAuto();
-                    }
-                    if(this.settings.autoPlay.pauseOnHover) {
-                        var pauseElements = [this.container];
-                        if(this.dots) {
-                            pauseElements.push(this.dots);
-                        }
-                        if(this.nav) {
-                            pauseElements.push(this.nav);
-                        }
-                        for(i=0; i<pauseElements.length; i++) {
-                            pauseElements[i].addEventListener('mouseenter', this._pauseAuto);
-                            pauseElements[i].addEventListener('mouseleave', this._resumeAuto);
+                    else {
+                        if(this.style && this.style.parentNode) {
+                            this.style.parentNode.removeChild(this.style);
                         }
                     }
                 }
 
-                document.addEventListener('touchmove', function(event) {
-                    if(this.swipePreventDefault) {
-                        event.preventDefault();
+                /*--------------------------------------------------
+                | Auto play.
+                |-------------------------------------------------*/
+                if(this.items.length > 1) {
+                    var pauseElements = [this.container];
+                    if(this.dots) {
+                        pauseElements.push(this.dots);
                     }
-                }.bind(this), {
-                    passive: false
-                });
+                    if(this.nav) {
+                        pauseElements.push(this.nav);
+                    }
+                    for(i=0; i<pauseElements.length; i++) {
+                        pauseElements[i].removeEventListener('mouseenter', this._pauseAuto);
+                        pauseElements[i].removeEventListener('mouseleave', this._resumeAuto);
+                    }
+                    if(this.settings.autoPlay.on) {
+                        this.startAuto();
+                        if(this.settings.autoPlay.pauseOnHover) {   
+                            for(i=0; i<pauseElements.length; i++) {
+                                pauseElements[i].addEventListener('mouseenter', this._pauseAuto);
+                                pauseElements[i].addEventListener('mouseleave', this._resumeAuto);
+                            }
+                        }
+                    }
+                    else {
+                        this.pauseAuto();
+                    }
+                }
+
+                this.selectedItem = null;
+
+                // Set slider to initial position.
+                // this.setPointer(this.targetIndex);
+                this.setPointer(this.pointerVal);
+
+                // Update dots.
+                this.updateDots();
+            },
+            setSwipeStyles: function() {
+                var i, n, j;
+                var styles = {
+                    'user-drag': 'none',
+                    'user-select': 'none',
+                    '-moz-user-select': 'none',
+                    '-webkit-user-drag': 'none',
+                    '-webkit-user-select': 'none',
+                    '-ms-user-select': 'none'
+                };
+                var imageStyles = {};
+                for(var v in styles) {
+                    imageStyles[v] = styles[v];
+                }
+                imageStyles['pointer-events'] = 'none';
+                for(i=0; i<this.numItems; i++) {
+                    if(this.settings.swipe.on) {
+                        this.css(this.items[i], styles);
+                    }
+                    else {
+                        this.removeCss(this.items[i], styles);
+                    }
+                    var imageNodes = this.items[i].getElementsByTagName('img');
+                    n = imageNodes.length;
+                    for(j=0; j<n; j++) {
+                        if(this.settings.swipe.on) {
+                            this.css(imageNodes[j], imageStyles);
+                        }
+                        else {
+                            this.removeCss(imageNodes[j], imageStyles);
+                        }
+                    }
+                }
+
+                if(this.settings.swipe.on && !this.settings.swipe.touchOnly) {
+                    this.container.style.cssText += '; cursor: -webkit-grab; cursor: grab;';
+                }
+                else {
+                    this.removeCss(this.container, ['cursor']);
+                }
             },
             css: function(element, styles) {
                 for(var style in styles) {
                     element.style[style] = styles[style];
+                }
+            },
+            removeCss: function(element, styles) {
+                if(Array.isArray(styles)) {
+                    for(var i=0; i<styles.length; i++) {
+                        element.style[styles[i]] = '';
+                    }
+                }
+                else {
+                    for(var style in styles) {
+                        element.style[style] = '';
+                    }
                 }
             },
             addClass: function(element, className) {
@@ -539,6 +715,47 @@
                         }
                     }
                 }
+            },
+            cloneObject: function(original, clone) {
+                var v, i;
+                if(!Array.isArray(original)) {
+                    for(v in original) {
+                        if(typeof original[v] === 'object' && original[v] !== null) {
+                            clone[v] = Array.isArray(original[v]) ? [] : {};
+                            this.cloneObject(original[v], clone[v]);
+                        }
+                        else {
+                            clone[v] = original[v];
+                        }
+                    }
+                }
+                else {
+                    for(i=0; i<original.length; i++) {
+                        if(typeof original[i] === 'object' && settings[i] !== null) {
+                            clone.push(Array.isArray(original[v]) ? [] : {});
+                            this.cloneObject(original[i], clone[i]);
+                        }
+                        else {
+                            clone.push(original[i]);
+                        }
+                    }
+                }
+                return clone;
+            },
+            mergeObjects: function(original, add) {
+                var v, i;
+                for(v in add) {
+                    if(typeof add[v] === 'object' && add[v] !== null && !Array.isArray(add[v])) {
+                        if(typeof original[v] !== 'object' || original[v] === null || Array.isArray(original[v])) {
+                            original[v] = {};
+                        }
+                        this.mergeObjects(original[v], add[v]);
+                    }
+                    else {
+                        original[v] = add[v];
+                    }
+                }
+                return original;
             },
             createDots: function() {
     
@@ -651,10 +868,10 @@
                 }
                 else {
                     // Visible items – first add the floor index.
-                    var visiblePointer = pointer;
-                    if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
-                        visiblePointer -= this.translateXOffsetProgress;
-                    }
+                    var visiblePointer = pointer - this.translateXOffsetProgress;
+                    // if(this.settings.effects.slideHorizontal.on && this.settings.effects.slideHorizontal.numVisible > 1 && this.settings.effects.slideHorizontal.centerSelected) {
+                    //     visiblePointer -= this.translateXOffsetProgress;
+                    // }
                     if(visiblePointer < 0 && this.settings.loop) {
                         visiblePointer += this.numItems;
                     }
@@ -664,14 +881,12 @@
                     }
 
                     // Add ceil index if pointer is not at destination.
-                    // if(this.pointer !== floorPointer) {
-                    for(i=1; i<=this.numItemsInside; i++) {
+                    for(i=1; i<=this.numItemsInside-(visiblePointer === floorPointer ? 1 : 0); i++) {
                         // var ceilPointer = Math.ceil(this.pointer);
                         var ceilPointer = floorPointer+i;
                         if(this.settings.loop) {
                             ceilPointer %= this.numItems;
                         }
-                        // if(ceilPointer < this.items.length && ceilPointer !== floorPointer) {
                         if(ceilPointer < this.items.length && visibleItems.indexOf(this.items[ceilPointer]) === -1) {
                             visibleItems.push(this.items[ceilPointer]);
                         }
@@ -693,7 +908,7 @@
                     }
                     // Store progress.
                     var progress = this.pointer - item.tinSlideIndex;
-                    if(this.settings.hideItems) {
+                    if(!this.translateXOffsetProgress) {
                         if(progress > 1) {
                             progress -= this.numItems;
                         }
@@ -1148,10 +1363,10 @@
                 var pointerVal = this.pointerVal;
                 var diff = this.targetVal - pointerVal;
                 var diffAbs = diff < 0 ? -diff : diff;
+
                 if(diffAbs < this.settings.stepSnap) {
                     this.step = this.stepAbs = 0;
                     this.setPointer(this.targetVal);
-                    // clearInterval(this.timerAnimate);
                     cancelAnimationFrame(this.timerAnimate);
                     this.timerAnimate = 0;
                 }
@@ -1195,8 +1410,8 @@
                     }
                     this.stepAbs = this.step < 0 ? -this.step : this.step;
                     this.setPointer(pointerVal);
+                    this.timerAnimate = requestAnimationFrame(this._onAnimationTimer);
                 }
-                this.timerAnimate = requestAnimationFrame(this._onAnimationTimer);
             },
             goTo: function(index) {
                 // Clear timer used for non looping hint.
@@ -1339,7 +1554,7 @@
     
                     // Horizontal slide.
                     if(this.settings.effects.slideHorizontal.on) {
-                        var translateXProgress = this.settings.effects.slideHorizontal.numVisible === 1 || !this.settings.effects.slideHorizontal.centerSelected ? progress : progress - this.translateXOffsetProgress;
+                        var translateXProgress = progress - this.translateXOffsetProgress;
                         var translateX = ((this.settings.effects.slideHorizontal.offset*100)*-translateXProgress)+'%';
                         var translateY = !this.settings.verticallyCenter ? 0 : '-50%';
                         transforms.push('translate3d('+translateX+', '+translateY+', 0)');
@@ -1397,21 +1612,9 @@
                             opacity = this.settings.effects.fade.min;
                         }
                         item.style.opacity = opacity;
-                        /**
-                         *  Hide elements completely faded out.
-                         */
-                        // if(opacity) {
-                        //     if(item.style.display === 'none') {
-                        //         item.style.display = 'block';
-                        //     }
-                        // }
-                        // else {
-                        //     // Don't hide the relatively positioned element,
-                        //     // as the container will loose its height.
-                        //     if(item.style.position != 'relative' && item.style.display !== 'none') {
-                        //         item.style.display = 'none';
-                        //     }
-                        // }
+                    }
+                    else if(item.style.opacity !== '') {
+                        item.style.opacity = '';
                     }
                 }
     
@@ -1458,12 +1661,18 @@
                 this.animateTo(index);
             },
             startAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 if(this.autoPlayState !== 'started') {
                     this.autoPlayState = 'started';
                     this.resumeAuto();
                 }
             },
             pauseAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 // Don't do anything if auto play isn't activated.
                 if(this.autoPlayState) {
                     this.autoPlayState = 'paused';
@@ -1472,6 +1681,9 @@
                 }
             },
             resumeAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 // Don't do anything if auto play isn't activated.
                 if(this.autoPlayState) {
                     this.autoPlayState = 'started';
@@ -1492,9 +1704,12 @@
                 }
             },
             stopAuto: function() {
+                if(this.autoPlayState === 'stopped') {
+                    return;
+                }
                 if(this.autoPlayState) {
                     this.pauseAuto();
-                    this.autoPlayState = null;
+                    this.autoPlayState = 'stopped';
                 }
             },
             imageLoaded: function(event) {
