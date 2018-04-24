@@ -943,8 +943,12 @@
                                 item.style.position = 'relative';
                             }
                             if(this.settings.zIndex) {
-                                visibleItems[i].style.zIndex = this.settings.zIndex;
+                                item.style.zIndex = this.settings.zIndex;
                             }
+
+                            this.container.removeChild(item);
+                            this.container.appendChild(item);
+
 
                             /*--------------------------------------------------
                             | Emit event with selected item.
