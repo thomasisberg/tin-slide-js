@@ -590,6 +590,7 @@
                         pauseElements[i].removeEventListener('mouseenter', this._pauseAuto);
                         pauseElements[i].removeEventListener('mouseleave', this._resumeAuto);
                     }
+                    this.pauseAuto();
                     if(this.settings.autoPlay.on) {
                         this.startAuto();
                         if(this.settings.autoPlay.pauseOnHover) {   
@@ -598,9 +599,6 @@
                                 pauseElements[i].addEventListener('mouseleave', this._resumeAuto);
                             }
                         }
-                    }
-                    else {
-                        this.pauseAuto();
                     }
                 }
 
