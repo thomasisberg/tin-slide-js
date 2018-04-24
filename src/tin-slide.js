@@ -430,7 +430,7 @@
                     // Item styles
                     item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
                     item.style.left = '0';
-                    item.style.width = (100/this.settings.effects.slideHorizontal.numVisible)+'%';
+                    item.style.width = (this.settings.effects.slideHorizontal.on ? (100/this.settings.effects.slideHorizontal.numVisible) : 100)+'%';
                 }
     
                 /**
@@ -1542,6 +1542,7 @@
              *  Apply desired slide effect:
              *   - Horizontal slide
              *   - Fade
+             *   - Scale
              *   - Motion blur
              */
             applySlideEffect: function() {
@@ -1596,6 +1597,9 @@
                     // Apply accumulated transforms.
                     if(transforms.length) {
                         item.style.transform = transforms.join(' ');
+                    }
+                    else if(item.style.transform !== '') {
+                        item.style.transform = '';
                     }
     
                     // Fade
