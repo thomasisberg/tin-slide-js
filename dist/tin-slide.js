@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.18
+ * TinSlide v0.1.19
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -430,7 +430,7 @@
                     // Item styles
                     item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
                     item.style.left = '0';
-                    item.style.width = (100/this.settings.effects.slideHorizontal.numVisible)+'%';
+                    item.style.width = (this.settings.effects.slideHorizontal.on ? (100/this.settings.effects.slideHorizontal.numVisible) : 100)+'%';
                 }
     
                 /**
@@ -943,8 +943,12 @@
                                 item.style.position = 'relative';
                             }
                             if(this.settings.zIndex) {
-                                visibleItems[i].style.zIndex = this.settings.zIndex;
+                                item.style.zIndex = this.settings.zIndex;
                             }
+
+                            this.container.removeChild(item);
+                            this.container.appendChild(item);
+
 
                             /*--------------------------------------------------
                             | Emit event with selected item.
@@ -1542,6 +1546,7 @@
              *  Apply desired slide effect:
              *   - Horizontal slide
              *   - Fade
+             *   - Scale
              *   - Motion blur
              */
             applySlideEffect: function() {
@@ -1596,6 +1601,9 @@
                     // Apply accumulated transforms.
                     if(transforms.length) {
                         item.style.transform = transforms.join(' ');
+                    }
+                    else if(item.style.transform !== '') {
+                        item.style.transform = '';
                     }
     
                     // Fade
