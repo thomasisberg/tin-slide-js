@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.19
+ * TinSlide v0.1.20
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -118,6 +118,8 @@
                 // Hide using visibility:hidden instead of display:none.
                 // Useful if images aren't loaded as desired.
                 hideUsingVisibility: false,
+                // Removes selected item from dom, and appends it to the parent as last child.
+                moveSelectedItem: false,
                 // Minimal amount of step required to reach target.
                 stepSnap: 0.0003,
                 // Step factor every step. Applied on step to target.
@@ -943,10 +945,10 @@
                             if(this.settings.zIndex) {
                                 item.style.zIndex = this.settings.zIndex;
                             }
-
-                            this.container.removeChild(item);
-                            this.container.appendChild(item);
-
+                            if(this.settings.moveSelectedItem) {
+                                this.container.removeChild(item);
+                                this.container.appendChild(item);
+                            }
 
                             /*--------------------------------------------------
                             | Emit event with selected item.
