@@ -462,7 +462,7 @@
                 | Set container click navigation.
                 |-------------------------------------------------*/
                 if(this.settings.useContainerClickNextPrev) {
-                    this.container.addEventListener('click', function(event) {
+                    this.container.addEventListener('mouseup', function(event) {
                         var containerWidth = this.getContainerWidth();
                         if(containerWidth) {
                             if((event.layerX - this.container.offsetLeft) < containerWidth / 2) {
@@ -989,7 +989,7 @@
                             this.stopAuto();
                         }
                     }
-                    if(!this.timerSwipe) {
+                    if(!this.timerSwipe || this.swipeXAbs < this.settings.swipe.releaseRequiredSwipeX) {
                         // Navigate if slider is looping, or if there are previous slides.
                         if(this.settings.loop || this.targetIndex < this.numItems - 1) {
                             this.targetIndex++;
@@ -1019,7 +1019,7 @@
                             this.stopAuto();
                         }
                     }
-                    if(!this.timerSwipe) {
+                    if(!this.timerSwipe || this.swipeXAbs < this.settings.swipe.releaseRequiredSwipeX) {
                         // Navigate if slider is looping, or if there are previous slides.
                         if(this.settings.loop || this.targetIndex > 0) {
                             this.targetIndex--;
