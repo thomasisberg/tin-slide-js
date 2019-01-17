@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.20
+ * TinSlide v0.1.21
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */

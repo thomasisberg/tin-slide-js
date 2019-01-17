@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.20
+ * TinSlide v0.1.21
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -72,10 +72,10 @@
                     stepFactor: 0.25,
                     // Same as above, but for touch swipe. Generally nicer with a faster response.
                     stepFactorTouch: 0.75,
-                    // Optionally wait before invoke grabbing.
+                    // Optionally wait for move before invoke grabbing.
                     // Useful if the entire container is clickable.
                     // Especially if clicking either half navigates to previous / next.
-                    pressWaitBeforeInvokeGrabbing: false,
+                    pressMoveBeforeInvokeGrabbing: false,
                     releaseRequiredSwipeX: 0,
                 },
                 // Optionally generate markup.
@@ -210,6 +210,9 @@
              *  Methods.
              */
             init: function(container, options) {
+
+                this.onSwipePressMove = this.onSwipePressMove.bind(this);
+                this.clearSwipePressMove = this.clearSwipePressMove.bind(this);
     
                 this.container = container;
                 var item, i, n, v, element, src;
@@ -1068,22 +1071,11 @@
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
     
-                    if(this.settings.swipe.pressWaitBeforeInvokeGrabbing) {
-                        var that = this;
-                        // Wait before invoke grabbing.
-                        clearTimeout(this.timerSwipePress);
-                        this.timerSwipePress = setTimeout(function() {
-                            that.onTimerSwipePress();
-                        }, 25 * 3);
-                        var handlers = {
-                            onRelease: function() {
-                                clearTimeout(that.timerSwipePress);
-                                document.removeEventListener('touchend', this.onRelease);
-                                document.removeEventListener('mouseup', this.onRelease);
-                            }
-                        };
-                        document.addEventListener('touchend', handlers.onRelease);
-                        document.addEventListener('mouseup', handlers.onRelease);
+                    if(this.settings.swipe.pressMoveBeforeInvokeGrabbing) {
+                        document.addEventListener('touchmove', this.onSwipePressMove);
+                        document.addEventListener('mousemove', this.onSwipePressMove);
+                        document.addEventListener('touchend', this.clearSwipePressMove);
+                        document.addEventListener('mouseup', this.clearSwipePressMove);
                     }
                     else {
                         this.onTimerSwipePress();
@@ -1095,6 +1087,19 @@
                     }
                 }
             },
+
+            onSwipePressMove: function() {
+                this.clearSwipePressMove();
+                this.onTimerSwipePress();
+            },
+
+            clearSwipePressMove: function() {
+                document.removeEventListener('touchmove', this.onSwipePressMove);
+                document.removeEventListener('mousemove', this.onSwipePressMove);
+                document.removeEventListener('touchend', this.clearSwipePressMove);
+                document.removeEventListener('mouseup', this.clearSwipePressMove);
+            },
+
             // Performs the actual grabbing – stops slider etc.
             onTimerSwipePress: function() {
 
