@@ -3,6 +3,13 @@
     "version": "0.1.22",
     "description": "Dependency-free content slider for Javascript",
     "main": "./dist/tin-slide.js",
+    "files": [
+        "dist/",
+        ".bower.json",
+        "LICENSE",
+        "package.json",
+        "README"
+    ],
     "scripts": {
         "build": "npm run build:dev && npm run build:prod",
         "build:dev": "babel src/js/tin-slide.js -d dist --source-maps",
