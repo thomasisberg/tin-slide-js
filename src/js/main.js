@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    if(window.requestAnimationFrame === undefined) {
+    if (window.requestAnimationFrame === undefined) {
         window.requestAnimationFrame = function(callback) {
             setTimeout(callback, 1000/60);
         };
@@ -41,5 +41,4 @@
         }
     };
     navButton.addEventListener('click', toggleNav);
-    
 })();

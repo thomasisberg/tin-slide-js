@@ -1,6 +1,2 @@
 .DS_Store
 node_modules
-bower_components
-/public/*
-!/public/.gitkeep
-/deploy.txt
