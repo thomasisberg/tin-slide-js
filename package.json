@@ -4,7 +4,9 @@
     "description": "Dependency-free content slider for Javascript",
     "main": "./dist/tin-slide.js",
     "scripts": {
-        "build": "webpack",
+        "build": "npm run build:dev && npm run build:prod",
+        "build:dev": "babel src/js/tin-slide.js -d dist --source-maps",
+        "build:prod": "babel src/js/tin-slide.js --out-file dist/tin-slide.min.js --presets minify --source-maps",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
@@ -18,8 +20,9 @@
     },
     "homepage": "https://github.com/thomasisberg/tin-slide-js#readme",
     "devDependencies": {
-        "copy-webpack-plugin": "^10.2.4",
-        "webpack": "^5.69.0",
-        "webpack-cli": "^4.9.2"
+        "@babel/cli": "^7.17.6",
+        "@babel/core": "^7.17.5",
+        "@babel/preset-env": "^7.16.11",
+        "babel-preset-minify": "^0.5.1"
     }
 }
