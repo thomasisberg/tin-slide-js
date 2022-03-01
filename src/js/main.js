@@ -1,3 +1,8 @@
+import TinSlide from './tin-slide.js';
+import "../sass/main.scss";
+
+window.TinSlide = TinSlide;
+
 (function() {
     'use strict';
 
