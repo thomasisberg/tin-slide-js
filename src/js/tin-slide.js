@@ -14,11 +14,11 @@
     else {
         global.TinSlide = factory();
     }
-}(this, function () {
+}(this ? this : window, function () {
     'use strict';
 
     function TinSlide$(container, options) {
-        
+
         var tinSlide, logic;
 
         logic = {
@@ -205,7 +205,7 @@
             style: null,
             breakPoints: [],
             currentBreakPoint: {},
-    
+
             /**
              *  Methods.
              */
@@ -213,7 +213,7 @@
 
                 this.onSwipePressMove = this.onSwipePressMove.bind(this);
                 this.clearSwipePressMove = this.clearSwipePressMove.bind(this);
-    
+
                 this.container = container;
                 var item, i, n, v, element, src;
                 this.body = document.getElementsByTagName('body')[0];
@@ -245,7 +245,7 @@
                 }
 
                 /*--------------------------------------------------
-                | Add background image to all 
+                | Add background image to all
                 | .tin-slide-background elements.
                 |-------------------------------------------------*/
                 var tinSlideBackgrounds = container.getElementsByClassName('tin-slide-bg');
@@ -260,7 +260,7 @@
                         element.setAttribute('style', 'background: url("'+src+'") no-repeat center; background-size: cover;');
                     }
                 }
-                
+
                 /*--------------------------------------------------
                 | Replace all .tin-slide-markup elements.
                 |-------------------------------------------------*/
@@ -295,7 +295,26 @@
                     item.tinSlideIndex = i;
                     // Hide all items
                     item.style.position = 'absolute';
-                    this.hideOrShowElement(item, true);
+                    this.hideOrShowElement(item, true, options);
+                }
+
+                /*--------------------------------------------------
+                | Preload images.
+                |-------------------------------------------------*/
+                var images = this.container.querySelectorAll('img');
+                if (images.length) {
+                    var head = document.querySelector('head');
+                    for (var i=0; i<images.length; i++) {
+                        var img = images[i];
+                        var src = img.getAttribute('src');
+                        if (src) {
+                            var link = document.createElement('link');
+                            link.rel = 'preload';
+                            link.as = 'image';
+                            link.href = src;
+                            head.appendChild(link);
+                        }
+                    }
                 }
 
                 /*--------------------------------------------------
@@ -345,11 +364,15 @@
                 container.style.position = 'relative';
 
                 /*--------------------------------------------------
-                | Settings for current break point 
+                | Settings for current break point
                 | (or none / default).
                 |-------------------------------------------------*/
                 this.updateBreakPoint();
-    
+
+                // for(i=0; i<this.numItems; i++) {
+                //     this.hideOrShowElement(item, true);
+                // }
+
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
                     item.removeAttribute('tin-slide-cloak');
@@ -363,7 +386,7 @@
                 for(i=0; i<images.length; i++) {
                     images[i].addEventListener('load', this._imageLoaded);
                 }
-    
+
                 // Force recalculation of container width on window resize.
                 // Calculation will occur when width is needed.
                 window.addEventListener('resize', function() {
@@ -431,13 +454,13 @@
 
                 for(i=0; i<this.numItems; i++) {
                     item = this.items[i];
-    
+
                     // Item styles
                     item.style.top = !this.settings.verticallyCenter ? '0' : '50%';
                     item.style.left = '0';
                     item.style.width = (this.settings.effects.slideHorizontal.on ? (100/this.settings.effects.slideHorizontal.numVisible) : 100)+'%';
                 }
-    
+
                 /**
                  *  Container styles.
                  */
@@ -477,7 +500,7 @@
                         }
                     }.bind(this));
                 }
-                
+
                 /*--------------------------------------------------
                 | Set up swipe navigation.
                 |-------------------------------------------------*/
@@ -495,7 +518,7 @@
                 }
 
                 /*--------------------------------------------------
-                | If container height should always 
+                | If container height should always
                 | match selected item.
                 |-------------------------------------------------*/
                 window.removeEventListener('resize', this._updateContainerHeight);
@@ -541,7 +564,7 @@
                             this.dots.parentNode.removeChild(this.dots);
                         }
                     }
-    
+
                     /*--------------------------------------------------
                     | Generate nav.
                     |-------------------------------------------------*/
@@ -598,7 +621,7 @@
                     this.pauseAuto();
                     if(this.settings.autoPlay.on) {
                         this.startAuto();
-                        if(this.settings.autoPlay.pauseOnHover) {   
+                        if(this.settings.autoPlay.pauseOnHover) {
                             for(i=0; i<pauseElements.length; i++) {
                                 pauseElements[i].addEventListener('mouseenter', this._pauseAuto);
                                 pauseElements[i].addEventListener('mouseleave', this._resumeAuto);
@@ -693,8 +716,11 @@
                 var classes = element.className.split(' ');
                 return classes.indexOf(className) > -1;
             },
-            hideOrShowElement: function(element, hide) {
-                if(this.settings.hideUsingVisibility) {
+            hideOrShowElement: function(element, hide, options) {
+                if (!options) {
+                    options = this.settings;
+                }
+                if(options.hideUsingVisibility) {
                     element.style.visibility = hide ? 'hidden' : 'visible';
                 }
                 else {
@@ -761,7 +787,7 @@
                 return original;
             },
             createDots: function() {
-    
+
                 /**
                  *  Dots.
                  */
@@ -782,10 +808,10 @@
                     li.addEventListener('click', liClickHandler);
                 }
                 return ul;
-    
+
             },
             createNav: function() {
-    
+
                 /**
                  *  Next / prev.
                  */
@@ -804,7 +830,7 @@
                     this.previous();
                 }.bind(this));
                 nav.appendChild(prev);
-    
+
                 var next = document.createElement("DIV");
                 next.setAttribute('class', 'tin-slide-next');
                 next.style.cursor = 'pointer';
@@ -825,30 +851,30 @@
                 styles.push(".tin-slide-prev, .tin-slide-next {position: absolute;left: 10px;top: 50%;}");
                 styles.push(".tin-slide-prev:before, .tin-slide-prev:after, .tin-slide-next:before, .tin-slide-next:after {content: '';display: block;width: 0;height: 0;position: absolute;top: 0;-webkit-transform: translateY(-50%);-ms-transform: translateY(-50%);-o-transform: translateY(-50%);transform: translateY(-50%);}");
                 styles.push(".tin-slide-prev:before, .tin-slide-next:before {opacity: 0.1;-webkit-transition: opacity 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: opacity 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: opacity 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
-                styles.push(".tin-slide-prev:hover:before, .tin-slide-next:hover:before {opacity: 0;}");                  
-                styles.push(".tin-slide-prev:before {left: 0;border-top: 23px solid transparent;border-bottom: 23px solid transparent;border-right: 41px solid black;margin-left: -4px;}");                  
+                styles.push(".tin-slide-prev:hover:before, .tin-slide-next:hover:before {opacity: 0;}");
+                styles.push(".tin-slide-prev:before {left: 0;border-top: 23px solid transparent;border-bottom: 23px solid transparent;border-right: 41px solid black;margin-left: -4px;}");
                 styles.push(".tin-slide-prev:after {left: 0;border-top: 20px solid transparent;border-bottom: 20px solid transparent;border-right: 35px solid rgba(255, 255, 255, 0.4);-webkit-transition: border-right-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: border-right-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: border-right-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
                 styles.push(".tin-slide-prev:hover:after {border-right-color: white;}");
                 styles.push(".tin-slide-next {left: inherit;right: 10px;}");
                 styles.push(".tin-slide-next:before {right: 0;border-top: 23px solid transparent;border-bottom: 23px solid transparent;border-left: 41px solid black;margin-right: -4px;}");
                 styles.push(".tin-slide-next:after {right: 0;border-top: 20px solid transparent;border-bottom: 20px solid transparent;border-left: 35px solid rgba(255, 255, 255, 0.4);-webkit-transition: border-left-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: border-left-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: border-left-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
-                styles.push(".tin-slide-next:hover:after {border-left-color: white;}");                  
+                styles.push(".tin-slide-next:hover:after {border-left-color: white;}");
                 styles.push(".tin-slide-dots {position: absolute;bottom: 10px;left: 50%;-webkit-transform: translateX(-50%);-ms-transform: translateX(-50%);-o-transform: translateX(-50%);transform: translateX(-50%);}");
                 styles.push(".tin-slide-dots li {-webkit-box-sizing: border-box;box-sizing: border-box;display: inline-block;width: 16px;height: 16px;border-radius: 8px;background-color: transparent;border: 2px solid white;margin-right: 5px;opacity: 0.9;-webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);-webkit-transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);-o-transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);transition: background-color 200ms cubic-bezier(0.48, 0.01, 0.21, 1);}");
                 styles.push(".tin-slide-dots li:hover {background-color: rgba(255, 255, 255, 0.5);}");
                 styles.push(".tin-slide-dots li.on {background-color: white; }");
                 styles.push(".tin-slide-outside {pointer-events: none;}");
-                
+
                 var style = document.createElement('STYLE');
                 style.innerHTML = styles.join("\n");
                 return style;
             },
-    
+
             /**
              *  Update the slider.
              */
             setPointer: function(val) {
-                
+
                 var i, index;
 
                 this.pointerVal = val;
@@ -925,7 +951,7 @@
                         }
                     }
                     this.itemsVisible[item.tinSlideIndex] = progress;
-    
+
                     // Make the most visible item relatively positioned,
                     // and put it in front of the others.
                     if(!(progress > 0.5 || progress < -0.5) && !relativeItem) {
@@ -1048,15 +1074,15 @@
              */
             // Performs the actual grabbing – stops slider etc.
             onSwipePress: function(event) {
-    
+
                 if(this.items.length > 1) {
                     var isTouch = event.type === 'touchstart';
-    
+
                     // If link was pressed – do nothing.
                     if(event.target.nodeName === 'A') {
                         return;
                     }
-    
+
                     /**
                      *  Don't respond to right click.
                      */
@@ -1064,13 +1090,13 @@
                     if((nativeEvent.button !== undefined && nativeEvent.button === 2) || (nativeEvent.which !== undefined && nativeEvent.which === 3)) {
                         return;
                     }
-                    
+
                     // this.swipePressX = isTouch ? event.layerX : event.clientX;
                     this.swipePressX = isTouch ? event.touches[0].clientX : event.clientX;
-                    
+
                     this.swipeX = 0;
                     this.swipeXAbs = 0;
-    
+
                     if(this.settings.swipe.pressMoveBeforeInvokeGrabbing) {
                         document.addEventListener('touchmove', this.onSwipePressMove);
                         document.addEventListener('mousemove', this.onSwipePressMove);
@@ -1109,18 +1135,18 @@
 
                 // Clear timer used for non looping hint.
                 clearTimeout(this.timerNonLoopingHint);
-                
+
                 // Stop auto play.
                 if(this.settings.autoPlay.stopOnNavigation) {
                     this.pauseAuto();
                 }
-    
+
                 if(this.timerAnimate) {
                     // clearInterval(this.timerAnimate);
                     cancelAnimationFrame(this.timerAnimate);
                     this.timerAnimate = 0;
                 }
-    
+
                 // Calculate how far the slide will travel upon press.
                 var step = 0;
                 var stepAdd = this.step;
@@ -1128,7 +1154,7 @@
                     stepAdd *= this.settings.swipe.stepFactor;
                     step += stepAdd;
                 }
-    
+
                 this.swipePressPointerVal = this.pointerVal + step;
                 this.swipeTargetVal = this.swipePressPointerVal;
 
@@ -1148,10 +1174,10 @@
                 // Child sliders should probably have loop=false. Otherwise this parent slider will
                 // never slide again once child slider has been grabbed.
                 if(event.tinSlideMoved === undefined) {
-    
+
                     var isTouch = event.type === 'touchmove';
                     this.swipeIsTouch = isTouch;
-    
+
                     var containerWidth = this.getContainerWidth();
                     if(containerWidth) {
 
@@ -1275,9 +1301,9 @@
                             }
                         }
                     }
-    
+
                     this.choke = 1;
-    
+
                     // Wait a few milliseconds, otherwise prev / next will be invoked.
                     setTimeout(function() {
                         if(this.timerSwipe) {
@@ -1297,7 +1323,7 @@
                         this.resumeAuto();
                     }
                 }
-    
+
             },
             startSwipeTimer: function() {
                 if(!this.timerSwipe) {
@@ -1320,7 +1346,7 @@
                 }
                 return this.containerWidth;
             },
-    
+
             /**
              *  Animate to index.
              */
@@ -1449,7 +1475,7 @@
             },
 
             updateContainerHeight: function(fromSubSlideWithHeight) {
-                
+
                 var parentSlides;
 
                 // If this action was initiated by the slider itself.
@@ -1556,12 +1582,12 @@
              */
             applySlideEffect: function() {
                 for(var index in this.itemsVisible) {
-    
+
                     var item = this.items[index];
                     var progress = this.itemsVisible[index];
                     var progressAbs = progress < 0 ? -progress : progress;
                     var transforms = [];
-    
+
                     // Horizontal slide.
                     if(this.settings.effects.slideHorizontal.on) {
                         var translateXProgress = progress - this.translateXOffsetProgress;
@@ -1586,7 +1612,7 @@
                             }
                         }
                     }
-    
+
                     // Scale
                     if(this.settings.effects.scale.on) {
                         var scale;
@@ -1602,7 +1628,7 @@
                         }
                         transforms.push('scale('+scale+', '+scale+')');
                     }
-    
+
                     // Apply accumulated transforms.
                     if(transforms.length) {
                         item.style.transform = transforms.join(' ');
@@ -1610,7 +1636,7 @@
                     else if(item.style.transform !== '') {
                         item.style.transform = '';
                     }
-    
+
                     // Fade
                     if(this.settings.effects.fade.on) {
                         var opacity;
@@ -1630,7 +1656,7 @@
                         item.style.opacity = '';
                     }
                 }
-    
+
                 // Motion blur.
                 if(this.settings.effects.motionBlur.on) {
                     this.applyBlur();
@@ -1814,11 +1840,11 @@
         function onVisibilityChange(event) {
             var v = "visible", h = "hidden";
             var eventMap = {
-                focus: v, 
-                focusin: v, 
-                pageshow: v, 
-                blur: h, 
-                focusout: h, 
+                focus: v,
+                focusin: v,
+                pageshow: v,
+                blur: h,
+                focusout: h,
                 pagehide: h
             };
             event = event || window.event;

@@ -12,7 +12,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
   } else {
     global.TinSlide = factory();
   }
-})(void 0, function () {
+})(void 0 ? void 0 : window, function () {
   'use strict';
 
   function TinSlide$(container, options) {
@@ -225,7 +225,26 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
           item = this.items[i];
           item.tinSlideIndex = i;
           item.style.position = 'absolute';
-          this.hideOrShowElement(item, true);
+          this.hideOrShowElement(item, true, options);
+        }
+
+        var images = this.container.querySelectorAll('img');
+
+        if (images.length) {
+          var head = document.querySelector('head');
+
+          for (var i = 0; i < images.length; i++) {
+            var img = images[i];
+            var src = img.getAttribute('src');
+
+            if (src) {
+              var link = document.createElement('link');
+              link.rel = 'preload';
+              link.as = 'image';
+              link.href = src;
+              head.appendChild(link);
+            }
+          }
         }
 
         this._onAnimationTimer = this.onAnimationTimer.bind(this);
@@ -568,8 +587,12 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
         var classes = element.className.split(' ');
         return classes.indexOf(className) > -1;
       },
-      hideOrShowElement: function hideOrShowElement(element, hide) {
-        if (this.settings.hideUsingVisibility) {
+      hideOrShowElement: function hideOrShowElement(element, hide, options) {
+        if (!options) {
+          options = this.settings;
+        }
+
+        if (options.hideUsingVisibility) {
           element.style.visibility = hide ? 'hidden' : 'visible';
         } else {
           element.style.display = hide ? 'none' : 'block';
