@@ -668,7 +668,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
         var markup = this.settings.generate.dots.markup;
 
         if (markup && markup.container) {
-          container = new DOMParser().parseFromString(markup.container, "text/xml");
+          container = new DOMParser().parseFromString(markup.container, "text/html").querySelector('body').firstChild;
         }
 
         if (!container) {
@@ -683,15 +683,15 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
         this.dotsItems = [];
 
         for (var i = 0; i < this.numItems; i++) {
-          var dot = markup && markup.dot ? new DOMParser().parseFromString(markup.dot, "text/xml") : null;
+          var dot = markup && markup.dot ? new DOMParser().parseFromString(markup.dot, "text/html").querySelector('body').firstChild : null;
 
           if (!dot) {
             dot = document.createElement('LI');
             dot.setAttribute('class', 'tin-slide-dot-' + i);
-            dot.setAttribute('tin-slide-index', i);
-            dot.style.cursor = 'pointer';
           }
 
+          dot.setAttribute('tin-slide-index', i);
+          dot.style.cursor = 'pointer';
           container.appendChild(dot);
           this.dotsItems.push(dot);
           dot.addEventListener('click', liClickHandler);
@@ -704,7 +704,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
         var markup = this.settings.generate.nav.markup;
 
         if (markup && markup.container) {
-          container = new DOMParser().parseFromString(markup.container, "text/xml");
+          container = new DOMParser().parseFromString(markup.container, "text/html").querySelector('body').firstChild;
         }
 
         if (!container) {
@@ -712,14 +712,14 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
           container.setAttribute('class', 'tin-slide-next-prev');
         }
 
-        var prev = markup && markup.prev ? new DOMParser().parseFromString(markup.prev, "text/xml") : null;
+        var prev = markup && markup.prev ? new DOMParser().parseFromString(markup.prev, "text/html").querySelector('body').firstChild : null;
 
         if (!prev) {
           prev = document.createElement("DIV");
           prev.setAttribute('class', 'tin-slide-prev');
-          prev.style.cursor = 'pointer';
         }
 
+        prev.style.cursor = 'pointer';
         prev.addEventListener('mousedown', function (event) {
           event.preventDefault();
         });
@@ -727,14 +727,14 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
           this.previous();
         }.bind(this));
         container.appendChild(prev);
-        var next = markup && markup.next ? new DOMParser().parseFromString(markup.next, "text/xml") : null;
+        var next = markup && markup.next ? new DOMParser().parseFromString(markup.next, "text/html").querySelector('body').firstChild : null;
 
         if (!next) {
           next = document.createElement("DIV");
           next.setAttribute('class', 'tin-slide-next');
-          next.style.cursor = 'pointer';
         }
 
+        next.style.cursor = 'pointer';
         next.addEventListener('mousedown', function (event) {
           event.preventDefault();
         });
