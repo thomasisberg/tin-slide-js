@@ -62,11 +62,20 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
         generate: {
           dots: {
             on: true,
-            afterContainer: true
+            afterContainer: true,
+            markup: {
+              container: null,
+              dot: null
+            }
           },
           nav: {
             on: true,
-            afterContainer: true
+            afterContainer: true,
+            markup: {
+              container: null,
+              prev: null,
+              next: null
+            }
           },
           styles: {
             on: true,
@@ -655,8 +664,17 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
       },
       createDots: function createDots() {
         var that = this;
-        var ul = document.createElement("UL");
-        ul.setAttribute('class', 'tin-slide-dots');
+        var container = null;
+        var markup = this.settings.generate.dots.markup;
+
+        if (markup && markup.container) {
+          container = new DOMParser().parseFromString(markup.container, "text/xml");
+        }
+
+        if (!container) {
+          container = document.createElement("UL");
+          container.setAttribute('class', 'tin-slide-dots');
+        }
 
         var liClickHandler = function liClickHandler(event) {
           that.onDotClick(event);
@@ -665,42 +683,66 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
         this.dotsItems = [];
 
         for (var i = 0; i < this.numItems; i++) {
-          var li = document.createElement('LI');
-          li.setAttribute('class', 'tin-slide-dot-' + i);
-          li.setAttribute('tin-slide-index', i);
-          li.style.cursor = 'pointer';
-          ul.appendChild(li);
-          this.dotsItems.push(li);
-          li.addEventListener('click', liClickHandler);
+          var dot = markup && markup.dot ? new DOMParser().parseFromString(markup.dot, "text/xml") : null;
+
+          if (!dot) {
+            dot = document.createElement('LI');
+            dot.setAttribute('class', 'tin-slide-dot-' + i);
+            dot.setAttribute('tin-slide-index', i);
+            dot.style.cursor = 'pointer';
+          }
+
+          container.appendChild(dot);
+          this.dotsItems.push(dot);
+          dot.addEventListener('click', liClickHandler);
         }
 
-        return ul;
+        return container;
       },
       createNav: function createNav() {
         var that = this;
-        var nav = document.createElement("NAV");
-        nav.setAttribute('class', 'tin-slide-next-prev');
-        var prev = document.createElement("DIV");
-        prev.setAttribute('class', 'tin-slide-prev');
-        prev.style.cursor = 'pointer';
+        var markup = this.settings.generate.nav.markup;
+
+        if (markup && markup.container) {
+          container = new DOMParser().parseFromString(markup.container, "text/xml");
+        }
+
+        if (!container) {
+          container = document.createElement("NAV");
+          container.setAttribute('class', 'tin-slide-next-prev');
+        }
+
+        var prev = markup && markup.prev ? new DOMParser().parseFromString(markup.prev, "text/xml") : null;
+
+        if (!prev) {
+          prev = document.createElement("DIV");
+          prev.setAttribute('class', 'tin-slide-prev');
+          prev.style.cursor = 'pointer';
+        }
+
         prev.addEventListener('mousedown', function (event) {
           event.preventDefault();
         });
         prev.addEventListener('click', function (event) {
           this.previous();
         }.bind(this));
-        nav.appendChild(prev);
-        var next = document.createElement("DIV");
-        next.setAttribute('class', 'tin-slide-next');
-        next.style.cursor = 'pointer';
+        container.appendChild(prev);
+        var next = markup && markup.next ? new DOMParser().parseFromString(markup.next, "text/xml") : null;
+
+        if (!next) {
+          next = document.createElement("DIV");
+          next.setAttribute('class', 'tin-slide-next');
+          next.style.cursor = 'pointer';
+        }
+
         next.addEventListener('mousedown', function (event) {
           event.preventDefault();
         });
         next.addEventListener('click', function (event) {
           this.next();
         }.bind(this));
-        nav.appendChild(next);
-        return nav;
+        container.appendChild(next);
+        return container;
       },
       createStyles: function createStyles() {
         var styles = [];

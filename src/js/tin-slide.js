@@ -1,5 +1,5 @@
 /*!
- * TinSlide v0.1.22
+ * TinSlide v0.1.24
  * (c) 2018 Thomas Isberg
  * Released under the MIT License.
  */
@@ -82,11 +82,20 @@
                 generate: {
                     dots: {
                         on: true,
-                        afterContainer: true
+                        afterContainer: true,
+                        markup: {
+                            container: null,
+                            dot: null
+                        }
                     },
                     nav: {
                         on: true,
-                        afterContainer: true
+                        afterContainer: true,
+                        markup: {
+                            container: null,
+                            prev: null,
+                            next: null
+                        }
                     },
                     styles: {
                         on: true,
@@ -787,40 +796,57 @@
                 return original;
             },
             createDots: function() {
-
                 /**
                  *  Dots.
                  */
                 var that = this;
-                var ul = document.createElement("UL");
-                ul.setAttribute('class', 'tin-slide-dots');
+                var container = null;
+                var markup = this.settings.generate.dots.markup;
+                if (markup && markup.container) {
+                    container = new DOMParser().parseFromString(markup.container, "text/html").querySelector('body').firstChild;
+                }
+                if (!container) {
+                    container = document.createElement("UL");
+                    container.setAttribute('class', 'tin-slide-dots');
+                }
                 var liClickHandler = function(event) {
                     that.onDotClick(event);
                 };
                 this.dotsItems = [];
                 for(var i=0; i<this.numItems; i++) {
-                    var li = document.createElement('LI');
-                    li.setAttribute('class', 'tin-slide-dot-'+i);
-                    li.setAttribute('tin-slide-index', i);
-                    li.style.cursor = 'pointer';
-                    ul.appendChild(li);
-                    this.dotsItems.push(li);
-                    li.addEventListener('click', liClickHandler);
+                    var dot = markup && markup.dot ? new DOMParser().parseFromString(markup.dot, "text/html").querySelector('body').firstChild : null;
+                    if (!dot) {
+                        dot = document.createElement('LI');
+                        dot.setAttribute('class', 'tin-slide-dot-'+i);
+                    }
+                    dot.setAttribute('tin-slide-index', i);
+                    dot.style.cursor = 'pointer';
+                    container.appendChild(dot);
+                    this.dotsItems.push(dot);
+                    dot.addEventListener('click', liClickHandler);
                 }
-                return ul;
-
+                return container;
             },
             createNav: function() {
-
                 /**
                  *  Next / prev.
                  */
                 var that = this;
-                var nav = document.createElement("NAV");
-                nav.setAttribute('class', 'tin-slide-next-prev');
 
-                var prev = document.createElement("DIV");
-                prev.setAttribute('class', 'tin-slide-prev');
+                var markup = this.settings.generate.nav.markup;
+                if (markup && markup.container) {
+                    container = new DOMParser().parseFromString(markup.container, "text/html").querySelector('body').firstChild;
+                }
+                if (!container) {
+                    container = document.createElement("NAV");
+                    container.setAttribute('class', 'tin-slide-next-prev');
+                }
+
+                var prev = markup && markup.prev ? new DOMParser().parseFromString(markup.prev, "text/html").querySelector('body').firstChild : null;
+                if (!prev) {
+                    prev = document.createElement("DIV");
+                    prev.setAttribute('class', 'tin-slide-prev');
+                }
                 prev.style.cursor = 'pointer';
                 // Added to prevent text selection from double click.
                 prev.addEventListener('mousedown', function(event) {
@@ -829,10 +855,13 @@
                 prev.addEventListener('click', function(event) {
                     this.previous();
                 }.bind(this));
-                nav.appendChild(prev);
+                container.appendChild(prev);
 
-                var next = document.createElement("DIV");
-                next.setAttribute('class', 'tin-slide-next');
+                var next = markup && markup.next ? new DOMParser().parseFromString(markup.next, "text/html").querySelector('body').firstChild : null;
+                if (!next) {
+                    next = document.createElement("DIV");
+                    next.setAttribute('class', 'tin-slide-next');
+                }
                 next.style.cursor = 'pointer';
                 // Added to prevent text selection from double click.
                 next.addEventListener('mousedown', function(event) {
@@ -841,9 +870,9 @@
                 next.addEventListener('click', function(event) {
                     this.next();
                 }.bind(this));
-                nav.appendChild(next);
+                container.appendChild(next);
 
-                return nav;
+                return container;
             },
 
             createStyles: function() {
