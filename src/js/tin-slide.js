@@ -1,6 +1,6 @@
 /*!
  * TinSlide v0.1.24
- * (c) 2018 Thomas Isberg
+ * (c) 2025 Thomas Isberg
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -834,19 +834,17 @@
                 var that = this;
 
                 var markup = this.settings.generate.nav.markup;
-                if (markup && markup.container) {
-                    container = new DOMParser().parseFromString(markup.container, "text/html").querySelector('body').firstChild;
-                }
+                var container = markup && markup.container ? new DOMParser().parseFromString(markup.container, "text/html").querySelector('body').firstChild : null;
                 if (!container) {
                     container = document.createElement("NAV");
-                    container.setAttribute('class', 'tin-slide-next-prev');
                 }
+                container.setAttribute('class', 'tin-slide-next-prev');
 
                 var prev = markup && markup.prev ? new DOMParser().parseFromString(markup.prev, "text/html").querySelector('body').firstChild : null;
                 if (!prev) {
                     prev = document.createElement("DIV");
-                    prev.setAttribute('class', 'tin-slide-prev');
                 }
+                prev.setAttribute('class', 'tin-slide-prev');
                 prev.style.cursor = 'pointer';
                 // Added to prevent text selection from double click.
                 prev.addEventListener('mousedown', function(event) {
@@ -860,8 +858,8 @@
                 var next = markup && markup.next ? new DOMParser().parseFromString(markup.next, "text/html").querySelector('body').firstChild : null;
                 if (!next) {
                     next = document.createElement("DIV");
-                    next.setAttribute('class', 'tin-slide-next');
                 }
+                next.setAttribute('class', 'tin-slide-next');
                 next.style.cursor = 'pointer';
                 // Added to prevent text selection from double click.
                 next.addEventListener('mousedown', function(event) {
