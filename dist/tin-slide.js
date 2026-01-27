@@ -322,11 +322,17 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
       },
       updateBreakPoint: function updateBreakPoint() {
         var breakPoint = this.getBreakPoint();
+        this.debug('updateBreakPoint()', {
+          currentBreakPoint: this.currentBreakPoint,
+          breakPoint: breakPoint
+        });
 
         if (breakPoint === this.currentBreakPoint) {
+          this.debug('No break point change.');
           return;
         }
 
+        this.debug('Setting new break point.');
         this.currentBreakPoint = breakPoint;
 
         if (breakPoint) {
@@ -336,6 +342,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
           this.container.removeAttribute('tin-slide-break-point');
           this.initSettings();
         }
+
+        this.debug('Settings:', this.settings);
       },
       getBreakPoint: function getBreakPoint() {
         var breakPoint = null;
@@ -599,6 +607,10 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
       hideOrShowElement: function hideOrShowElement(element, hide, options) {
         if (!options) {
           options = this.settings;
+        }
+
+        if (!options.hideItems) {
+          return;
         }
 
         if (options.hideUsingVisibility) {
@@ -1577,6 +1589,17 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
       imageLoaded: function imageLoaded(event) {
         if (this.settings.useUpdateContainerHeight) {
           this.updateContainerHeight();
+        }
+      },
+      debug: function debug(message, data) {
+        if (this.settings.debug && window.console) {
+          console.log('[TinSlide] ' + message);
+
+          if (data) {
+            console.log(data);
+          }
+
+          console.log('');
         }
       }
     };
