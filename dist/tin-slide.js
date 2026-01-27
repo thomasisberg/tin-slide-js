@@ -609,10 +609,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
           options = this.settings;
         }
 
-        if (!options.hideItems) {
-          return;
-        }
-
         if (options.hideUsingVisibility) {
           element.style.visibility = hide ? 'hidden' : 'visible';
         } else {

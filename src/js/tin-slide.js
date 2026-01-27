@@ -1,5 +1,5 @@
 /*
- * TinSlide v0.1.26
+ * TinSlide v0.1.27
  * (c) 2026 Thomas Isberg
  * Released under the MIT License.
  */
@@ -745,11 +745,6 @@
             hideOrShowElement: function(element, hide, options) {
                 if (!options) {
                     options = this.settings;
-                }
-
-                if (!options.hideItems) {
-                    // element.style.display = 'block';
-                    return;
                 }
 
                 if (options.hideUsingVisibility) {
