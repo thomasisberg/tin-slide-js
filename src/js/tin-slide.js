@@ -14,7 +14,7 @@
     else {
         global.TinSlide = factory();
     }
-}(this ? this : window, function () {
+}(this ? this : (typeof window === 'undefined' ? {} : window), function () {
     'use strict';
 
     function TinSlide$(container, options) {
