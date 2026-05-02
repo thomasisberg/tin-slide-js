@@ -12,7 +12,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
   } else {
     global.TinSlide = factory();
   }
-})(void 0 ? void 0 : window, function () {
+})(void 0 ? void 0 : typeof window === 'undefined' ? {} : window, function () {
   'use strict';
 
   function TinSlide$(container, options) {
