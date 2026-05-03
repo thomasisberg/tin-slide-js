@@ -17,6 +17,11 @@
 }(this ? this : (typeof window === 'undefined' ? {} : window), function () {
     'use strict';
 
+    // This script requires a browser window.
+    if (typeof window === 'undefined') {
+        return;
+    }
+
     function TinSlide$(container, options) {
         var tinSlide, logic;
 

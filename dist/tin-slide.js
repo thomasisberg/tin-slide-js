@@ -15,6 +15,10 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
 })(void 0 ? void 0 : typeof window === 'undefined' ? {} : window, function () {
   'use strict';
 
+  if (typeof window === 'undefined') {
+    return;
+  }
+
   function TinSlide$(container, options) {
     var tinSlide, logic;
     logic = {
